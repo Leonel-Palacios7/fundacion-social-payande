@@ -1,0 +1,104 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { programs } from '../data/programs.ts';
+import { getPhoto } from '../data/photos.ts';
+---
+
+<BaseLayout
+  title="Programas"
+  description="Educación, niñez, vivienda digna, jóvenes y deporte, y comunidad: conoce los programas de la Fundación Payandé."
+  ogPhotoId="slider-10"
+>
+  <PageHero
+    eyebrow="Programas"
+    title="Cinco ramas, un mismo propósito"
+    lead="Así acompañamos a la comunidad de Payandé en cada etapa de la vida."
+    photoId="slider-7"
+  />
+
+  <nav class="container program-index" aria-label="Programas en esta página">
+    <ProvisionalNote text="Nombres y descripciones deducidos de las fotografías; la Fundación debe confirmarlos." />
+    <ul role="list">
+      {programs.map((p) => <li><a href={`#${p.id}`}>{p.title}</a></li>)}
+    </ul>
+  </nav>
+
+  {
+    programs.map((program, index) => {
+      const photo = getPhoto(program.photoId);
+      return (
+        <section
+          id={program.id}
+          class:list={['section', { 'section--alt': index % 2 === 1 }]}
+          aria-labelledby={`${program.id}-title`}
+        >
+          <div class:list={['container', 'split', { 'split--reverse': index % 2 === 1 }]}>
+            <div>
+              <span class="eyebrow">Programa {index + 1}</span>
+              <h2 id={`${program.id}-title`}>{program.title}</h2>
+              <p class="lead">{program.description}</p>
+              <ul class="check-list">
+                {program.actions.map((action) => <li>{action}</li>)}
+              </ul>
+              <a class="btn btn--outline" href={`/galeria/?programa=${program.category}`}>
+                Ver fotos de este programa
+              </a>
+            </div>
+            <Picture
+              src={photo.src}
+              alt={photo.alt}
+              formats={['avif', 'webp']}
+              width={720}
+              height={540}
+              fit="cover"
+              sizes="(min-width: 56rem) 34rem, 92vw"
+              class="rounded-img"
+            />
+          </div>
+        </section>
+      );
+    })
+  }
+
+  <CtaBand
+    title="¿Quieres apoyar un programa?"
+    text="Cuéntanos qué te interesa y te diremos cómo tu ayuda puede llegar a donde más se necesita."
+    primary={{ href: '/contacto/', label: 'Escríbenos' }}
+    secondary={{ href: '/como-ayudar/', label: 'Formas de ayudar' }}
+  />
+</BaseLayout>
+
+<style>
+  .program-index {
+    padding-top: var(--space-6);
+  }
+
+  .program-index ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .program-index a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    color: var(--verde-800);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .program-index a:hover {
+    background: var(--verde-50);
+  }
+</style>

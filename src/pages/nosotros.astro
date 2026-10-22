@@ -1,0 +1,137 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { getPhoto } from '../data/photos.ts';
+
+const team = getPhoto('slider-19');
+const values = [
+  { title: 'Solidaridad', text: 'Ponemos a las personas en el centro y llegamos donde más se necesita.' },
+  { title: 'Transparencia', text: 'Cuidamos cada aporte y rendimos cuentas a la comunidad y a los aliados.' },
+  { title: 'Respeto', text: 'Valoramos la historia, la cultura y las decisiones de cada familia.' },
+  { title: 'Compromiso', text: 'Acompañamos procesos en el tiempo, no solo entregas puntuales.' },
+];
+---
+
+<BaseLayout
+  title="Nosotros"
+  description="Conoce la misión, la visión y los valores de la Fundación Payandé y su trabajo en Payandé, San Luis, Tolima."
+  ogPhotoId="slider-19"
+>
+  <PageHero
+    eyebrow="Nosotros"
+    title="Una fundación hecha por y para Payandé"
+    lead="Creemos que el desarrollo empieza en casa, en la escuela y en la cancha del barrio."
+    photoId="portada-payande-2"
+  />
+
+  <section class="section" aria-labelledby="mision">
+    <div class="container split">
+      <div>
+        <ProvisionalNote text="Misión, visión y valores de ejemplo: deben reemplazarse por los oficiales de la Fundación." />
+        <h2 id="mision">Misión</h2>
+        <p class="lead">
+          Mejorar la calidad de vida de las familias de Payandé y su zona rural mediante programas de educación,
+          recreación, vivienda digna y desarrollo juvenil.
+        </p>
+        <h2>Visión</h2>
+        <p>
+          Ser reconocidos como un aliado cercano y confiable de la comunidad, que impulsa oportunidades sostenibles
+          para cada generación.
+        </p>
+      </div>
+      <Picture
+        src={team.src}
+        alt={team.alt}
+        formats={['avif', 'webp']}
+        width={720}
+        height={540}
+        fit="cover"
+        sizes="(min-width: 56rem) 34rem, 92vw"
+        class="rounded-img"
+      />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="valores">
+    <div class="container">
+      <div class="section__header">
+        <span class="eyebrow">Lo que nos guía</span>
+        <h2 id="valores">Nuestros valores</h2>
+      </div>
+      <ul class="values" role="list">
+        {
+          values.map((value) => (
+            <li class="values__item">
+              <h3>{value.title}</h3>
+              <p>{value.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="territorio">
+    <div class="container--narrow">
+      <span class="eyebrow">Nuestro territorio</span>
+      <h2 id="territorio">Payandé, <span class="script">nuestra casa</span></h2>
+      <p>
+        Payandé es un corregimiento del municipio de San Luis, en el Tolima. Allí trabajamos con escuelas, juntas de
+        acción comunal, familias y empresas aliadas para que los beneficios lleguen a las personas que más los
+        necesitan.
+      </p>
+      <p>
+        Nuestro árbol representa ese trabajo: raíces firmes en la comunidad y ramas que crecen en distintas
+        direcciones —educación, niñez, vivienda, juventud y comunidad— para dar sombra a todos.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand
+    title="Súmate a esta historia"
+    text="Conoce cómo puedes donar, ser voluntario o construir una alianza con la Fundación."
+    primary={{ href: '/como-ayudar/', label: 'Cómo ayudar' }}
+    secondary={{ href: '/programas/', label: 'Ver programas' }}
+  />
+</BaseLayout>
+
+<style>
+  .values {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .values__item {
+    padding: var(--space-5);
+    background: #fff;
+    border-radius: var(--radius-md);
+    border-top: 4px solid var(--brand-turquesa);
+  }
+
+  .values__item:nth-child(2) {
+    border-top-color: var(--brand-verde);
+  }
+  .values__item:nth-child(3) {
+    border-top-color: var(--brand-lima);
+  }
+  .values__item:nth-child(4) {
+    border-top-color: var(--brand-azul);
+  }
+
+  .values__item h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .values__item p {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+</style>

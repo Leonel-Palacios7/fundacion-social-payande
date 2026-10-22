@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactForm from '../components/ContactForm.astro';
+import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { site } from '../data/site.ts';
+---
+
+<BaseLayout
+  title="Contacto"
+  description="Escríbele a la Fundación Payandé para donar, ser voluntario, crear una alianza o pedir información."
+  ogPhotoId="slider-17"
+>
+  <PageHero
+    eyebrow="Contacto"
+    title="Hablemos"
+    lead="Cuéntanos cómo quieres ayudar o qué información necesitas."
+    photoId="slider-16"
+  />
+
+  <section class="section" aria-labelledby="formulario">
+    <div class="container contact-layout">
+      <div>
+        <h2 id="formulario">Envíanos un mensaje</h2>
+        <ContactForm />
+      </div>
+
+      <aside class="contact-info" aria-labelledby="datos">
+        <h2 id="datos">Datos de contacto</h2>
+        {site.contact.provisional && <ProvisionalNote text="Correo y teléfono de ejemplo: reemplazar por los oficiales." />}
+        <dl>
+          <dt>Correo</dt>
+          <dd><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></dd>
+          <dt>Teléfono</dt>
+          <dd><a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a></dd>
+          <dt>Ubicación</dt>
+          <dd>
+            {site.contact.location}
+            <br />
+            <a href={site.contact.mapUrl} target="_blank" rel="noopener noreferrer">
+              Ver en el mapa<span class="visually-hidden"> (se abre en una pestaña nueva)</span>
+            </a>
+          </dd>
+        </dl>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Preselecciona el motivo cuando se llega desde "Cómo ayudar" (?motivo=Donaciones).
+  const motivo = new URLSearchParams(window.location.search).get('motivo');
+  const select = document.querySelector<HTMLSelectElement>('#motivo');
+  if (motivo && select && Array.from(select.options).some((o) => o.value === motivo)) select.value = motivo;
+</script>
+
+<style>
+  .contact-layout {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 60rem) {
+    .contact-layout {
+      grid-template-columns: 1.6fr 1fr;
+      align-items: start;
+    }
+  }
+
+  .contact-info {
+    padding: var(--space-6);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-lg);
+  }
+
+  .contact-info h2 {
+    font-size: var(--fs-lg);
+  }
+
+  .contact-info dl {
+    margin: 0;
+  }
+
+  .contact-info dt {
+    margin-top: var(--space-4);
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  .contact-info dd {
+    margin: var(--space-1) 0 0;
+    overflow-wrap: anywhere;
+  }
+</style>

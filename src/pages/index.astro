@@ -1,0 +1,139 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroCarousel from '../components/HeroCarousel.astro';
+import ProgramCard from '../components/ProgramCard.astro';
+import Gallery from '../components/Gallery.astro';
+import CtaBand from '../components/CtaBand.astro';
+import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { programs } from '../data/programs.ts';
+import { getPhoto } from '../data/photos.ts';
+import { site } from '../data/site.ts';
+
+const intro = getPhoto('portada-payande-1');
+const thanks = getPhoto('slider-9');
+const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', 'slider-20', 'slider-5'].map(getPhoto);
+---
+
+<BaseLayout title={site.name}>
+  <HeroCarousel photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']} />
+
+  <section class="section" aria-labelledby="quienes-somos">
+    <div class="container split">
+      <div>
+        <span class="eyebrow">Quiénes somos</span>
+        <h2 id="quienes-somos">Raíces en Payandé, ramas que llegan a <span class="script">cada hogar</span></h2>
+        <ProvisionalNote />
+        <p class="lead">
+          Somos una organización sin ánimo de lucro que trabaja por el bienestar de las familias de Payandé y sus veredas.
+        </p>
+        <p>
+          Llevamos útiles y zapatos a las escuelas, celebramos con la niñez, mejoramos cocinas y baños de quienes más lo
+          necesitan y abrimos oportunidades para los jóvenes a través del deporte.
+        </p>
+        <a class="btn btn--outline" href="/nosotros/">Conoce nuestra historia</a>
+      </div>
+      <Picture
+        src={intro.src}
+        alt={intro.alt}
+        formats={['avif', 'webp']}
+        width={720}
+        height={540}
+        fit="cover"
+        sizes="(min-width: 56rem) 34rem, 92vw"
+        class="rounded-img"
+      />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="lineas">
+    <div class="container">
+      <div class="section__header section__header--center">
+        <span class="eyebrow">Lo que hacemos</span>
+        <h2 id="lineas">Nuestras líneas de acción</h2>
+        <p class="lead">Cinco frentes de trabajo para que la comunidad crezca con dignidad.</p>
+      </div>
+      <div class="grid-auto">
+        {programs.map((program) => <ProgramCard program={program} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="gracias">
+    <div class="container split split--reverse">
+      <figure class="quote">
+        <blockquote>
+          <p>
+            «Muchísimas gracias Fundación Payandé por los útiles escolares y los zapatos, y traer mucha alegría y amor a
+            esta escuela de Payandé».
+          </p>
+        </blockquote>
+        <figcaption>Cartel hecho a mano por estudiantes de una escuela de Payandé</figcaption>
+      </figure>
+      <div>
+        <span class="eyebrow">La voz de la comunidad</span>
+        <h2 id="gracias">Lo que más nos <span class="script">mueve</span></h2>
+        <Picture
+          src={thanks.src}
+          alt={thanks.alt}
+          formats={['avif', 'webp']}
+          width={720}
+          height={720}
+          fit="cover"
+          sizes="(min-width: 56rem) 34rem, 92vw"
+          class="rounded-img"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="historias">
+    <div class="container">
+      <div class="section__header">
+        <span class="eyebrow">Galería</span>
+        <h2 id="historias">Historias en imágenes</h2>
+        <p class="lead">Cada foto es una jornada compartida con la comunidad.</p>
+      </div>
+      <Gallery photos={highlights} id="galeria-inicio" />
+      <p class="more-link"><a class="btn btn--outline" href="/galeria/">Ver todas las fotos</a></p>
+    </div>
+  </section>
+
+  <CtaBand
+    title="Tu apoyo también siembra futuro"
+    text="Dona, sé voluntario o crea una alianza con nosotros. Toda ayuda llega a las familias de Payandé."
+    primary={{ href: '/como-ayudar/', label: 'Cómo ayudar' }}
+    secondary={{ href: '/contacto/', label: 'Escríbenos' }}
+  />
+</BaseLayout>
+
+<style>
+  .quote {
+    margin: 0;
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--lima-100);
+    border-left: 6px solid var(--brand-lima);
+  }
+
+  .quote blockquote {
+    margin: 0;
+  }
+
+  .quote p {
+    font-family: var(--font-script);
+    font-size: var(--fs-lg);
+    line-height: 1.45;
+    color: var(--verde-900);
+  }
+
+  .quote figcaption {
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .more-link {
+    margin: var(--space-6) 0 0;
+    text-align: center;
+  }
+</style>

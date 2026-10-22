@@ -1,0 +1,222 @@
+---
+import { LIMITS, MOTIVOS } from '../scripts/contact-validation.ts';
+import { site } from '../data/site.ts';
+---
+
+<form class="contact-form" novalidate data-contact-form data-to={site.contact.email}>
+  <p class="contact-form__intro">
+    Los campos marcados con <span aria-hidden="true">*</span><span class="visually-hidden">asterisco</span> son
+    obligatorios. Al enviar, se abrirá tu aplicación de correo con el mensaje listo para que lo revises y lo envíes.
+  </p>
+
+  <div class="form-summary" role="alert" tabindex="-1" hidden data-error-summary>
+    <h2 class="form-summary__title">Revisa los siguientes campos</h2>
+    <ul data-error-list></ul>
+  </div>
+
+  <div class="field">
+    <label for="nombre">Nombre completo <span aria-hidden="true">*</span></label>
+    <input id="nombre" name="nombre" type="text" autocomplete="name" required maxlength={LIMITS.nombreMax} aria-describedby="nombre-error" />
+    <p class="field__error" id="nombre-error" data-error-for="nombre"></p>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="correo">Correo electrónico <span aria-hidden="true">*</span></label>
+      <input id="correo" name="correo" type="email" autocomplete="email" inputmode="email" required aria-describedby="correo-error" />
+      <p class="field__error" id="correo-error" data-error-for="correo"></p>
+    </div>
+    <div class="field">
+      <label for="telefono">Teléfono <span class="field__optional">(opcional)</span></label>
+      <input id="telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="telefono-error" />
+      <p class="field__error" id="telefono-error" data-error-for="telefono"></p>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="motivo">Motivo <span aria-hidden="true">*</span></label>
+    <select id="motivo" name="motivo" required aria-describedby="motivo-error">
+      <option value="">Selecciona una opción</option>
+      {MOTIVOS.map((m) => <option value={m}>{m}</option>)}
+    </select>
+    <p class="field__error" id="motivo-error" data-error-for="motivo"></p>
+  </div>
+
+  <div class="field">
+    <label for="mensaje">Mensaje <span aria-hidden="true">*</span></label>
+    <textarea id="mensaje" name="mensaje" rows="6" required maxlength={LIMITS.mensajeMax} aria-describedby="mensaje-ayuda mensaje-error"></textarea>
+    <p class="field__hint" id="mensaje-ayuda" data-counter>Máximo {LIMITS.mensajeMax} caracteres.</p>
+    <p class="field__error" id="mensaje-error" data-error-for="mensaje"></p>
+  </div>
+
+  <div class="field field--check">
+    <input id="consentimiento" name="consentimiento" type="checkbox" required aria-describedby="consentimiento-error" />
+    <label for="consentimiento">
+      Autorizo a la Fundación Payandé a usar mis datos solo para responder este mensaje, conforme a la Ley 1581 de 2012.
+      <span aria-hidden="true">*</span>
+    </label>
+    <p class="field__error" id="consentimiento-error" data-error-for="consentimiento"></p>
+  </div>
+
+  <div class="contact-form__actions">
+    <button class="btn btn--primary" type="submit" data-submit>Preparar mensaje</button>
+  </div>
+
+  <div class="form-result" role="status" hidden data-result>
+    <p class="form-result__title"><strong>Abrimos tu aplicación de correo con el mensaje listo.</strong></p>
+    <p>
+      El mensaje todavía no se ha enviado: revísalo y pulsa «Enviar» en tu correo. Si no se abrió ninguna aplicación,
+      copia el texto y envíalo a <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn--outline" href="#" data-mailto-retry>Abrir de nuevo el correo</a>
+      <button class="btn btn--outline" type="button" data-copy>Copiar mensaje</button>
+    </div>
+    <p class="form-result__copy" aria-live="polite" data-copy-status></p>
+  </div>
+</form>
+
+<script>
+  import { initContactForm } from '../scripts/contact-form.ts';
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach(initContactForm);
+</script>
+
+<style>
+  .contact-form {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .contact-form__intro {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  .field-row {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 40rem) {
+    .field-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .field label {
+    font-weight: 500;
+  }
+
+  .field__optional {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .field input:not([type='checkbox']),
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.65rem 0.9rem;
+    border: 1.5px solid #8aa79a;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    font-size: 1rem;
+  }
+
+  .field textarea {
+    resize: vertical;
+  }
+
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    border-color: var(--color-focus);
+    outline-offset: 1px;
+  }
+
+  .field [aria-invalid='true'] {
+    border-color: var(--color-error) !important;
+    background: #fffafa;
+  }
+
+  .field__hint {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  .field__error {
+    margin: 0;
+    color: var(--color-error);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+  }
+
+  .field__error:empty {
+    display: none;
+  }
+
+  .field--check {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    column-gap: var(--space-3);
+  }
+
+  .field--check input {
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-top: 0.2rem;
+    accent-color: var(--verde-700);
+  }
+
+  .field--check label {
+    font-weight: 400;
+  }
+
+  .field--check .field__error {
+    grid-column: 2;
+  }
+
+  .form-summary {
+    padding: var(--space-4) var(--space-5);
+    border-left: 4px solid var(--color-error);
+    border-radius: var(--radius-sm);
+    background: var(--color-error-bg);
+  }
+
+  .form-summary__title {
+    font-size: 1.0625rem;
+    color: var(--color-error);
+    margin-bottom: var(--space-2);
+  }
+
+  .form-summary ul {
+    margin: 0;
+  }
+
+  .form-summary a {
+    color: var(--color-error);
+  }
+
+  .form-result {
+    padding: var(--space-5);
+    border-left: 4px solid var(--color-success);
+    border-radius: var(--radius-sm);
+    background: var(--color-success-bg);
+  }
+
+  .form-result__copy {
+    margin: var(--space-3) 0 0;
+    font-size: var(--fs-sm);
+  }
+
+  .form-result__copy:empty {
+    display: none;
+  }
+</style>

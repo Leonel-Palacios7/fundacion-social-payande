@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Página no encontrada" noindex>
+  <section class="section">
+    <div class="container--narrow not-found">
+      <p class="script not-found__code" aria-hidden="true">404</p>
+      <h1>No encontramos esta página</h1>
+      <p class="lead">Es posible que la dirección haya cambiado o que el enlace tenga un error.</p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="/">Volver al inicio</a>
+        <a class="btn btn--outline" href="/contacto/">Contáctanos</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    text-align: center;
+  }
+
+  .not-found__code {
+    font-size: clamp(4rem, 3rem + 6vw, 7rem);
+    line-height: 1;
+    margin: 0;
+  }
+
+  .not-found .btn-row {
+    justify-content: center;
+  }
+</style>

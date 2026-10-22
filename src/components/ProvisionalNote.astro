@@ -1,0 +1,30 @@
+---
+import { site } from '../data/site.ts';
+
+interface Props {
+  text?: string;
+}
+
+const { text = 'Contenido de ejemplo pendiente de validación por la Fundación.' } = Astro.props;
+---
+
+{
+  site.showProvisionalNotes && (
+    <p class="provisional" role="note">
+      <strong>Texto provisional:</strong>{' '}{text}
+    </p>
+  )
+}
+
+<style>
+  .provisional {
+    display: inline-block;
+    margin: 0 0 var(--space-5);
+    padding: var(--space-2) var(--space-3);
+    border: 1px dashed var(--color-info-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-info-bg);
+    color: #5c4700;
+    font-size: var(--fs-sm);
+  }
+</style>

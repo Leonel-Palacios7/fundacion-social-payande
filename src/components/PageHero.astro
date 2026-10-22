@@ -1,0 +1,84 @@
+---
+import { Picture } from 'astro:assets';
+import { getPhoto } from '../data/photos.ts';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  lead: string;
+  photoId: string;
+}
+
+const { eyebrow, title, lead, photoId } = Astro.props;
+const photo = getPhoto(photoId);
+---
+
+<section class="page-hero" aria-labelledby="page-title">
+  <Picture
+    src={photo.src}
+    alt=""
+    formats={['avif', 'webp']}
+    layout="full-width"
+    priority
+    class="page-hero__img"
+  />
+  <div class="page-hero__overlay"></div>
+  <div class="container page-hero__content">
+    <p class="page-hero__eyebrow">{eyebrow}</p>
+    <h1 id="page-title">{title}</h1>
+    <p class="page-hero__lead">{lead}</p>
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: clamp(18rem, 40vw, 26rem);
+    overflow: hidden;
+    color: #fff;
+  }
+
+  .page-hero :global(picture),
+  .page-hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .page-hero__img {
+    object-fit: cover;
+    object-position: center 35%;
+  }
+
+  .page-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(15 59 46 / 0.25) 0%, rgb(15 59 46 / 0.88) 100%);
+  }
+
+  .page-hero__content {
+    position: relative;
+    padding-block: var(--space-8) var(--space-7);
+  }
+
+  .page-hero h1 {
+    color: #fff;
+    max-width: 22ch;
+  }
+
+  .page-hero__eyebrow {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-script);
+    font-size: var(--fs-lg);
+    color: #d6f0c4;
+  }
+
+  .page-hero__lead {
+    max-width: 40rem;
+    font-size: var(--fs-md);
+    margin: 0;
+  }
+</style>

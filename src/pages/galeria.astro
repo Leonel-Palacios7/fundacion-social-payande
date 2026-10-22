@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Gallery from '../components/Gallery.astro';
+import { photos } from '../data/photos.ts';
+---
+
+<BaseLayout
+  title="Galería"
+  description="Fotografías de las jornadas de la Fundación Payandé con escuelas, familias, jóvenes y personas mayores."
+  ogPhotoId="slider-2"
+>
+  <PageHero
+    eyebrow="Galería"
+    title="Momentos que nos llenan de orgullo"
+    lead="Filtra por programa y toca cualquier foto para verla en grande."
+    photoId="portada-payande-3"
+  />
+  <section class="section" aria-label="Fotografías">
+    <div class="container">
+      <Gallery photos={photos} filterable />
+    </div>
+  </section>
+</BaseLayout>

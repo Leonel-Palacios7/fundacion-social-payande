@@ -1,0 +1,249 @@
+---
+import { Picture } from 'astro:assets';
+import { getPhoto } from '../data/photos.ts';
+import { site } from '../data/site.ts';
+
+interface Props {
+  photoIds: readonly string[];
+}
+
+const { photoIds } = Astro.props;
+const slides = photoIds.map(getPhoto);
+---
+
+<section class="hero" aria-labelledby="hero-title" data-carousel>
+  <div class="hero__slides" role="group" aria-roledescription="carrusel" aria-label="Fotografías de nuestras actividades">
+    {
+      slides.map((photo, index) => (
+        <figure
+          class:list={['hero__slide', { 'is-active': index === 0 }]}
+          role="group"
+          aria-roledescription="diapositiva"
+          aria-label={`${index + 1} de ${slides.length}`}
+          aria-hidden={index === 0 ? undefined : 'true'}
+          data-slide
+        >
+          {index === 0 ? (
+            <Picture
+              src={photo.src}
+              alt={photo.alt}
+              formats={['avif', 'webp']}
+              layout="full-width"
+              priority
+              class="hero__img"
+            />
+          ) : (
+            // Las demás fotos se insertan después de la carga para no competir con la imagen principal (LCP).
+            <template data-slide-template>
+              <Picture
+                src={photo.src}
+                alt={photo.alt}
+                formats={['avif', 'webp']}
+                layout="full-width"
+                fetchpriority="low"
+                class="hero__img"
+              />
+            </template>
+          )}
+        </figure>
+      ))
+    }
+  </div>
+  <div class="hero__overlay"></div>
+
+  <div class="container hero__content">
+    <p class="hero__eyebrow">Fundación <span class="hero__script">Payandé</span></p>
+    <h1 id="hero-title">{site.tagline}</h1>
+    <p class="hero__lead">
+      Acompañamos a la niñez, los jóvenes, las familias y las personas mayores de Payandé con educación, recreación y
+      vivienda digna.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn--light" href="/programas/">Conoce nuestros programas</a>
+      <a class="btn btn--ghost-light" href="/como-ayudar/">Quiero ayudar</a>
+    </div>
+  </div>
+
+  <div class="container hero__controls" data-carousel-controls hidden>
+    <button class="hero__btn" type="button" data-carousel-prev aria-label="Foto anterior">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <div class="hero__dots">
+      {
+        slides.map((_, index) => (
+          <button
+            class="hero__dot"
+            type="button"
+            aria-label={`Ver foto ${index + 1}`}
+            aria-current={index === 0 ? 'true' : undefined}
+            data-carousel-dot={index}
+          />
+        ))
+      }
+    </div>
+    <button class="hero__btn" type="button" data-carousel-next aria-label="Foto siguiente">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <button class="hero__btn hero__btn--pause" type="button" data-carousel-toggle aria-label="Pausar presentación">
+      <svg class="icon-pause" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+      <svg class="icon-play" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>
+    </button>
+  </div>
+</section>
+
+<script>
+  import { initCarousel } from '../scripts/carousel.ts';
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(initCarousel);
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: min(88svh, 46rem);
+    overflow: hidden;
+    color: #fff;
+    background: var(--verde-900);
+  }
+
+  .hero__slides,
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero__slide {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    transition: opacity 900ms var(--ease);
+  }
+
+  .hero__slide.is-active {
+    opacity: 1;
+  }
+
+  .hero__slide :global(picture),
+  .hero__img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__img {
+    object-fit: cover;
+  }
+
+  .hero__overlay {
+    background:
+      linear-gradient(90deg, rgb(15 59 46 / 0.86) 0%, rgb(15 59 46 / 0.55) 55%, rgb(15 59 46 / 0.15) 100%),
+      linear-gradient(0deg, rgb(15 59 46 / 0.6) 0%, transparent 40%);
+  }
+
+  .hero__content {
+    position: relative;
+    align-self: center;
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  .hero__content h1 {
+    max-width: 18ch;
+    color: #fff;
+  }
+
+  .hero__eyebrow {
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-md);
+    letter-spacing: 0.04em;
+    color: #d8efe3;
+  }
+
+  .hero__script {
+    font-family: var(--font-script);
+    font-size: 1.5em;
+    color: #c9eab0;
+  }
+
+  .hero__lead {
+    max-width: 36rem;
+    font-size: var(--fs-md);
+    margin-bottom: var(--space-6);
+  }
+
+  .hero__controls {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-bottom: var(--space-5);
+  }
+
+  .hero__controls[hidden] {
+    display: none;
+  }
+
+  .hero__btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgb(255 255 255 / 0.6);
+    border-radius: 50%;
+    background: rgb(15 59 46 / 0.5);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .hero__btn:hover {
+    background: rgb(15 59 46 / 0.85);
+  }
+
+  .hero__btn :focus-visible,
+  .hero__btn:focus-visible,
+  .hero__dot:focus-visible {
+    outline-color: #fff;
+  }
+
+  .hero__btn--pause {
+    margin-left: auto;
+  }
+
+  .hero__btn--pause .icon-play,
+  .hero__btn--pause.is-paused .icon-pause {
+    display: none;
+  }
+
+  .hero__btn--pause.is-paused .icon-play {
+    display: block;
+  }
+
+  .hero__dots {
+    display: flex;
+  }
+
+  /* Área táctil de 44px con un indicador visual más pequeño */
+  .hero__dot {
+    position: relative;
+    width: 32px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .hero__dot::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .hero__dot[aria-current='true']::after {
+    background: #fff;
+  }
+</style>

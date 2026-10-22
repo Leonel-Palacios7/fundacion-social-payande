@@ -1,0 +1,104 @@
+---
+import { Image } from 'astro:assets';
+import logoBlanco from '../assets/brand/logo-blanco.png';
+import { navItems, site } from '../data/site.ts';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <Image src={logoBlanco} alt={site.name} width={96} height={111} densities={[1, 2]} />
+      <p>{site.tagline}.</p>
+    </div>
+
+    <nav aria-label="Pie de página">
+      <h2 class="site-footer__title">Navegación</h2>
+      <ul class="site-footer__list">
+        {navItems.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="site-footer__title">Contacto</h2>
+      <ul class="site-footer__list">
+        <li><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></li>
+        <li><a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a></li>
+        <li>{site.contact.location}</li>
+      </ul>
+      {site.showProvisionalNotes && site.contact.provisional && (
+        <p class="site-footer__note">Datos de contacto provisionales.</p>
+      )}
+    </div>
+  </div>
+  <div class="container site-footer__bottom">
+    <p>© {year} {site.name}. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--verde-900);
+    color: #e3f1ea;
+    padding-top: var(--space-8);
+    padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
+  }
+
+  .site-footer a {
+    color: #fff;
+  }
+
+  .site-footer a:hover {
+    color: var(--brand-lima);
+  }
+
+  .site-footer :focus-visible {
+    outline-color: var(--brand-lima);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-7);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+
+  .site-footer__brand img {
+    width: 96px;
+    height: auto;
+    margin-bottom: var(--space-4);
+  }
+
+  .site-footer__title {
+    font-size: 1rem;
+    color: #fff;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .site-footer__list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .site-footer__list li {
+    margin-bottom: var(--space-2);
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer__note {
+    font-size: var(--fs-sm);
+    color: #f6dd8b;
+  }
+
+  .site-footer__bottom {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid rgb(255 255 255 / 0.18);
+    font-size: var(--fs-sm);
+  }
+
+  .site-footer__bottom p {
+    margin: 0;
+  }
+</style>
