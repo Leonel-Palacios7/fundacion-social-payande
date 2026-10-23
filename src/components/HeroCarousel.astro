@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 import { Picture } from 'astro:assets';
 import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
@@ -60,8 +61,8 @@ const titleWords = title.split(' ');
     <h1 id="hero-title" set:html={titleWords.map((word, i) => `<span class="hero__word" style="--i:${i}">${word}</span>`).join(' ')} />
     <p class="hero__lead hero__in" style="--d:6">{lead}</p>
     <div class="btn-row hero__in" style="--d:8">
-      <a class="btn btn--light btn--arrow" href="/programas/">Conoce nuestros programas</a>
-      <a class="btn btn--ghost-light" href="/como-ayudar/">Quiero ayudar</a>
+      <a class="btn btn--light btn--arrow" href={withBase('/programas/')}>Conoce nuestros programas</a>
+      <a class="btn btn--ghost-light" href={withBase('/como-ayudar/')}>Quiero ayudar</a>
     </div>
   </div>
 

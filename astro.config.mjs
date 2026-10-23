@@ -4,9 +4,12 @@ import { defineConfig } from 'astro/config';
 // La URL pública aún no está definida. Cuando exista dominio, ejecutar el build con
 // SITE_URL=https://dominio.org para generar URLs canónicas y metadatos sociales absolutos.
 const site = process.env.SITE_URL || undefined;
+// Ruta base: "/" en Hostinger; "/fundacion-social-payande" en GitHub Pages (lo define el flujo de Actions).
+const base = process.env.BASE_PATH || '/';
 
 export default defineConfig({
   ...(site ? { site } : {}),
+  base,
   trailingSlash: 'ignore',
   build: { format: 'directory' },
   image: {

@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 /**
  * Carrusel 3D de fotos, recreado a partir de la plantilla "3D Photo Carousel":
  * un anillo de fotos que gira alrededor de una palabra grande, que queda
@@ -61,7 +62,7 @@ const photos = photoIds.map(getPhoto);
     <button class="ring__btn" type="button" data-ring-next aria-label="Girar el carrusel a la derecha">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     </button>
-    <a class="btn btn--light btn--arrow ring__cta" href="/galeria/">Ver la galería</a>
+    <a class="btn btn--light btn--arrow ring__cta" href={withBase('/galeria/')}>Ver la galería</a>
   </div>
 </section>
 

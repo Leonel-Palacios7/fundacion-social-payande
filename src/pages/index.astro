@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroCarousel from '../components/HeroCarousel.astro';
@@ -36,7 +37,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
           tendientes a mejorar la calidad de vida, la educación, la salud, la vivienda y la recreación de las personas de
           escasos recursos económicos, localizadas principalmente en los municipios de Quebradanegra, Tobia y Villeta.
         </p>
-        <a class="btn btn--outline btn--arrow" href="/nosotros/">Conoce nuestra historia</a>
+        <a class="btn btn--outline btn--arrow" href={withBase('/nosotros/')}>Conoce nuestra historia</a>
       </div>
       <div class="intro-photo" data-reveal="mask" data-tone="mono" style="--stagger:2">
         <Picture
@@ -115,7 +116,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
         </p>
       </div>
       <Gallery photos={highlights} id="galeria-inicio" />
-      <p class="more-link"><a class="btn btn--outline btn--arrow" href="/galeria/">Ver todas las fotos</a></p>
+      <p class="more-link"><a class="btn btn--outline btn--arrow" href={withBase('/galeria/')}>Ver todas las fotos</a></p>
     </div>
   </section>
 

@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
@@ -9,8 +10,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <h1>No encontramos esta página</h1>
       <p class="lead">Es posible que la dirección haya cambiado o que el enlace tenga un error.</p>
       <div class="btn-row">
-        <a class="btn btn--primary" href="/">Volver al inicio</a>
-        <a class="btn btn--outline" href="/contacto/">Contáctanos</a>
+        <a class="btn btn--primary" href={withBase('/')}>Volver al inicio</a>
+        <a class="btn btn--outline" href={withBase('/contacto/')}>Contáctanos</a>
       </div>
     </div>
   </section>

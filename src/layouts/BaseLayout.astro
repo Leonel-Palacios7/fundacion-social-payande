@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 // Solo el subconjunto latino: cubre el español completo (tildes, ñ, ¿, ¡).
 import '@fontsource/ubuntu/latin-300.css';
 import '@fontsource/ubuntu/latin-400.css';
@@ -38,9 +39,9 @@ const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.
     {noindex && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="theme-color" content="#1e6b4f" />
-    <link rel="icon" href="/favicon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href={withBase('/favicon.png')} type="image/png" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/site.webmanifest')} />
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={site.locale} />

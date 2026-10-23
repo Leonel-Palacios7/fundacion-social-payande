@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 import { Image } from 'astro:assets';
 import logo from '../assets/brand/logo-arbol.png';
 import { navItems, isCurrentPath, site } from '../data/site.ts';
@@ -8,7 +9,7 @@ const current = Astro.url.pathname;
 
 <header class="site-header" data-header>
   <div class="container site-header__inner">
-    <a class="brand" href="/" aria-label={`${site.name}, ir al inicio`}>
+    <a class="brand" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
       <Image src={logo} alt="" width={64} height={44} densities={[1, 2, 3]} class="brand__logo" loading="eager" />
       <span class="brand__text" aria-hidden="true">
         <span class="brand__small">Fundación</span>
@@ -34,8 +35,8 @@ const current = Astro.url.pathname;
             <li>
               <a
                 class:list={['site-nav__link', { 'site-nav__link--cta': item.href === '/como-ayudar/' }]}
-                href={item.href}
-                aria-current={isCurrentPath(current, item.href) ? 'page' : undefined}
+                href={withBase(item.href)}
+                aria-current={isCurrentPath(current, withBase(item.href)) ? 'page' : undefined}
               >
                 {item.label}
               </a>

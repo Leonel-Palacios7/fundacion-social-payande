@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 interface Props {
   title: string;
   text: string;
@@ -16,8 +17,8 @@ const { title, text, primary, secondary } = Astro.props;
       <p>{text}</p>
     </div>
     <div class="btn-row" data-reveal style="--stagger:2">
-      <a class="btn btn--light btn--arrow" href={primary.href}>{primary.label}</a>
-      {secondary && <a class="btn btn--ghost-light" href={secondary.href}>{secondary.label}</a>}
+      <a class="btn btn--light btn--arrow" href={withBase(primary.href)}>{primary.label}</a>
+      {secondary && <a class="btn btn--ghost-light" href={withBase(secondary.href)}>{secondary.label}</a>}
     </div>
   </div>
 </section>

@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths.ts';
 import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
@@ -48,7 +49,7 @@ import { getPhoto } from '../data/photos.ts';
               <ul class="check-list">
                 {program.actions.map((action) => <li>{action}</li>)}
               </ul>
-              <a class="btn btn--outline btn--arrow" href={`/galeria/?programa=${program.category}`}>
+              <a class="btn btn--outline btn--arrow" href={withBase(`/galeria/?programa=${program.category}`)}>
                 Ver fotos del programa
               </a>
             </div>
