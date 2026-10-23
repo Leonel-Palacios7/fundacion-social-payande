@@ -1,0 +1,4 @@
+# Los archivos de esta carpeta llevan un hash en el nombre: si cambian, cambia el nombre.
+<IfModule mod_headers.c>
+  Header set Cache-Control "public, max-age=31536000, immutable"
+</IfModule>
