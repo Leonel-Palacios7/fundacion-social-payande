@@ -22,10 +22,6 @@ async function revealAll(page: Page) {
 
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 1280) < 1024;
 
-async function openMenuIfMobile(page: Page) {
-  if (isMobile(page)) await page.getByRole('button', { name: 'Menú' }).click();
-}
-
 for (const { path, h1 } of PAGES) {
   test(`${path} carga, tiene un único h1 y no presenta errores de consola`, async ({ page }) => {
     const errors: string[] = [];
@@ -61,33 +57,31 @@ for (const { path, h1 } of PAGES) {
 test('la navegación lleva a cada página y marca la actual', async ({ page }) => {
   await page.goto('/');
   for (const label of ['Programas', 'Galería', 'Contacto']) {
-    await openMenuIfMobile(page);
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: label }).click();
-    // En móvil el menú se cierra al cambiar de página, por eso se busca sin filtrar por visibilidad.
-    await expect(page.locator('#menu-principal [aria-current="page"]')).toHaveText(label);
+    const nav = page.getByRole('navigation', { name: 'Principal' });
+    await nav.getByRole('link', { name: label }).click();
+    await expect(nav.locator('[aria-current="page"]')).toHaveText(label);
     await expect(page).toHaveURL(new RegExp(`/${label.toLowerCase().replace('í', 'i')}/$`));
   }
 });
 
-test('el menú móvil abre, cierra con Escape y devuelve el foco', async ({ page }) => {
-  test.skip(!isMobile(page), 'Solo aplica en móvil');
+test('la barra de navegación queda fija arriba al bajar y se ve completa en móvil', async ({ page }) => {
   await page.goto('/');
-  const toggle = page.getByRole('button', { name: 'Menú' });
   const nav = page.getByRole('navigation', { name: 'Principal' });
-  await expect(nav).toBeHidden();
-  await toggle.click();
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-  await expect(nav).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(nav).toBeHidden();
-  await expect(toggle).toBeFocused();
+  for (const label of ['Inicio', 'Programas', 'Galería', 'Contacto']) {
+    await expect(nav.getByRole('link', { name: label, exact: true })).toBeVisible();
+  }
+  await page.evaluate(() => window.scrollTo(0, 1500));
+  await page.waitForTimeout(300);
+  const top = await page.locator('[data-header]').evaluate((el) => el.getBoundingClientRect().top);
+  expect(top).toBeLessThanOrEqual(1);
+  await expect(nav).toBeInViewport();
 });
 
-test('la portada anima el logo de fondo y su animación se puede pausar', async ({ page }) => {
+test('la portada se anima sin el logo y su animación se puede pausar', async ({ page }) => {
   await page.goto('/');
   const hero = page.locator('[data-hero]');
-  await expect(hero.locator('.hero__tree')).toBeVisible();
-  await expect(hero.locator('img')).toHaveCount(1);
+  await expect(hero.locator('.hero__petals')).toBeVisible();
+  await expect(hero.locator('img')).toHaveCount(0);
   const pause = hero.getByRole('button', { name: 'Pausar animación de la portada' });
   await pause.click();
   await expect(hero).toHaveClass(/is-paused/);
@@ -235,9 +229,11 @@ test('el carrusel 3D gira solo y responde al arrastre', async ({ page }) => {
   const angle = () => track.evaluate((el) => parseFloat(el.style.getPropertyValue('--angle')));
   const a0 = await angle();
   await expect.poll(angle).not.toBe(a0);
+  await page.getByRole('button', { name: 'Pausar carrusel 3D' }).click();
+  // El clic puede desplazar la página: se mide el escenario después.
+  await stage.scrollIntoViewIfNeeded();
   const box = await stage.boundingBox();
   if (!box) throw new Error('sin escenario');
-  await page.getByRole('button', { name: 'Pausar carrusel 3D' }).click();
   const a1 = await angle();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
@@ -325,10 +321,10 @@ test('el botón de volver arriba aparece al bajar y regresa al inicio', async ({
   await expect(page.locator('#contenido')).toBeFocused();
 });
 
-test('la portada muestra el logo animado con el saludo', async ({ page }) => {
+test('la portada muestra el saludo con el fondo animado', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1, name: 'Fundación Social Payandé' })).toBeAttached();
-  await expect(page.locator('.hero__tree')).toBeVisible();
+  await expect(page.locator('.hero__waves')).toBeAttached();
   await expect(page.locator('.hero__content')).toContainText('Bienvenidos a');
 });
 
@@ -350,4 +346,29 @@ test('la galería se muestra en mosaico con fotos de proporciones distintas', as
     imgs.map((img) => ((img as HTMLImageElement).height / (img as HTMLImageElement).width).toFixed(2)),
   );
   expect(new Set(ratios).size).toBeGreaterThan(1);
+});
+
+test('el carrusel de «Sobre nosotros» cambia de foto con los botones y se puede pausar', async ({ page }) => {
+  await page.goto('/');
+  const car = page.getByRole('region', { name: 'Fotos de la Fundación' });
+  await car.scrollIntoViewIfNeeded();
+  const slides = car.locator('[data-about-slide]');
+  await expect(slides.first()).toHaveClass(/is-active/);
+  await car.getByRole('button', { name: 'Foto siguiente' }).click();
+  await expect(slides.nth(1)).toHaveClass(/is-active/);
+  await expect(slides.first()).toHaveAttribute('aria-hidden', 'true');
+  await car.getByRole('button', { name: 'Ver foto 4' }).click();
+  await expect(slides.nth(3)).toHaveClass(/is-active/);
+  const pause = car.getByRole('button', { name: 'Pausar fotos' });
+  await pause.click();
+  await expect(pause).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('la pantalla de carga sale una sola vez por sesión y no bloquea clics', async ({ page }) => {
+  await page.goto('/');
+  const preloader = page.locator('[data-preloader]');
+  expect(await preloader.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+  await expect(preloader).toHaveCount(0, { timeout: 6000 });
+  await page.goto('/galeria/');
+  await expect(page.locator('html')).not.toHaveClass(/preload/);
 });

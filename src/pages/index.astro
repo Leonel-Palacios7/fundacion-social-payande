@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import RandomPicture from '../components/RandomPicture.astro';
+import AboutCarousel from '../components/AboutCarousel.astro';
 import { withBase } from '../lib/paths.ts';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroBrand from '../components/HeroBrand.astro';
@@ -15,7 +15,6 @@ import { events } from '../data/events.ts';
 import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
 
-const intro = getPhoto('portada-payande-1');
 const thanks = getPhoto('slider-9');
 const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', 'slider-20', 'slider-5'].map(getPhoto);
 ---
@@ -39,12 +38,9 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
         <span class="btn btn--outline btn--arrow btn--static">Conoce nuestra historia</span>
       </div>
       <div data-reveal="mask" data-tone="mono" style="--stagger:2">
-        <RandomPicture
-          photo={intro}
-          shape="landscape"
-          sizes="(min-width: 56rem) 34rem, 92vw"
-          random={false}
-          class="rounded-img"
+        <AboutCarousel
+          label="Fotos de la Fundación"
+          photoIds={['portada-payande-1', 'slider-10', 'morrales-pulgar', 'slider-13', 'slider-14', 'slider-3', 'slider-16']}
         />
       </div>
     </div>

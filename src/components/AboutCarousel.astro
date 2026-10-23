@@ -1,0 +1,201 @@
+---
+/**
+ * Carrusel de fotos de «Sobre nosotros»: las fotos se funden una tras otra con un
+ * leve acercamiento. Tiene botones, puntos y pausa; sin JavaScript queda la primera foto.
+ */
+import RandomPicture from './RandomPicture.astro';
+import { getPhoto } from '../data/photos.ts';
+
+interface Props {
+  photoIds: readonly string[];
+  label: string;
+}
+
+const { photoIds, label } = Astro.props;
+const photos = photoIds.map(getPhoto);
+---
+
+<div class="about-car" role="region" aria-roledescription="carrusel" aria-label={label} data-about-car>
+  <div class="about-car__track">
+    {
+      photos.map((photo, i) => (
+        <div
+          class:list={['about-car__slide', { 'is-active': i === 0 }]}
+          role="group"
+          aria-roledescription="diapositiva"
+          aria-label={`${i + 1} de ${photos.length}`}
+          data-about-slide
+        >
+          <RandomPicture photo={photo} shape="landscape" sizes="(min-width: 56rem) 34rem, 92vw" random={false} class="about-car__img" />
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="about-car__bar" data-about-controls hidden>
+    <button class="about-car__btn" type="button" data-about-prev aria-label="Foto anterior">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <div class="about-car__dots">
+      {
+        photos.map((_, i) => (
+          <button class="about-car__dot" type="button" aria-label={`Ver foto ${i + 1}`} aria-current={i === 0 ? 'true' : undefined} data-about-dot>
+            <span></span>
+          </button>
+        ))
+      }
+    </div>
+    <button class="about-car__btn" type="button" data-about-pause aria-pressed="false" aria-label="Pausar fotos">
+      <svg class="icon-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+      <svg class="icon-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>
+    </button>
+    <button class="about-car__btn" type="button" data-about-next aria-label="Foto siguiente">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  import { initAboutCarousel } from '../scripts/about-carousel.ts';
+  document.querySelectorAll<HTMLElement>('[data-about-car]').forEach(initAboutCarousel);
+</script>
+
+<style>
+  .about-car {
+    --interval: 5s;
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg, 0 24px 48px -24px rgb(0 0 0 / 0.45));
+    background: var(--verde-900);
+  }
+
+  .about-car__track {
+    display: grid;
+    aspect-ratio: 4 / 3;
+  }
+
+  .about-car__slide {
+    grid-area: 1 / 1;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 900ms var(--ease),
+      visibility 0s 900ms;
+  }
+
+  .about-car__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 900ms var(--ease);
+  }
+
+  .about-car__slide :global(picture),
+  .about-car__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .about-car__img {
+    object-fit: cover;
+  }
+
+  /* Barra de controles sobre la foto, con un velo para que se lea bien. */
+  .about-car__bar {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-7) var(--space-3) var(--space-3);
+    background: linear-gradient(transparent, rgb(8 36 28 / 0.8));
+  }
+
+  .about-car__bar[hidden] {
+    display: none;
+  }
+
+  .about-car__btn {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgb(255 255 255 / 0.7);
+    border-radius: 50%;
+    background: rgb(15 59 46 / 0.55);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color var(--dur-fast);
+  }
+
+  .about-car__btn:hover {
+    background: rgb(15 59 46 / 0.9);
+  }
+
+  .about-car__btn .icon-play,
+  .about-car__btn[aria-pressed='true'] .icon-pause {
+    display: none;
+  }
+
+  .about-car__btn[aria-pressed='true'] .icon-play {
+    display: block;
+  }
+
+  .about-car__dots {
+    display: flex;
+    margin-inline: var(--space-2);
+  }
+
+  /* Área táctil de 24px con un punto pequeño dentro. */
+  .about-car__dot {
+    display: grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .about-car__dot span {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.6);
+    transition:
+      width var(--dur-base) var(--ease),
+      background-color var(--dur-base);
+  }
+
+  .about-car__dot[aria-current='true'] span {
+    width: 22px;
+    background: var(--brand-lima);
+  }
+
+  .about-car :focus-visible {
+    outline-color: #fff;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .about-car__slide.is-active .about-car__img {
+      animation: about-zoom 7s ease-out both;
+    }
+
+    .about-car.is-paused .about-car__img {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes about-zoom {
+    from {
+      transform: scale(1.12);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+</style>

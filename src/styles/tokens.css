@@ -11,6 +11,11 @@
   --brand-turquesa: #33b8b8;
   --brand-azul: #1fa2c6;
 
+  /* Colores institucionales del SENA (barra de navegación y botón de volver arriba) */
+  --sena-verde: #39a900;
+  --sena-verde-claro: #8ee05a;
+  --sena-azul: #00324d;
+
   /* Derivados accesibles */
   --verde-50: #f2f9f5;
   --verde-100: #dff1e7;
@@ -72,7 +77,7 @@
   --container: 72rem;
   --container-narrow: 46rem;
   --gutter: clamp(1rem, 0.5rem + 2.5vw, 2rem);
-  --header-h: 4.5rem;
+  --header-h: 5rem;
 
   /* Forma */
   --radius-sm: 0.375rem;

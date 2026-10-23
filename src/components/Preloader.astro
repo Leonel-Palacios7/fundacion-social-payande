@@ -1,0 +1,142 @@
+---
+/**
+ * Pantalla de carga con el logo de Payandé. Sale solo en la primera página que se
+ * abre en la sesión (lo marca un script en <head>) y nunca bloquea clics ni lectores.
+ */
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo-color.png';
+---
+
+<div class="preloader" aria-hidden="true" data-preloader>
+  <div class="preloader__mark">
+    <span class="preloader__halo"></span>
+    <Image src={logo} alt="" width={150} height={174} densities={[1, 2]} class="preloader__logo" loading="eager" />
+  </div>
+  <span class="preloader__bar"><span></span></span>
+</div>
+
+<script>
+  const preloader = document.querySelector<HTMLElement>('[data-preloader]');
+  if (preloader && document.documentElement.classList.contains('preload')) {
+    const started = performance.now();
+    const hide = () => {
+      // Se ve al menos un momento para que no parpadee.
+      const wait = Math.max(0, 900 - (performance.now() - started));
+      window.setTimeout(() => {
+        document.documentElement.classList.add('preload-done');
+        window.setTimeout(() => preloader.remove(), 700);
+      }, wait);
+    };
+    if (document.readyState === 'complete') hide();
+    else window.addEventListener('load', hide, { once: true });
+    // Por si alguna imagen tarda demasiado.
+    window.setTimeout(hide, 3500);
+  }
+</script>
+
+<style>
+  .preloader {
+    display: none;
+  }
+
+  :global(html.preload) .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-dialog) + 10);
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-6);
+    background:
+      radial-gradient(60% 50% at 50% 45%, #17553f 0%, transparent 70%),
+      linear-gradient(160deg, #0f3b2e 0%, #0b2f25 55%, #0a3a3f 100%);
+    pointer-events: none;
+    transition:
+      opacity 600ms var(--ease),
+      visibility 0s 600ms;
+  }
+
+  :global(html.preload-done) .preloader {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .preloader__mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 12rem;
+    aspect-ratio: 1;
+  }
+
+  .preloader__halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 10px rgb(142 202 109 / 0.25), 0 0 60px 10px rgb(142 202 109 / 0.35);
+  }
+
+  .preloader__logo {
+    position: relative;
+    width: 7.5rem;
+    height: auto;
+  }
+
+  .preloader__bar {
+    width: 10rem;
+    height: 4px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: rgb(255 255 255 / 0.18);
+  }
+
+  .preloader__bar span {
+    display: block;
+    width: 40%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--brand-lima), var(--brand-turquesa));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .preloader__halo {
+      animation: pre-pulse 1.6s ease-in-out infinite;
+    }
+
+    .preloader__logo {
+      animation: pre-in 900ms var(--ease-out) backwards;
+    }
+
+    .preloader__bar span {
+      animation: pre-bar 1.2s ease-in-out infinite;
+    }
+
+    :global(html.preload-done) .preloader__mark {
+      transition: scale 600ms var(--ease);
+      scale: 1.15;
+    }
+  }
+
+  @keyframes pre-pulse {
+    50% {
+      box-shadow: 0 0 0 18px rgb(142 202 109 / 0.12), 0 0 80px 20px rgb(142 202 109 / 0.45);
+    }
+  }
+
+  @keyframes pre-in {
+    from {
+      opacity: 0;
+      scale: 0.6;
+    }
+  }
+
+  @keyframes pre-bar {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+</style>

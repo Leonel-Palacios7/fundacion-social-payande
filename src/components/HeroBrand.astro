@@ -1,10 +1,8 @@
 ---
 /**
- * Portada de Inicio sin fotos: el árbol del logo ocupa el fondo con capas animadas
- * (destello giratorio, órbitas, ondas y hojas que suben) y el texto va encima.
+ * Portada de Inicio sin fotos: una flor de hojas que gira, órbitas, ondas, luciérnagas,
+ * hojas que suben y olas en la base llenan el fondo; el texto va encima.
  */
-import { Image } from 'astro:assets';
-import logo from '../assets/brand/logo-arbol.png';
 import { site } from '../data/site.ts';
 
 interface Props {
@@ -31,6 +29,25 @@ const leaves: [number, number, number, number][] = [
   [91, 17, 15, 3],
   [97, 10, 11, 8],
 ];
+
+// Luciérnagas repartidas por toda la portada: [x %, y %, tamaño px, duración s, retraso s]
+const fireflies: [number, number, number, number, number][] = [
+  [8, 22, 6, 9, 0],
+  [15, 68, 4, 11, 2],
+  [24, 40, 5, 8, 4],
+  [33, 82, 7, 12, 1],
+  [41, 15, 4, 10, 6],
+  [48, 58, 6, 9, 3],
+  [56, 30, 5, 13, 5],
+  [63, 76, 4, 8, 2],
+  [71, 12, 6, 11, 7],
+  [78, 50, 5, 10, 1],
+  [86, 70, 7, 12, 4],
+  [93, 28, 4, 9, 6],
+];
+
+// Doce hojas en círculo que forman la flor central.
+const petals = Array.from({ length: 12 }, (_, i) => i);
 ---
 
 <section class="hero" aria-labelledby="hero-title" data-hero>
@@ -47,18 +64,29 @@ const leaves: [number, number, number, number][] = [
       <span class="hero__ripple"></span>
       <span class="hero__ripple hero__ripple--2"></span>
       <span class="hero__ripple hero__ripple--3"></span>
-      <span class="hero__tilt" data-hero-tilt>
-        <Image
-          src={logo}
-          alt=""
-          widths={[360, 450]}
-          sizes="(min-width: 48rem) 30rem, 70vw"
-          class="hero__tree"
-          loading="eager"
-          fetchpriority="high"
-        />
+      <span class="hero__bloom" data-hero-tilt>
+        <svg class="hero__petals" viewBox="-100 -100 200 200">
+          {
+            petals.map((i) => (
+              <g transform={`rotate(${i * 30})`}>
+                <path class={`hero__petal${i % 2 ? ' hero__petal--alt' : ''}`} style={`--k:${i}`} d="M0 -18C-14 -34 -16 -56 0 -88C16 -56 14 -34 0 -18z" />
+              </g>
+            ))
+          }
+          <circle class="hero__core" r="15" />
+          <circle class="hero__core-ring" r="24" />
+        </svg>
       </span>
     </div>
+
+    <div class="hero__flies">
+      {fireflies.map(([x, y, size, dur, delay]) => <span class="hero__fly" style={`--x:${x}%;--y:${y}%;--s:${size}px;--dur:${dur}s;--delay:${delay}s`} />)}
+    </div>
+
+    <svg class="hero__waves" viewBox="0 0 2880 120" preserveAspectRatio="none">
+      <path class="hero__wave hero__wave--back" d="M0 60c120 30 240 30 360 0s240-30 360 0 240 30 360 0s240-30 360 0 240 30 360 0s240-30 360 0 240 30 360 0s240-30 360 0v60H0z" />
+      <path class="hero__wave hero__wave--front" d="M0 80c120-24 240-24 360 0s240 24 360 0 240-24 360 0s240 24 360 0 240-24 360 0s240 24 360 0 240-24 360 0s240 24 360 0v40H0z" />
+    </svg>
 
     <div class="hero__leaves">
       {
@@ -155,7 +183,7 @@ const leaves: [number, number, number, number][] = [
     opacity: 0.22;
   }
 
-  /* Escenario del logo: a la derecha en pantallas anchas, detrás del texto en móvil. */
+  /* Escenario de la flor: a la derecha en pantallas anchas, detrás del texto en móvil. */
   .hero__stage {
     position: absolute;
     top: 50%;
@@ -240,18 +268,82 @@ const leaves: [number, number, number, number][] = [
     opacity: 0;
   }
 
-  .hero__tilt {
-    width: 60%;
+  /* Flor de hojas en el centro del escenario. */
+  .hero__bloom {
+    width: 58%;
+    aspect-ratio: 1;
     transform: perspective(900px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg));
     transition: transform 700ms var(--ease-out);
   }
 
-  .hero__tilt :global(.hero__tree) {
+  .hero__petals {
     display: block;
     width: 100%;
-    height: auto;
-    transform-origin: 50% 92%;
-    filter: drop-shadow(0 0 22px rgb(201 234 176 / 0.45)) drop-shadow(0 18px 30px rgb(0 0 0 / 0.4));
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 0 18px rgb(201 234 176 / 0.35));
+  }
+
+  .hero__petal {
+    fill: rgb(142 202 109 / 0.55);
+    stroke: rgb(201 234 176 / 0.8);
+    stroke-width: 1.2;
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+
+  .hero__petal--alt {
+    fill: rgb(51 184 184 / 0.45);
+    stroke: rgb(160 230 230 / 0.7);
+  }
+
+  .hero__core {
+    fill: var(--brand-lima);
+  }
+
+  .hero__core-ring {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.5);
+    stroke-width: 2;
+    stroke-dasharray: 4 6;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* Luciérnagas que flotan por toda la portada. */
+  .hero__flies {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero__fly {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    border-radius: 50%;
+    background: #e8ffd0;
+    box-shadow: 0 0 10px 3px rgb(201 234 176 / 0.8);
+    opacity: 0.6;
+  }
+
+  /* Olas en la base de la portada. */
+  .hero__waves {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 200%;
+    max-width: none;
+    height: clamp(3rem, 8vw, 6rem);
+  }
+
+  .hero__wave--back {
+    fill: rgb(51 184 184 / 0.16);
+  }
+
+  .hero__wave--front {
+    fill: rgb(142 202 109 / 0.14);
   }
 
   /* Hojas que suben por todo el fondo. */
@@ -488,14 +580,41 @@ const leaves: [number, number, number, number][] = [
       animation-delay: 5.4s;
     }
 
-    .hero__tilt :global(.hero__tree) {
-      animation:
-        tree-grow 1.8s var(--ease-out) 200ms backwards,
-        tree-sway 8s ease-in-out 2s infinite;
+    .hero__bloom {
+      animation: bloom-in 1.6s var(--ease-out) backwards;
     }
 
-    .hero__tilt {
-      animation: logo-in 1.6s var(--ease-out) backwards;
+    .hero__petals {
+      animation: spin 40s linear infinite;
+    }
+
+    .hero__petal {
+      animation:
+        petal-in 0.9s var(--ease-out) backwards,
+        petal-breathe 5s ease-in-out infinite;
+      animation-delay: calc(300ms + var(--k) * 70ms), calc(var(--k) * 0.4s);
+    }
+
+    .hero__core {
+      animation: seed-pulse 3s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .hero__core-ring {
+      animation: spin 12s linear infinite reverse;
+    }
+
+    .hero__fly {
+      animation: fly var(--dur) ease-in-out var(--delay) infinite alternate;
+    }
+
+    .hero__waves {
+      animation: waves 14s linear infinite;
+    }
+
+    .hero__wave--back {
+      animation: wave-bob 6s ease-in-out infinite alternate;
     }
 
     .hero__leaf {
@@ -580,38 +699,51 @@ const leaves: [number, number, number, number][] = [
     }
   }
 
-  @keyframes logo-in {
+  @keyframes bloom-in {
     from {
       opacity: 0;
-      scale: 0.5;
-      rotate: -12deg;
-      filter: blur(14px);
+      scale: 0.4;
+      rotate: -40deg;
     }
   }
 
-  @keyframes tree-grow {
+  @keyframes petal-in {
     from {
-      clip-path: inset(100% 0 0 0);
-      transform: translateY(16%);
-    }
-    to {
-      clip-path: inset(0 0 0 0);
+      opacity: 0;
+      scale: 0.2;
     }
   }
 
-  @keyframes tree-sway {
-    0%,
-    100% {
-      transform: translateY(0) rotate(0deg);
+  @keyframes petal-breathe {
+    50% {
+      scale: 1.08;
+      opacity: 0.75;
     }
-    25% {
-      transform: translateY(-3%) rotate(-2.5deg);
+  }
+
+  @keyframes fly {
+    0% {
+      opacity: 0.15;
+      transform: translate(0, 0);
     }
     50% {
-      transform: translateY(-5%) rotate(0deg);
+      opacity: 1;
     }
-    75% {
-      transform: translateY(-2%) rotate(2deg);
+    100% {
+      opacity: 0.3;
+      transform: translate(60px, -50px);
+    }
+  }
+
+  @keyframes waves {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes wave-bob {
+    to {
+      transform: translateY(10px);
     }
   }
 

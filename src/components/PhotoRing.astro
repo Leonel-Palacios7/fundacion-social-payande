@@ -46,16 +46,18 @@ const photos = photoIds.map(getPhoto);
   </div>
 
   <div class="container ring__controls" data-ring-controls hidden>
-    <button class="ring__btn" type="button" data-ring-prev aria-label="Girar el carrusel a la izquierda">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-    </button>
-    <button class="ring__btn" type="button" data-ring-toggle aria-label="Pausar carrusel 3D">
-      <svg class="icon-pause" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
-      <svg class="icon-play" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>
-    </button>
-    <button class="ring__btn" type="button" data-ring-next aria-label="Girar el carrusel a la derecha">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-    </button>
+    <div class="ring__pad">
+      <button class="ring__btn" type="button" data-ring-prev aria-label="Girar el carrusel a la izquierda">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </button>
+      <button class="ring__btn" type="button" data-ring-toggle aria-label="Pausar carrusel 3D">
+        <svg class="icon-pause" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+        <svg class="icon-play" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>
+      </button>
+      <button class="ring__btn" type="button" data-ring-next aria-label="Girar el carrusel a la derecha">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </button>
+    </div>
     <a class="btn btn--light btn--arrow ring__cta" href={withBase('/galeria/')}>Ver la galería</a>
   </div>
 </section>
@@ -107,7 +109,8 @@ const photos = photoIds.map(getPhoto);
 
   .ring__stage {
     position: relative;
-    height: calc(var(--card-h) * 2.2);
+    /* Alto de sobra para que las fotos de adelante no tapen los botones de abajo. */
+    height: calc(var(--card-h) * 2.5);
     margin-top: var(--space-5);
     perspective: calc(var(--radius) * 3.2);
     perspective-origin: 50% 40%;
@@ -178,14 +181,26 @@ const photos = photoIds.map(getPhoto);
     -webkit-user-drag: none;
   }
 
+  /* Controles centrados debajo del carrusel: botones en una cápsula y el enlace aparte. */
   .ring__controls {
     position: relative;
+    z-index: 1;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: var(--space-3);
-    margin-top: var(--space-5);
+    gap: var(--space-5);
+    margin-top: var(--space-7);
+  }
+
+  .ring__pad {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    backdrop-filter: blur(6px);
   }
 
   .ring__controls[hidden] {
@@ -222,15 +237,10 @@ const photos = photoIds.map(getPhoto);
     display: block;
   }
 
-  .ring__cta {
-    margin-left: var(--space-3);
-  }
-
-  @media (max-width: 30rem) {
-    .ring__cta {
-      margin-left: 0;
-      flex-basis: 100%;
-      max-width: 16rem;
-    }
+  .ring__btn[data-ring-toggle] {
+    width: 56px;
+    height: 56px;
+    border-color: var(--brand-lima);
+    background: rgb(142 202 109 / 0.15);
   }
 </style>
