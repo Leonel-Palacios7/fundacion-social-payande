@@ -2,12 +2,12 @@ import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = [
-  { path: '/', h1: /Sembramos oportunidades/ },
+  { path: '/', h1: /Fundación Social Payandé/ },
   { path: '/nosotros/', h1: /hecha por y para Payandé/ },
   { path: '/programas/', h1: /Cinco ramas/ },
   { path: '/galeria/', h1: /Momentos/ },
   { path: '/como-ayudar/', h1: /Cada aporte/ },
-  { path: '/contacto/', h1: /Hablemos/ },
+  { path: '/contacto/', h1: /Contacto/ },
 ];
 
 /** Recorre la página para que las animaciones de aparición terminen antes de auditar. */
@@ -256,4 +256,14 @@ test('los programas se revelan al hacer scroll y cargan su foto', async ({ page 
   await expect(photo).toHaveClass(/is-visible/);
   await expect(photo.locator('img')).toHaveJSProperty('complete', true);
   expect(await photo.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+});
+
+test('las preguntas frecuentes de contacto abren de a una', async ({ page }) => {
+  await page.goto('/contacto/');
+  const items = page.locator('.faq__item');
+  await expect(items).toHaveCount(6);
+  await expect(items.first()).toHaveAttribute('open', '');
+  await items.nth(2).locator('summary').click();
+  await expect(items.nth(2)).toHaveAttribute('open', '');
+  await expect(items.first()).not.toHaveAttribute('open', '');
 });

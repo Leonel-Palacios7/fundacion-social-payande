@@ -5,11 +5,14 @@ import { site } from '../data/site.ts';
 
 interface Props {
   photoIds: readonly string[];
+  eyebrow?: string;
+  title?: string;
+  lead: string;
 }
 
-const { photoIds } = Astro.props;
+const { photoIds, eyebrow, title = site.tagline, lead } = Astro.props;
 const slides = photoIds.map(getPhoto);
-const titleWords = site.tagline.split(' ');
+const titleWords = title.split(' ');
 ---
 
 <section class="hero" aria-labelledby="hero-title" data-carousel>
@@ -53,12 +56,9 @@ const titleWords = site.tagline.split(' ');
   <div class="hero__overlay"></div>
 
   <div class="container hero__content">
-    <p class="hero__eyebrow hero__in" style="--d:0">Fundación <span class="hero__script">Payandé</span></p>
+    <p class="hero__eyebrow hero__in" style="--d:0">{eyebrow ?? <Fragment>Fundación <span class="hero__script">Payandé</span></Fragment>}</p>
     <h1 id="hero-title" set:html={titleWords.map((word, i) => `<span class="hero__word" style="--i:${i}">${word}</span>`).join(' ')} />
-    <p class="hero__lead hero__in" style="--d:6">
-      Acompañamos a la niñez, los jóvenes, las familias y las personas mayores de Payandé con educación, recreación y
-      vivienda digna.
-    </p>
+    <p class="hero__lead hero__in" style="--d:6">{lead}</p>
     <div class="btn-row hero__in" style="--d:8">
       <a class="btn btn--light btn--arrow" href="/programas/">Conoce nuestros programas</a>
       <a class="btn btn--ghost-light" href="/como-ayudar/">Quiero ayudar</a>

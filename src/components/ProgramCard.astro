@@ -4,11 +4,13 @@ import type { Program } from '../data/programs.ts';
 import { getPhoto } from '../data/photos.ts';
 
 interface Props {
-  program: Program;
+  program: Pick<Program, 'id' | 'title' | 'summary' | 'photoId'>;
   headingLevel?: 'h2' | 'h3';
+  /** Destino del enlace; por defecto, la sección del programa en /programas/. */
+  href?: string;
 }
 
-const { program, headingLevel: Heading = 'h3' } = Astro.props;
+const { program, headingLevel: Heading = 'h3', href = `/programas/#${program.id}` } = Astro.props;
 const photo = getPhoto(program.photoId);
 ---
 
@@ -25,7 +27,7 @@ const photo = getPhoto(program.photoId);
   />
   <div class="program-card__body">
     <Heading class="program-card__title">
-      <a href={`/programas/#${program.id}`}>{program.title}</a>
+      <a href={href}>{program.title}</a>
     </Heading>
     <p>{program.summary}</p>
   </div>

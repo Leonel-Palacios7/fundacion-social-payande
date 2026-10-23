@@ -8,7 +8,7 @@ export const site = {
   shortName: 'Payandé',
   tagline: 'Sembramos oportunidades en nuestra comunidad',
   description:
-    'La Fundación Payandé acompaña a niñas, niños, jóvenes, familias y personas mayores de Payandé (San Luis, Tolima) con educación, recreación, vivienda digna y oportunidades.',
+    'La Fundación Social Payandé mejora la calidad de vida, la educación, la salud, la vivienda y la recreación de personas de escasos recursos en Quebradanegra, Tobia y Villeta (Cundinamarca).',
   locale: 'es_CO',
   /** Muestra avisos visibles en los textos que aún son de ejemplo. Poner en false al confirmar el contenido. */
   showProvisionalNotes: true,
@@ -17,8 +17,11 @@ export const site = {
     email: 'contacto@example.org',
     phoneDisplay: '+57 300 000 0000',
     phoneHref: '+573000000000',
-    location: 'Payandé, San Luis, Tolima, Colombia',
-    mapUrl: 'https://www.openstreetmap.org/search?query=Payand%C3%A9%2C%20San%20Luis%2C%20Tolima',
+    location: 'Villeta, Cundinamarca, Colombia',
+    /** Municipios donde trabaja la Fundación, según su sitio actual. */
+    area: 'Quebradanegra, Tobia y Villeta',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Villeta%2C%20Cundinamarca%2C%20Colombia',
+    mapEmbedUrl: 'https://www.google.com/maps?q=Villeta%2C%20Cundinamarca%2C%20Colombia&z=11&output=embed',
     provisional: true,
   },
 } as const;

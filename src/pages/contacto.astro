@@ -1,48 +1,137 @@
 ---
+import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHero from '../components/PageHero.astro';
 import ContactForm from '../components/ContactForm.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
+
+const heroPhoto = getPhoto('slider-19');
+const faqPhoto = getPhoto('slider-17');
+
+/** PROVISIONAL: preguntas redactadas a partir del sitio actual; la Fundación debe validar las respuestas. */
+const faqs = [
+  {
+    q: '¿Cómo puedo hacer una donación?',
+    a: 'Escríbenos con el formulario eligiendo «Donaciones» y te enviaremos las opciones disponibles. También puedes revisar la página Cómo ayudar.',
+  },
+  {
+    q: '¿Qué es el Plan Padrino?',
+    a: 'Es nuestro programa para crear vínculos de apoyo y transformación entre padrinos y beneficiarios. Escríbenos para conocer cómo participar.',
+  },
+  {
+    q: '¿En qué municipios trabaja la Fundación?',
+    a: `Principalmente en ${site.contact.area}, en el departamento de Cundinamarca.`,
+  },
+  {
+    q: '¿Quiénes pueden ser beneficiarios?',
+    a: 'Personas y familias de escasos recursos económicos de nuestra zona de trabajo. Contáctanos para conocer los requisitos de cada servicio.',
+  },
+  {
+    q: '¿Puedo ser voluntario?',
+    a: 'Sí. Elige «Voluntariado» en el formulario y cuéntanos en qué te gustaría apoyar y en qué horarios.',
+  },
+  {
+    q: '¿Mi empresa puede hacer una alianza con la Fundación?',
+    a: 'Claro que sí. Elige «Alianzas» en el formulario y te contactaremos para construir juntos una propuesta.',
+  },
+];
 ---
 
 <BaseLayout
   title="Contacto"
-  description="Escríbele a la Fundación Payandé para donar, ser voluntario, crear una alianza o pedir información."
+  description="Escríbele a la Fundación Social Payandé para donar, ser voluntario, crear una alianza o pedir información."
   ogPhotoId="slider-17"
 >
-  <PageHero
-    eyebrow="Contacto"
-    title="Hablemos"
-    lead="Cuéntanos cómo quieres ayudar o qué información necesitas."
-    photoId="slider-16"
-  />
+  <section class="contact-hero" aria-labelledby="page-title">
+    <Picture src={heroPhoto.src} alt="" formats={['avif', 'webp']} layout="full-width" priority class="contact-hero__img" />
+    <div class="contact-hero__overlay"></div>
+    <div class="container contact-hero__content">
+      <h1 id="page-title" class="contact-hero__in" style="--d:0">Contacto</h1>
+      <p class="contact-hero__lead contact-hero__in" style="--d:1">
+        Cuéntanos cómo quieres ayudar o qué información necesitas.
+      </p>
+    </div>
+  </section>
 
-  <section class="section" aria-labelledby="formulario">
-    <div class="container contact-layout">
-      <div>
-        <h2 id="formulario">Envíanos un mensaje</h2>
-        <ContactForm />
+  <section class="contact-card-wrap" aria-labelledby="formulario">
+    <div class="container">
+      <div class="contact-card" data-reveal>
+        <div class="contact-card__map">
+          <iframe
+            src={site.contact.mapEmbedUrl}
+            title={`Mapa de ${site.contact.location}`}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen></iframe>
+          <a class="contact-card__maplink" href={site.contact.mapUrl} target="_blank" rel="noopener noreferrer">
+            Abrir en Google Maps<span class="visually-hidden"> (se abre en una pestaña nueva)</span>
+          </a>
+        </div>
+        <div class="contact-card__form">
+          <span class="eyebrow">Contáctanos</span>
+          <h2 id="formulario">Escríbenos</h2>
+          <ContactForm />
+        </div>
       </div>
+    </div>
+  </section>
 
-      <aside class="contact-info" aria-labelledby="datos">
-        <h2 id="datos">Datos de contacto</h2>
-        {site.contact.provisional && <ProvisionalNote text="Correo y teléfono de ejemplo: reemplazar por los oficiales." />}
-        <dl>
-          <dt>Correo</dt>
-          <dd><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></dd>
-          <dt>Teléfono</dt>
-          <dd><a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a></dd>
-          <dt>Ubicación</dt>
-          <dd>
-            {site.contact.location}
-            <br />
-            <a href={site.contact.mapUrl} target="_blank" rel="noopener noreferrer">
-              Ver en el mapa<span class="visually-hidden"> (se abre en una pestaña nueva)</span>
-            </a>
-          </dd>
-        </dl>
-      </aside>
+  <section class="section info" aria-labelledby="datos">
+    <div class="container">
+      <h2 id="datos" class="visually-hidden">Datos de contacto</h2>
+      {site.contact.provisional && <ProvisionalNote text="Correo y teléfono de ejemplo: reemplazar por los oficiales." />}
+      <ul class="info__grid" role="list">
+        <li class="info__card" data-reveal style="--stagger:0">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+          <h3>Llámanos</h3>
+          <a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a>
+        </li>
+        <li class="info__card" data-reveal style="--stagger:1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+          <h3>Escríbenos</h3>
+          <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+        </li>
+        <li class="info__card" data-reveal style="--stagger:2">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+          <h3>Visítanos</h3>
+          <a href={site.contact.mapUrl} target="_blank" rel="noopener noreferrer">
+            {site.contact.area}<span class="visually-hidden"> (abre el mapa en una pestaña nueva)</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq">
+    <div class="container faq">
+      <div data-reveal>
+        <span class="eyebrow">Preguntas frecuentes</span>
+        <h2 id="faq">Resolvemos tus dudas</h2>
+        <ProvisionalNote text="Respuestas de ejemplo: la Fundación debe validarlas." />
+        <div class="faq__list">
+          {
+            faqs.map((item, i) => (
+              <details class="faq__item" name="faq" open={i === 0}>
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+      <div class="faq__photo" data-reveal="mask" style="--stagger:2">
+        <Picture
+          src={faqPhoto.src}
+          alt={faqPhoto.alt}
+          formats={['avif', 'webp']}
+          width={640}
+          height={800}
+          fit="cover"
+          sizes="(min-width: 60rem) 26rem, 92vw"
+          class="rounded-img"
+        />
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -55,40 +144,261 @@ import { site } from '../data/site.ts';
 </script>
 
 <style>
-  .contact-layout {
+  .contact-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: clamp(20rem, 42vw, 28rem);
+    padding-bottom: clamp(7rem, 14vw, 10rem);
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  .contact-hero :global(picture),
+  .contact-hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .contact-hero__img {
+    object-fit: cover;
+    object-position: center 40%;
+  }
+
+  .contact-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgb(15 59 46 / 0.78);
+  }
+
+  .contact-hero__content {
+    position: relative;
+    padding-top: var(--space-8);
+  }
+
+  .contact-hero h1 {
+    color: #fff;
+    margin-bottom: var(--space-2);
+  }
+
+  .contact-hero__lead {
+    margin: 0 auto;
+    max-width: 36rem;
+    font-size: var(--fs-md);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .contact-hero__img {
+      animation: ch-zoom 8s var(--ease-out) both;
+    }
+
+    .contact-hero__in {
+      animation: ch-up 0.9s var(--ease-out) both;
+      animation-delay: calc(120ms + var(--d) * 110ms);
+    }
+  }
+
+  @keyframes ch-zoom {
+    from {
+      transform: scale(1.12);
+    }
+  }
+
+  @keyframes ch-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+
+  /* La tarjeta sube sobre el encabezado, como en el diseño de referencia. */
+  .contact-card-wrap {
+    position: relative;
+    margin-top: calc(-1 * clamp(6rem, 12vw, 8.5rem));
+  }
+
+  .contact-card {
+    display: grid;
+    overflow: hidden;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (min-width: 60rem) {
+    .contact-card {
+      grid-template-columns: 1fr 1.1fr;
+    }
+  }
+
+  .contact-card__map {
+    position: relative;
+    min-height: 18rem;
+    background: var(--verde-100);
+  }
+
+  .contact-card__map iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 18rem;
+    border: 0;
+  }
+
+  .contact-card__maplink {
+    position: absolute;
+    left: var(--space-4);
+    bottom: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-pill);
+    background: var(--verde-700);
+    color: #fff;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  .contact-card__maplink:hover {
+    background: var(--verde-800);
+    color: #fff;
+  }
+
+  .contact-card__form {
+    padding: clamp(var(--space-5), 4vw, var(--space-8));
+  }
+
+  .info__grid {
+    display: grid;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 48rem) {
+    .info__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .info__card {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-lg);
+    transition:
+      transform var(--dur-base) var(--ease),
+      box-shadow var(--dur-base) var(--ease);
+  }
+
+  .info__card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .info__card svg {
+    width: 2.75rem;
+    height: 2.75rem;
+    fill: none;
+    stroke: var(--verde-700);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .info__card h3 {
+    margin: 0;
+    font-size: var(--fs-md);
+  }
+
+  .info__card a {
+    overflow-wrap: anywhere;
+    color: var(--color-text-muted);
+  }
+
+  .info__card a:hover {
+    color: var(--color-link-hover);
+  }
+
+  .faq {
     display: grid;
     gap: var(--space-8);
   }
 
   @media (min-width: 60rem) {
-    .contact-layout {
-      grid-template-columns: 1.6fr 1fr;
+    .faq {
+      grid-template-columns: 1.5fr 1fr;
       align-items: start;
     }
   }
 
-  .contact-info {
-    padding: var(--space-6);
-    background: var(--color-surface-alt);
+  .faq__list {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+  }
+
+  .faq__item {
+    background: var(--color-surface);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
   }
 
-  .contact-info h2 {
-    font-size: var(--fs-lg);
-  }
-
-  .contact-info dl {
-    margin: 0;
-  }
-
-  .contact-info dt {
-    margin-top: var(--space-4);
-    font-weight: 700;
+  .faq__item summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    font-weight: 500;
     color: var(--color-heading);
+    cursor: pointer;
+    list-style: none;
+    transition:
+      background-color var(--dur-base) var(--ease),
+      color var(--dur-base) var(--ease);
   }
 
-  .contact-info dd {
-    margin: var(--space-1) 0 0;
-    overflow-wrap: anywhere;
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__item summary::after {
+    content: '+';
+    flex: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--verde-700);
+    transition: transform var(--dur-base) var(--ease);
+  }
+
+  .faq__item[open] summary {
+    background: var(--verde-700);
+    color: #fff;
+  }
+
+  .faq__item[open] summary::after {
+    color: #fff;
+    transform: rotate(45deg);
+  }
+
+  .faq__item p {
+    margin: 0;
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    color: var(--color-text-muted);
+  }
+
+  .faq__photo :global(img) {
+    width: 100%;
+    height: auto;
   }
 </style>

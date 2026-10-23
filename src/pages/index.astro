@@ -5,10 +5,9 @@ import HeroCarousel from '../components/HeroCarousel.astro';
 import ProgramCard from '../components/ProgramCard.astro';
 import Gallery from '../components/Gallery.astro';
 import CtaBand from '../components/CtaBand.astro';
-import ProvisionalNote from '../components/ProvisionalNote.astro';
 import PhotoRing from '../components/PhotoRing.astro';
 import Marquee from '../components/Marquee.astro';
-import { programs } from '../data/programs.ts';
+import { services } from '../data/services.ts';
 import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
 
@@ -18,22 +17,24 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 ---
 
 <BaseLayout title={site.name}>
-  <HeroCarousel photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']} />
+  <HeroCarousel
+    photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']}
+    eyebrow="Bienvenidos a"
+    title="Fundación Social Payandé"
+    lead="Transformando vidas con compromiso y solidaridad en Quebradanegra, Tobia y Villeta."
+  />
 
-  <Marquee items={['Educación', 'Niñez feliz', 'Vivienda digna', 'Jóvenes y deporte', 'Comunidad']} />
+  <Marquee items={services.map((service) => service.title)} />
 
   <section class="section" aria-labelledby="quienes-somos">
     <div class="container split">
       <div data-reveal>
-        <span class="eyebrow">Quiénes somos</span>
-        <h2 id="quienes-somos">Raíces en Payandé, ramas que llegan a <span class="script">cada hogar</span></h2>
-        <ProvisionalNote />
+        <span class="eyebrow">Sobre nosotros</span>
+        <h2 id="quienes-somos">Nuestro <span class="script">objeto social</span></h2>
         <p class="lead">
-          Somos una organización sin ánimo de lucro que trabaja por el bienestar de las familias de Payandé y sus veredas.
-        </p>
-        <p>
-          Llevamos útiles y zapatos a las escuelas, celebramos con la niñez, mejoramos cocinas y baños de quienes más lo
-          necesitan y abrimos oportunidades para los jóvenes a través del deporte.
+          La Fundación tiene por objeto desarrollar, a su entera discreción, actividades asistenciales y de beneficencia
+          tendientes a mejorar la calidad de vida, la educación, la salud, la vivienda y la recreación de las personas de
+          escasos recursos económicos, localizadas principalmente en los municipios de Quebradanegra, Tobia y Villeta.
         </p>
         <a class="btn btn--outline btn--arrow" href="/nosotros/">Conoce nuestra historia</a>
       </div>
@@ -48,7 +49,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
           sizes="(min-width: 56rem) 34rem, 92vw"
           class="rounded-img"
         />
-        <span class="intro-photo__tag mono-label" aria-hidden="true">payandé · san luis · tolima</span>
+        <span class="intro-photo__tag mono-label" aria-hidden="true">quebradanegra · tobia · villeta</span>
       </div>
     </div>
   </section>
@@ -61,15 +62,14 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
   <section class="section section--alt" aria-labelledby="lineas">
     <div class="container">
       <div class="section__header section__header--center" data-reveal>
-        <span class="eyebrow">Lo que hacemos</span>
-        <h2 id="lineas">Nuestras líneas de acción</h2>
-        <p class="lead">Cinco frentes de trabajo para que la comunidad crezca con dignidad.</p>
+        <span class="eyebrow">Servicios</span>
+        <h2 id="lineas">Transformando vidas con compromiso y solidaridad</h2>
       </div>
       <div class="grid-auto">
         {
-          programs.map((program, i) => (
+          services.map((service, i) => (
             <div data-reveal style={`--stagger:${i}`}>
-              <ProgramCard program={program} />
+              <ProgramCard program={service} href={service.href} />
             </div>
           ))
         }
@@ -86,11 +86,11 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
             esta escuela de Payandé».
           </p>
         </blockquote>
-        <figcaption>Cartel hecho a mano por estudiantes de una escuela de Payandé</figcaption>
+        <figcaption>Cartel hecho a mano por estudiantes de una escuela beneficiada</figcaption>
       </figure>
       <div data-reveal style="--stagger:1">
-        <span class="eyebrow">La voz de la comunidad</span>
-        <h2 id="gracias">Lo que más nos <span class="script">mueve</span></h2>
+        <span class="eyebrow">Testimonios</span>
+        <h2 id="gracias">Nuestra gestión narrada por sus <span class="script">protagonistas</span></h2>
         <Picture
           src={thanks.src}
           alt={thanks.alt}
@@ -108,9 +108,11 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
   <section class="section section--alt" aria-labelledby="historias">
     <div class="container">
       <div class="section__header" data-reveal>
-        <span class="eyebrow">Galería</span>
-        <h2 id="historias">Historias en imágenes</h2>
-        <p class="lead">Cada foto es una jornada compartida con la comunidad.</p>
+        <span class="eyebrow">Eventos</span>
+        <h2 id="historias">Fortaleciendo comunidades, construyendo futuro</h2>
+        <p class="lead">
+          Trabajamos para generar oportunidades que impulsen el bienestar y desarrollo de nuestras comunidades.
+        </p>
       </div>
       <Gallery photos={highlights} id="galeria-inicio" />
       <p class="more-link"><a class="btn btn--outline btn--arrow" href="/galeria/">Ver todas las fotos</a></p>
@@ -119,7 +121,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 
   <CtaBand
     title="Tu apoyo también siembra futuro"
-    text="Dona, sé voluntario o crea una alianza con nosotros. Toda ayuda llega a las familias de Payandé."
+    text="Dona, sé voluntario o crea una alianza con nosotros. Toda ayuda llega a las familias de Quebradanegra, Tobia y Villeta."
     primary={{ href: '/como-ayudar/', label: 'Cómo ayudar' }}
     secondary={{ href: '/contacto/', label: 'Escríbenos' }}
   />
