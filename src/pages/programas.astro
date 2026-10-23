@@ -1,6 +1,6 @@
 ---
+import RandomPicture from '../components/RandomPicture.astro';
 import { withBase } from '../lib/paths.ts';
-import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import CtaBand from '../components/CtaBand.astro';
@@ -54,14 +54,11 @@ import { getPhoto } from '../data/photos.ts';
               </a>
             </div>
             <div class="editorial__photo" data-reveal="mask" data-tone="mono" style="--stagger:2">
-              <Picture
-                src={photo.src}
-                alt={photo.alt}
-                formats={['avif', 'webp']}
-                width={720}
-                height={860}
-                fit="cover"
+              <RandomPicture
+                photo={photo}
+                shape="portrait"
                 sizes="(min-width: 56rem) 34rem, 92vw"
+                pool={[program.category]}
                 class="editorial__img"
               />
             </div>

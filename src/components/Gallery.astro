@@ -1,5 +1,6 @@
 ---
-import { Picture, getImage } from 'astro:assets';
+import RandomPicture from './RandomPicture.astro';
+import { renderLarge } from '../lib/shapes.ts';
 import { categoryLabels, type Photo, type PhotoCategory } from '../data/photos.ts';
 
 interface Props {
@@ -14,15 +15,15 @@ const { photos, filterable = false, id = 'galeria' } = Astro.props;
 // Versión ampliada para el visor: WebP de 1600px (los navegadores objetivo soportan WebP).
 const items = await Promise.all(
   photos.map(async (photo) => {
-    const large = await getImage({ src: photo.src, width: 1600, format: 'webp', quality: 72 });
-    return { ...photo, largeSrc: large.src, largeWidth: large.attributes.width, largeHeight: large.attributes.height };
+    const large = await renderLarge(photo);
+    return { ...photo, largeSrc: large.src, largeWidth: large.width, largeHeight: large.height };
   }),
 );
 
 const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[];
 ---
 
-<div class="gallery" data-gallery id={id}>
+<div class="gallery" data-gallery data-shuffle={filterable ? '' : undefined} id={id}>
   {
     filterable && (
       <div class="gallery__filters" role="group" aria-label="Filtrar fotos por programa">
@@ -53,14 +54,11 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
             data-caption={item.alt}
             aria-label={`${categoryLabels[item.category]}. Ampliar foto: ${item.alt}`}
           >
-            <Picture
-              src={item.src}
-              alt={item.alt}
-              formats={['avif', 'webp']}
-              width={560}
-              height={420}
-              fit="cover"
+            <RandomPicture
+              photo={item}
+              shape="landscape"
               sizes="(min-width: 72rem) 18rem, (min-width: 40rem) 30vw, 46vw"
+              random={!filterable}
               class="gallery__img"
             />
             <span class="gallery__caption">{categoryLabels[item.category]}</span>
@@ -90,7 +88,12 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
 
 <script>
   import { initGallery } from '../scripts/gallery.ts';
-  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
+  import { shuffleGallery } from '../scripts/random-photos.ts';
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gallery) => {
+    // La galería completa aparece en un orden distinto en cada visita.
+    if (gallery.hasAttribute('data-shuffle')) shuffleGallery(gallery);
+    initGallery(gallery);
+  });
 </script>
 
 <style>

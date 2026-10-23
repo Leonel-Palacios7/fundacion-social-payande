@@ -491,3 +491,19 @@ textarea {
 [data-reveal='mask']:has(.rounded-img) {
   border-radius: var(--radius-lg);
 }
+
+/* Fotos al azar: aparecen con un fundido suave cuando terminan de cargar. */
+@media (prefers-reduced-motion: no-preference) {
+  picture[data-random] img {
+    transition: opacity 0.5s ease;
+  }
+}
+
+picture[data-random] img:not([src]) {
+  opacity: 0;
+}
+
+/* Sin JavaScript se usa la copia de <noscript>; la ranura vacía no ocupa espacio. */
+html:not(.js) picture[data-random] {
+  display: none;
+}

@@ -1,8 +1,9 @@
 ---
-import { Picture } from 'astro:assets';
+import RandomPicture from '../components/RandomPicture.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ContactForm from '../components/ContactForm.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
+import HeroPicture from '../components/HeroPicture.astro';
 import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
 
@@ -40,7 +41,7 @@ const faqs = [
   ogPhotoId="slider-17"
 >
   <section class="contact-hero" aria-labelledby="page-title">
-    <Picture src={heroPhoto.src} alt="" formats={['avif', 'webp']} layout="full-width" priority class="contact-hero__img" />
+    <HeroPicture photo={heroPhoto} class="contact-hero__img" decorative />
     <div class="contact-hero__overlay"></div>
     <div class="container contact-hero__content">
       <h1 id="page-title" class="contact-hero__in" style="--d:0">Contacto</h1>
@@ -117,13 +118,9 @@ const faqs = [
         </div>
       </div>
       <div class="faq__photo" data-reveal="mask" style="--stagger:2">
-        <Picture
-          src={faqPhoto.src}
-          alt={faqPhoto.alt}
-          formats={['avif', 'webp']}
-          width={640}
-          height={800}
-          fit="cover"
+        <RandomPicture
+          photo={faqPhoto}
+          shape="portrait"
           sizes="(min-width: 60rem) 26rem, 92vw"
           class="rounded-img"
         />
@@ -153,14 +150,14 @@ const faqs = [
   }
 
   .contact-hero :global(picture),
-  .contact-hero__img {
+  .contact-hero :global(.contact-hero__img) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
   }
 
-  .contact-hero__img {
+  .contact-hero :global(.contact-hero__img) {
     object-fit: cover;
     object-position: center 40%;
   }
@@ -188,7 +185,7 @@ const faqs = [
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .contact-hero__img {
+    .contact-hero :global(.contact-hero__img) {
       animation: ch-zoom 8s var(--ease-out) both;
     }
 

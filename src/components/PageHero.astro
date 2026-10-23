@@ -1,5 +1,5 @@
 ---
-import { Picture } from 'astro:assets';
+import HeroPicture from './HeroPicture.astro';
 import { getPhoto } from '../data/photos.ts';
 
 interface Props {
@@ -14,14 +14,7 @@ const photo = getPhoto(photoId);
 ---
 
 <section class="page-hero" aria-labelledby="page-title">
-  <Picture
-    src={photo.src}
-    alt=""
-    formats={['avif', 'webp']}
-    layout="full-width"
-    priority
-    class="page-hero__img"
-  />
+  <HeroPicture photo={photo} class="page-hero__img" decorative />
   <div class="page-hero__overlay"></div>
   <div class="container page-hero__content">
     <p class="page-hero__eyebrow page-hero__in" style="--d:0">{eyebrow}</p>
@@ -41,20 +34,20 @@ const photo = getPhoto(photoId);
   }
 
   .page-hero :global(picture),
-  .page-hero__img {
+  .page-hero :global(.page-hero__img) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
   }
 
-  .page-hero__img {
+  .page-hero :global(.page-hero__img) {
     object-fit: cover;
     object-position: center 35%;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .page-hero__img {
+    .page-hero :global(.page-hero__img) {
       animation: ph-zoom 8s var(--ease-out) both;
     }
 

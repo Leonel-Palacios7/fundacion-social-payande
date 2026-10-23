@@ -1,5 +1,5 @@
 ---
-import { Picture } from 'astro:assets';
+import RandomPicture from '../components/RandomPicture.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import CtaBand from '../components/CtaBand.astro';
@@ -43,13 +43,9 @@ const values = [
         </p>
       </div>
       <div data-reveal="mask" data-tone="mono" style="--stagger:2">
-        <Picture
-          src={team.src}
-          alt={team.alt}
-          formats={['avif', 'webp']}
-          width={720}
-          height={540}
-          fit="cover"
+        <RandomPicture
+          photo={team}
+          shape="landscape"
           sizes="(min-width: 56rem) 34rem, 92vw"
           class="rounded-img"
         />

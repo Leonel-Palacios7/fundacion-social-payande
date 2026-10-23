@@ -1,5 +1,5 @@
 ---
-import { Picture } from 'astro:assets';
+import RandomPicture from './RandomPicture.astro';
 import { withBase } from '../lib/paths.ts';
 import { getPhoto } from '../data/photos.ts';
 import type { FoundationEvent } from '../data/events.ts';
@@ -19,13 +19,9 @@ const { events } = Astro.props;
         <li class="event" data-reveal style={`--stagger:${i % 3}`}>
           <article class="event__card" aria-labelledby={`evento-${event.id}`}>
             <div class="event__media">
-              <Picture
-                src={photo.src}
-                alt={photo.alt}
-                formats={['avif', 'webp']}
-                width={640}
-                height={460}
-                fit="cover"
+              <RandomPicture
+                photo={photo}
+                shape="landscape"
                 sizes="(min-width: 64rem) 21rem, (min-width: 40rem) 45vw, 92vw"
                 class="event__img"
               />

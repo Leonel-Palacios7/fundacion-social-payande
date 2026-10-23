@@ -1,11 +1,11 @@
 ---
+import RandomPicture from './RandomPicture.astro';
 import { withBase } from '../lib/paths.ts';
 /**
  * Carrusel 3D de fotos, recreado a partir de la plantilla "3D Photo Carousel":
  * un anillo de fotos que gira alrededor de una palabra grande, que queda
  * entre las fotos de adelante y las de atrás.
  */
-import { Picture } from 'astro:assets';
 import { getPhoto } from '../data/photos.ts';
 
 interface Props {
@@ -30,14 +30,11 @@ const photos = photoIds.map(getPhoto);
         {
           photos.map((photo, i) => (
             <li class="ring__card" style={`--i:${i}`} data-ring-card>
-              <Picture
-                src={photo.src}
-                alt=""
-                formats={['avif', 'webp']}
-                width={320}
-                height={458}
-                fit="cover"
-                densities={[1, 2]}
+              <RandomPicture
+                photo={photo}
+                shape="ring"
+                sizes="320px"
+                decorative
                 class="ring__img"
                 draggable="false"
               />

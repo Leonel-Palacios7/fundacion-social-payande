@@ -1,6 +1,7 @@
 ---
-import { Picture } from 'astro:assets';
+import HeroPicture from './HeroPicture.astro';
 import { getPhoto } from '../data/photos.ts';
+import { renderShape } from '../lib/shapes.ts';
 import { site } from '../data/site.ts';
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
 }
 
 const { photoIds, eyebrow, title = site.tagline } = Astro.props;
-const slides = photoIds.map(getPhoto);
+const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), img: await renderShape(getPhoto(id), 'hero') })));
 const titleWords = title.split(' ');
 ---
 
@@ -27,25 +28,16 @@ const titleWords = title.split(' ');
           data-slide
         >
           {index === 0 ? (
-            <Picture
-              src={photo.src}
-              alt={photo.alt}
-              formats={['avif', 'webp']}
-              layout="full-width"
-              priority
-              class="hero__img"
-            />
+            <HeroPicture photo={photo} class="hero__img" slides={slides.length} />
           ) : (
             // Las demás fotos se insertan después de la carga para no competir con la imagen principal (LCP).
+            // HeroPicture las cambia por fotos al azar; estas son las de respaldo.
             <template data-slide-template>
-              <Picture
-                src={photo.src}
-                alt={photo.alt}
-                formats={['avif', 'webp']}
-                layout="full-width"
-                fetchpriority="low"
-                class="hero__img"
-              />
+              <picture>
+                <source type="image/avif" srcset={photo.img.avif} sizes="100vw" />
+                <source type="image/webp" srcset={photo.img.webp} sizes="100vw" />
+                <img src={photo.img.src} alt={photo.alt} width={photo.img.width} height={photo.img.height} fetchpriority="low" class="hero__img" />
+              </picture>
             </template>
           )}
         </figure>
@@ -122,7 +114,7 @@ const titleWords = title.split(' ');
 
   @media (prefers-reduced-motion: no-preference) {
     /* Zoom lento tipo Ken Burns sobre la foto activa */
-    .hero__slide.is-active .hero__img {
+    .hero__slide.is-active :global(.hero__img) {
       animation: kenburns 9s var(--ease-out) both;
     }
 
@@ -163,12 +155,12 @@ const titleWords = title.split(' ');
   }
 
   .hero__slide :global(picture),
-  .hero__img {
+  .hero__slide :global(.hero__img) {
     width: 100%;
     height: 100%;
   }
 
-  .hero__img {
+  .hero__slide :global(.hero__img) {
     object-fit: cover;
     transform-origin: 60% 40%;
   }

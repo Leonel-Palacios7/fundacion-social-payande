@@ -25,7 +25,7 @@ interface Props {
 const { title, description = site.description, ogPhotoId = 'portada-payande-2', noindex = false } = Astro.props;
 const fullTitle = title === site.name ? `${site.name} | ${site.tagline}` : `${title} | ${site.name}`;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
-const ogImage = await getImage({ src: getPhoto(ogPhotoId).src, width: 1200, format: 'jpg', quality: 80 });
+const ogImage = await getImage({ src: getPhoto(ogPhotoId).src, width: 1200, format: 'jpg', quality: 80, layout: 'none' });
 const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.src;
 ---
 
@@ -65,8 +65,10 @@ const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.
     <BackToTop />
     <script>
       import { initHeaderOnScroll, initReveal } from '../scripts/reveal.ts';
+      import { initRandomPhotos } from '../scripts/random-photos.ts';
       initReveal();
       initHeaderOnScroll();
+      void initRandomPhotos();
     </script>
   </body>
 </html>

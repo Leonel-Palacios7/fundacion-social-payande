@@ -1,11 +1,11 @@
 ---
+import RandomPicture from './RandomPicture.astro';
 import { withBase } from '../lib/paths.ts';
-import { Picture } from 'astro:assets';
 import type { Program } from '../data/programs.ts';
 import { getPhoto } from '../data/photos.ts';
 
 interface Props {
-  program: Pick<Program, 'id' | 'title' | 'summary' | 'photoId'>;
+  program: Pick<Program, 'id' | 'title' | 'summary' | 'photoId' | 'category'>;
   headingLevel?: 'h2' | 'h3';
   /** Destino del enlace; por defecto, la sección del programa en /programas/. */
   href?: string;
@@ -16,14 +16,11 @@ const photo = getPhoto(program.photoId);
 ---
 
 <article class="program-card">
-  <Picture
-    src={photo.src}
-    alt={photo.alt}
-    formats={['avif', 'webp']}
-    width={640}
-    height={440}
-    fit="cover"
+  <RandomPicture
+    photo={photo}
+    shape="landscape"
     sizes="(min-width: 72rem) 22rem, (min-width: 40rem) 45vw, 92vw"
+    pool={[program.category]}
     class="program-card__img"
   />
   <div class="program-card__body">

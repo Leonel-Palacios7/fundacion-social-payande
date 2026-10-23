@@ -1,0 +1,67 @@
+---
+/**
+ * Foto de portada al azar.
+ * Un script en línea elige la foto mientras se lee la página, antes de que
+ * empiece la descarga: así no se baja una portada que luego se reemplaza.
+ * Sin JavaScript se muestra la foto por defecto dentro de <noscript>.
+ *
+ * Con `slides` > 1 (carrusel de Inicio) también llena las plantillas de las
+ * demás diapositivas con fotos distintas (las inserta el carrusel).
+ */
+import type { Photo } from '../data/photos.ts';
+import { heroPhotos, renderShape } from '../lib/shapes.ts';
+
+interface Props {
+  photo: Photo;
+  class: string;
+  /** Texto alternativo: vacío si la portada es decorativa. */
+  decorative?: boolean;
+  slides?: number;
+  [attr: `data-${string}`]: string;
+}
+
+const { photo, class: className, decorative = false, slides = 1, ...extra } = Astro.props;
+const sizes = '100vw';
+const pool = await Promise.all(
+  heroPhotos.map(async (p) => ({ id: p.id, a: decorative ? '' : p.alt, s: await renderShape(p, 'hero') })),
+);
+const fallback = await renderShape(photo, 'hero');
+---
+
+<noscript>
+  <picture>
+    <source type="image/avif" srcset={fallback.avif} sizes={sizes} />
+    <source type="image/webp" srcset={fallback.webp} sizes={sizes} />
+    <img
+      src={fallback.src}
+      alt={decorative ? '' : photo.alt}
+      width={fallback.width}
+      height={fallback.height}
+      class={className}
+      {...extra}
+    />
+  </picture>
+</noscript>
+<script is:inline define:vars={{ pool, sizes, className, extra, slides }}>
+  (function () {
+    var me = document.currentScript;
+    var picks = pool.slice();
+    for (var i = picks.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = picks[i]; picks[i] = picks[j]; picks[j] = t;
+    }
+    var esc = function (v) { return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+    var html = function (p, first) {
+      var attrs = '';
+      for (var k in extra) attrs += ' ' + k + '="' + esc(extra[k]) + '"';
+      return '<picture><source type="image/avif" srcset="' + esc(p.s.avif) + '" sizes="' + sizes + '">' +
+        '<source type="image/webp" srcset="' + esc(p.s.webp) + '" sizes="' + sizes + '">' +
+        '<img src="' + esc(p.s.src) + '" alt="' + esc(p.a) + '" width="' + p.s.width + '" height="' + p.s.height +
+        '" class="' + esc(className) + '"' + attrs + (first ? ' fetchpriority="high"' : ' fetchpriority="low"') + '></picture>';
+    };
+    (window.__payandeUsed = window.__payandeUsed || []).push.apply(window.__payandeUsed, picks.slice(0, slides).map(function (p) { return p.id; }));
+    me.insertAdjacentHTML('beforebegin', html(picks[0], true));
+    // Las demás diapositivas las inserta el carrusel después de la carga (src/scripts/carousel.ts).
+    if (slides > 1) window.__payandeHeroSlides = picks.slice(1, slides).map(function (p) { return html(p, false); });
+  })();
+</script>

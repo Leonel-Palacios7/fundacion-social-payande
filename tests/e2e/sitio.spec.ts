@@ -111,20 +111,20 @@ test('la galería filtra, abre el visor y navega con el teclado', async ({ page 
   await page.goto('/galeria/');
   const items = page.locator('.gallery__item:visible');
   const total = await items.count();
-  expect(total).toBe(24);
+  expect(total).toBe(39);
 
   await page.getByRole('button', { name: 'Jóvenes y deporte' }).click();
   await expect(page.getByRole('button', { name: 'Jóvenes y deporte' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(items).toHaveCount(2);
-  await expect(page.locator('[data-gallery-status]')).toHaveText('Mostrando 2 fotos de Jóvenes y deporte.');
+  await expect(items).toHaveCount(7);
+  await expect(page.locator('[data-gallery-status]')).toHaveText('Mostrando 7 fotos de Jóvenes y deporte.');
 
   await items.first().getByRole('link').click();
   const dialog = page.getByRole('dialog', { name: 'Visor de fotos' });
   await expect(dialog).toBeVisible();
-  await expect(dialog.locator('[data-lightbox-counter]')).toHaveText('Foto 1 de 2');
+  await expect(dialog.locator('[data-lightbox-counter]')).toHaveText('Foto 1 de 7');
   await expect(dialog.locator('img')).toHaveJSProperty('complete', true);
   await page.keyboard.press('ArrowRight');
-  await expect(dialog.locator('[data-lightbox-counter]')).toHaveText('Foto 2 de 2');
+  await expect(dialog.locator('[data-lightbox-counter]')).toHaveText('Foto 2 de 7');
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   await expect(items.first().getByRole('link')).toBeFocused();
@@ -133,7 +133,22 @@ test('la galería filtra, abre el visor y navega con el teclado', async ({ page 
 test('la galería acepta un filtro por URL', async ({ page }) => {
   await page.goto('/galeria/?programa=vivienda');
   await expect(page.getByRole('button', { name: 'Vivienda y personas mayores' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.gallery__item:visible')).toHaveCount(6);
+  await expect(page.locator('.gallery__item:visible')).toHaveCount(8);
+});
+
+test('las fotos cambian al azar sin repetirse en la página', async ({ page }) => {
+  const visit = async () => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    return page.locator('picture[data-random]').evaluateAll((els) => els.map((el) => (el as HTMLElement).dataset['photo']));
+  };
+  const first = await visit();
+  expect(new Set(first).size).toBe(first.length);
+  // Con 39 fotos, tres visitas seguidas idénticas son prácticamente imposibles.
+  const others = [await visit(), await visit()];
+  expect(others.some((ids) => ids.join() !== first.join())).toBe(true);
+  // La portada también se elige al azar y queda con su texto alternativo.
+  await expect(page.locator('.hero__slide.is-active img')).toHaveAttribute('alt', /.+/);
 });
 
 test('el formulario muestra errores accesibles y prepara el correo', async ({ page }) => {

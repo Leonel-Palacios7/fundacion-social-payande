@@ -1,6 +1,6 @@
 import type { ImageMetadata } from 'astro';
 
-export type PhotoCategory = 'educacion' | 'ninez' | 'vivienda' | 'jovenes' | 'comunidad';
+export type PhotoCategory = 'educacion' | 'ninez' | 'vivienda' | 'jovenes' | 'salud' | 'comunidad';
 
 export interface Photo {
   id: string;
@@ -14,6 +14,7 @@ export const categoryLabels: Record<PhotoCategory, string> = {
   ninez: 'Niñez y recreación',
   vivienda: 'Vivienda y personas mayores',
   jovenes: 'Jóvenes y deporte',
+  salud: 'Salud',
   comunidad: 'Comunidad',
 };
 
@@ -53,6 +54,21 @@ const entries: ReadonlyArray<[id: string, category: PhotoCategory, alt: string]>
   ['slider-16', 'comunidad', 'Entrega de regalos navideños a una familia en una casa con techo de palma.'],
   ['slider-17', 'comunidad', 'Integrante del equipo con camisa de la Fundación sostiene un regalo y un paquete.'],
   ['slider-6', 'comunidad', 'Equipo de cocina con uniforme blanco posa entre palmeras y jardines.'],
+  ['morrales-payande', 'educacion', 'Estudiantes con uniforme muestran sus morrales nuevos de la Fundación junto a su docente.'],
+  ['morrales-pulgar', 'educacion', 'Niñas y niños levantan el pulgar con sus morrales nuevos junto al pendón de bienvenida de la Fundación.'],
+  ['morrales-mural', 'educacion', 'Niños con morrales nuevos posan frente a un mural de un colibrí, junto al pendón de la Fundación.'],
+  ['morrales-ninas', 'educacion', 'Niñas pequeñas sonríen con sus morrales de colores junto a su docente y el pendón de la Fundación.'],
+  ['kit-escolar', 'educacion', 'Integrante del equipo sostiene un kit escolar y un uniforme listos para entregar.'],
+  ['grupo-gradas', 'ninez', 'Niñas y niños con camiseta azul posan en las gradas junto al pendón «Bienvenidos» de la Fundación.'],
+  ['centro-cultural', 'comunidad', 'Grupo numeroso de jóvenes posa frente al Centro Cultural Hugo Garzón, decorado con flores de colores.'],
+  ['brigada-salud', 'salud', 'Personal de salud posa frente a la unidad móvil del Hospital Salazar de Villeta durante una brigada.'],
+  ['jornada-tenis', 'jovenes', 'Jóvenes deportistas muestran sus zapatos nuevos en una cancha de tenis rodeada de montañas.'],
+  ['clase-golf', 'jovenes', 'Un instructor da una clase de golf a un grupo numeroso de jóvenes en el campo.'],
+  ['futbol-zapatos', 'jovenes', 'Dos niños con uniforme de fútbol sostienen las cajas de sus guayos nuevos en la cancha.'],
+  ['cancha-microfutbol', 'jovenes', 'Niños con ropa deportiva sentados en el centro de una cancha cubierta de microfútbol.'],
+  ['baloncesto', 'jovenes', 'Jóvenes con balones de baloncesto posan junto a integrantes de la Fundación.'],
+  ['cocina-nueva', 'vivienda', 'Cocina adecuada con mesón enchapado en baldosa blanca y lavaplatos nuevo.'],
+  ['bano-nuevo', 'vivienda', 'Baño nuevo con sanitario, lavamanos y paredes enchapadas en blanco.'],
 ];
 
 export const photos: readonly Photo[] = entries.map(([id, category, alt]) => ({

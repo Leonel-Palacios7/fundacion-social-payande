@@ -15,13 +15,21 @@ export function initCarousel(root: HTMLElement): void {
 
   controls.hidden = false;
 
-  const hydrateSlides = () => {
-    root.querySelectorAll<HTMLTemplateElement>('template[data-slide-template]').forEach((tpl) => {
-      tpl.replaceWith(tpl.content.cloneNode(true));
-    });
+  // Fotos al azar elegidas por HeroPicture (una por diapositiva desde la segunda);
+  // si no hay, se usan las de la plantilla.
+  const random = (window as { __payandeHeroSlides?: string[] }).__payandeHeroSlides ?? [];
+  /** Inserta la foto de una diapositiva solo cuando hace falta: así no se descargan portadas que nadie ve. */
+  const hydrate = (i: number) => {
+    const slide = slides[(i + slides.length) % slides.length];
+    const tpl = slide?.querySelector<HTMLTemplateElement>('template[data-slide-template]');
+    if (!slide || !tpl) return;
+    const html = random[slides.indexOf(slide) - 1];
+    if (html) tpl.innerHTML = html;
+    tpl.replaceWith(tpl.content.cloneNode(true));
   };
-  if (document.readyState === 'complete') hydrateSlides();
-  else window.addEventListener('load', hydrateSlides, { once: true });
+  // Tras la carga se prepara solo la siguiente diapositiva.
+  if (document.readyState === 'complete') hydrate(1);
+  else window.addEventListener('load', () => hydrate(1), { once: true });
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let index = 0;
@@ -30,8 +38,9 @@ export function initCarousel(root: HTMLElement): void {
   let hoverPaused = false;
 
   const show = (next: number) => {
-    hydrateSlides();
     index = (next + slides.length) % slides.length;
+    hydrate(index);
+    hydrate(index + 1);
     slides.forEach((slide, i) => {
       const active = i === index;
       slide.classList.toggle('is-active', active);
