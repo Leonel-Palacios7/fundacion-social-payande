@@ -60,6 +60,36 @@ const current = Astro.url.pathname;
     background: rgb(255 255 255 / 0.97);
     border-bottom: 1px solid var(--color-border);
     padding-top: env(safe-area-inset-top);
+    view-transition-name: site-header;
+    transition:
+      box-shadow var(--dur-base) var(--ease),
+      background-color var(--dur-base) var(--ease);
+  }
+
+  .site-header.is-scrolled {
+    background: rgb(255 255 255 / 0.92);
+    backdrop-filter: saturate(1.4) blur(10px);
+    box-shadow: 0 8px 24px -16px rgb(15 59 46 / 0.45);
+  }
+
+  .site-header__inner {
+    transition: min-height var(--dur-base) var(--ease);
+  }
+
+  .site-header.is-scrolled .site-header__inner {
+    min-height: 3.75rem;
+  }
+
+  .brand__logo {
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .site-header.is-scrolled .brand__logo {
+    transform: scale(0.86);
+  }
+
+  .brand:hover .brand__logo {
+    transform: rotate(-6deg) scale(1.04);
   }
 
   .site-header__inner {

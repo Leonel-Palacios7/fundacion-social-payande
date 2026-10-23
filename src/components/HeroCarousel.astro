@@ -9,6 +9,7 @@ interface Props {
 
 const { photoIds } = Astro.props;
 const slides = photoIds.map(getPhoto);
+const titleWords = site.tagline.split(' ');
 ---
 
 <section class="hero" aria-labelledby="hero-title" data-carousel>
@@ -52,14 +53,14 @@ const slides = photoIds.map(getPhoto);
   <div class="hero__overlay"></div>
 
   <div class="container hero__content">
-    <p class="hero__eyebrow">Fundación <span class="hero__script">Payandé</span></p>
-    <h1 id="hero-title">{site.tagline}</h1>
-    <p class="hero__lead">
+    <p class="hero__eyebrow hero__in" style="--d:0">Fundación <span class="hero__script">Payandé</span></p>
+    <h1 id="hero-title" set:html={titleWords.map((word, i) => `<span class="hero__word" style="--i:${i}">${word}</span>`).join(' ')} />
+    <p class="hero__lead hero__in" style="--d:6">
       Acompañamos a la niñez, los jóvenes, las familias y las personas mayores de Payandé con educación, recreación y
       vivienda digna.
     </p>
-    <div class="btn-row">
-      <a class="btn btn--light" href="/programas/">Conoce nuestros programas</a>
+    <div class="btn-row hero__in" style="--d:8">
+      <a class="btn btn--light btn--arrow" href="/programas/">Conoce nuestros programas</a>
       <a class="btn btn--ghost-light" href="/como-ayudar/">Quiero ayudar</a>
     </div>
   </div>
@@ -125,6 +126,48 @@ const slides = photoIds.map(getPhoto);
     opacity: 1;
   }
 
+  @media (prefers-reduced-motion: no-preference) {
+    /* Zoom lento tipo Ken Burns sobre la foto activa */
+    .hero__slide.is-active .hero__img {
+      animation: kenburns 9s var(--ease-out) both;
+    }
+
+    #hero-title :global(.hero__word) {
+      display: inline-block;
+      animation: word-in 1s var(--ease-out) both;
+      animation-delay: calc(150ms + var(--i) * 90ms);
+    }
+
+    .hero__in {
+      animation: fade-up 1s var(--ease-out) both;
+      animation-delay: calc(150ms + var(--d) * 90ms);
+    }
+  }
+
+  @keyframes kenburns {
+    from {
+      transform: scale(1.14) translate3d(-1.5%, 1%, 0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.55em) rotate(3deg);
+      filter: blur(6px);
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
   .hero__slide :global(picture),
   .hero__img {
     width: 100%;
@@ -133,6 +176,7 @@ const slides = photoIds.map(getPhoto);
 
   .hero__img {
     object-fit: cover;
+    transform-origin: 60% 40%;
   }
 
   .hero__overlay {

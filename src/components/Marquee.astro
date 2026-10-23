@@ -1,0 +1,140 @@
+---
+interface Props {
+  items: readonly string[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="marquee" data-marquee>
+  <p class="visually-hidden">{items.join(', ')}</p>
+  <div class="marquee__track" aria-hidden="true">
+    {
+      [0, 1].map(() => (
+        <ul class="marquee__list">
+          {items.map((item) => (
+            <li>
+              <span>{item}</span>
+              <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+                <path d="M12 2c1.5 4 4.5 7 8.5 8.5-4 1.5-7 4.5-8.5 8.5C10.5 15 7.5 12 3.5 10.5 7.5 9 10.5 6 12 2z" fill="currentColor" />
+              </svg>
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+  <button class="marquee__toggle" type="button" data-marquee-toggle aria-pressed="false">
+    <span class="visually-hidden">Detener la cinta animada</span>
+    <svg class="icon-pause" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+    <svg class="icon-play" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>
+  </button>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-marquee]').forEach((root) => {
+    const button = root.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
+    button?.addEventListener('click', () => {
+      const paused = root.classList.toggle('is-paused');
+      button.setAttribute('aria-pressed', String(paused));
+    });
+  });
+</script>
+
+<style>
+  .marquee {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-5);
+    background: var(--brand-lima);
+    color: var(--verde-900);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+  }
+
+  .marquee__list {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0 var(--space-6) 0 0;
+    list-style: none;
+  }
+
+  .marquee__list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    font-family: var(--font-script);
+    font-size: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .marquee__list svg {
+    color: var(--verde-700);
+    flex-shrink: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee__track {
+      animation: marquee 38s linear infinite;
+    }
+
+    .marquee:hover .marquee__track,
+    .marquee.is-paused .marquee__track {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .marquee::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 6rem;
+    background: linear-gradient(90deg, transparent, var(--brand-lima) 60%);
+    pointer-events: none;
+  }
+
+  .marquee__toggle {
+    z-index: 1;
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: 50%;
+    background: var(--verde-900);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .marquee__toggle .icon-play,
+  .marquee.is-paused .marquee__toggle .icon-pause {
+    display: none;
+  }
+
+  .marquee.is-paused .marquee__toggle .icon-play {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__toggle {
+      display: none;
+    }
+  }
+</style>

@@ -10,6 +10,18 @@ const PAGES = [
   { path: '/contacto/', h1: /Hablemos/ },
 ];
 
+/** Recorre la página para que las animaciones de aparición terminen antes de auditar. */
+async function revealAll(page: Page) {
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 300) {
+      window.scrollTo(0, y);
+      await new Promise((r) => setTimeout(r, 40));
+    }
+    window.scrollTo(0, 0);
+  });
+  await page.waitForTimeout(1600);
+}
+
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 1280) < 1024;
 
 async function openMenuIfMobile(page: Page) {
@@ -31,6 +43,7 @@ for (const { path, h1 } of PAGES) {
 
   test(`${path} no tiene violaciones axe (WCAG 2.2 A/AA)`, async ({ page }) => {
     await page.goto(path);
+    await revealAll(page);
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();
@@ -172,4 +185,75 @@ test('las imágenes se sirven en AVIF/WebP con dimensiones reservadas', async ({
     .locator('main img:not([data-lightbox-img])')
     .evaluateAll((imgs) => imgs.filter((i) => !i.getAttribute('width') || !i.getAttribute('height')).length);
   expect(missing).toBe(0);
+});
+
+test('el carrusel 3D gira con los botones y se puede pausar', async ({ page }) => {
+  await page.goto('/');
+  const ring = page.locator('[data-ring]');
+  await ring.scrollIntoViewIfNeeded();
+  const track = ring.locator('[data-ring-track]');
+  const pause = ring.getByRole('button', { name: 'Pausar carrusel 3D' });
+  await pause.click();
+  await expect(ring.getByRole('button', { name: 'Reanudar carrusel 3D' })).toBeVisible();
+  const angle = () => track.evaluate((el) => parseFloat(el.style.getPropertyValue('--angle')));
+  const before = await angle();
+  await ring.getByRole('button', { name: 'Girar el carrusel a la derecha' }).click();
+  await expect.poll(angle).toBeLessThan(before - 20);
+  // Espera a que termine el ajuste animado; en pausa el ángulo ya no cambia solo.
+  await page.waitForTimeout(1500);
+  const settled = await angle();
+  await page.waitForTimeout(600);
+  expect(Math.abs((await angle()) - settled)).toBeLessThan(0.5);
+});
+
+test('el carrusel 3D gira solo y responde al arrastre', async ({ page }) => {
+  test.skip(isMobile(page), 'El arrastre se prueba con ratón');
+  await page.goto('/');
+  const stage = page.locator('[data-ring-stage]');
+  await stage.scrollIntoViewIfNeeded();
+  const track = page.locator('[data-ring-track]');
+  const angle = () => track.evaluate((el) => parseFloat(el.style.getPropertyValue('--angle')));
+  const a0 = await angle();
+  await expect.poll(angle).not.toBe(a0);
+  const box = await stage.boundingBox();
+  if (!box) throw new Error('sin escenario');
+  await page.getByRole('button', { name: 'Pausar carrusel 3D' }).click();
+  const a1 = await angle();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 200, box.y + box.height / 2, { steps: 8 });
+  await page.mouse.up();
+  expect((await angle()) - a1).toBeGreaterThan(40);
+});
+
+test('con movimiento reducido no hay animaciones automáticas y todo el contenido es visible', async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Reanudar carrusel 3D' })).toBeAttached();
+  const hidden = await page
+    .locator('[data-reveal]')
+    .evaluateAll((els) => els.filter((el) => getComputedStyle(el).opacity !== '1').length);
+  expect(hidden).toBe(0);
+  const marquee = await page.locator('.marquee__track').evaluate((el) => getComputedStyle(el).animationName);
+  expect(marquee).toBe('none');
+  await context.close();
+});
+
+test('la cinta animada se puede detener', async ({ page }) => {
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: 'Detener la cinta animada' });
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  const state = await page.locator('.marquee__track').evaluate((el) => getComputedStyle(el).animationPlayState);
+  expect(state).toBe('paused');
+});
+
+test('los programas se revelan al hacer scroll y cargan su foto', async ({ page }) => {
+  await page.goto('/programas/');
+  const photo = page.locator('#jovenes .editorial__photo');
+  await photo.scrollIntoViewIfNeeded();
+  await expect(photo).toHaveClass(/is-visible/);
+  await expect(photo.locator('img')).toHaveJSProperty('complete', true);
+  expect(await photo.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
 });

@@ -42,7 +42,7 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
   <ul class="gallery__grid" role="list">
     {
       items.map((item, index) => (
-        <li class="gallery__item" data-category={item.category}>
+        <li class="gallery__item" data-category={item.category} data-reveal style={`--stagger:${index % 6}`}>
           <a
             class="gallery__link"
             href={item.largeSrc}
@@ -51,7 +51,7 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
             data-width={item.largeWidth}
             data-height={item.largeHeight}
             data-caption={item.alt}
-            aria-label={`Ampliar foto: ${item.alt}`}
+            aria-label={`${categoryLabels[item.category]}. Ampliar foto: ${item.alt}`}
           >
             <Picture
               src={item.src}
@@ -63,6 +63,7 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
               sizes="(min-width: 72rem) 18rem, (min-width: 40rem) 30vw, 46vw"
               class="gallery__img"
             />
+            <span class="gallery__caption">{categoryLabels[item.category]}</span>
           </a>
         </li>
       ))
@@ -148,6 +149,7 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
   }
 
   .gallery__link {
+    position: relative;
     display: block;
     border-radius: var(--radius-md);
     overflow: hidden;
@@ -166,8 +168,56 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
     transition: transform 400ms var(--ease);
   }
 
-  .gallery__link:hover .gallery__img {
-    transform: scale(1.04);
+  .gallery__link:hover .gallery__img,
+  .gallery__link:focus-visible .gallery__img {
+    transform: scale(1.06);
+  }
+
+  .gallery__caption {
+    position: absolute;
+    inset: auto 0 0;
+    padding: var(--space-6) var(--space-3) var(--space-3);
+    background: linear-gradient(0deg, rgb(15 59 46 / 0.85), transparent);
+    color: #fff;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    transform: translateY(100%);
+    transition: transform 400ms var(--ease-out);
+  }
+
+  .gallery__link:hover .gallery__caption,
+  .gallery__link:focus-visible .gallery__caption {
+    transform: none;
+  }
+
+  @media (hover: none) {
+    .gallery__caption {
+      transform: none;
+    }
+  }
+
+  /* Visor: la foto entra con un leve zoom */
+  @media (prefers-reduced-motion: no-preference) {
+    .lightbox[open] .lightbox__frame {
+      animation: lb-in 450ms var(--ease-out);
+    }
+
+    .lightbox[open]::backdrop {
+      animation: lb-fade 300ms ease;
+    }
+  }
+
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+  }
+
+  @keyframes lb-fade {
+    from {
+      opacity: 0;
+    }
   }
 
   /* ---------- Visor ---------- */

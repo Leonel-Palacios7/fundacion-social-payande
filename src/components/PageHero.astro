@@ -24,9 +24,9 @@ const photo = getPhoto(photoId);
   />
   <div class="page-hero__overlay"></div>
   <div class="container page-hero__content">
-    <p class="page-hero__eyebrow">{eyebrow}</p>
-    <h1 id="page-title">{title}</h1>
-    <p class="page-hero__lead">{lead}</p>
+    <p class="page-hero__eyebrow page-hero__in" style="--d:0">{eyebrow}</p>
+    <h1 id="page-title" class="page-hero__in" style="--d:1">{title}</h1>
+    <p class="page-hero__lead page-hero__in" style="--d:2">{lead}</p>
   </div>
 </section>
 
@@ -51,6 +51,30 @@ const photo = getPhoto(photoId);
   .page-hero__img {
     object-fit: cover;
     object-position: center 35%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .page-hero__img {
+      animation: ph-zoom 8s var(--ease-out) both;
+    }
+
+    .page-hero__in {
+      animation: ph-up 0.9s var(--ease-out) both;
+      animation-delay: calc(120ms + var(--d) * 110ms);
+    }
+  }
+
+  @keyframes ph-zoom {
+    from {
+      transform: scale(1.12);
+    }
+  }
+
+  @keyframes ph-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
   }
 
   .page-hero__overlay {

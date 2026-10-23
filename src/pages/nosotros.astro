@@ -29,7 +29,7 @@ const values = [
 
   <section class="section" aria-labelledby="mision">
     <div class="container split">
-      <div>
+      <div data-reveal>
         <ProvisionalNote text="Misión, visión y valores de ejemplo: deben reemplazarse por los oficiales de la Fundación." />
         <h2 id="mision">Misión</h2>
         <p class="lead">
@@ -42,29 +42,31 @@ const values = [
           para cada generación.
         </p>
       </div>
-      <Picture
-        src={team.src}
-        alt={team.alt}
-        formats={['avif', 'webp']}
-        width={720}
-        height={540}
-        fit="cover"
-        sizes="(min-width: 56rem) 34rem, 92vw"
-        class="rounded-img"
-      />
+      <div data-reveal="mask" data-tone="mono" style="--stagger:2">
+        <Picture
+          src={team.src}
+          alt={team.alt}
+          formats={['avif', 'webp']}
+          width={720}
+          height={540}
+          fit="cover"
+          sizes="(min-width: 56rem) 34rem, 92vw"
+          class="rounded-img"
+        />
+      </div>
     </div>
   </section>
 
   <section class="section section--alt" aria-labelledby="valores">
     <div class="container">
-      <div class="section__header">
+      <div class="section__header" data-reveal>
         <span class="eyebrow">Lo que nos guía</span>
         <h2 id="valores">Nuestros valores</h2>
       </div>
       <ul class="values" role="list">
         {
           values.map((value) => (
-            <li class="values__item">
+            <li class="values__item" data-reveal style={`--stagger:${values.indexOf(value)}`}>
               <h3>{value.title}</h3>
               <p>{value.text}</p>
             </li>
@@ -75,7 +77,7 @@ const values = [
   </section>
 
   <section class="section" aria-labelledby="territorio">
-    <div class="container--narrow">
+    <div class="container--narrow" data-reveal>
       <span class="eyebrow">Nuestro territorio</span>
       <h2 id="territorio">Payandé, <span class="script">nuestra casa</span></h2>
       <p>

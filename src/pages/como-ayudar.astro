@@ -67,7 +67,7 @@ const faqs = [
       <ul class="ways" role="list">
         {
           ways.map((way) => (
-            <li class="way" id={way.id}>
+            <li class="way" id={way.id} data-reveal style={`--stagger:${ways.indexOf(way)}`}>
               <Picture
                 src={way.photo.src}
                 alt={way.photo.alt}
@@ -98,9 +98,9 @@ const faqs = [
         <h2 id="pasos">Así de fácil</h2>
       </div>
       <ol class="steps" role="list">
-        <li><strong>Escríbenos</strong> con el formulario de contacto y cuéntanos cómo quieres ayudar.</li>
-        <li><strong>Coordinamos</strong> contigo qué se necesita, cuándo y dónde.</li>
-        <li><strong>Tu aporte llega</strong> a la comunidad y te compartimos el resultado.</li>
+        <li data-reveal><strong>Escríbenos</strong> con el formulario de contacto y cuéntanos cómo quieres ayudar.</li>
+        <li data-reveal style="--stagger:1"><strong>Coordinamos</strong> contigo qué se necesita, cuándo y dónde.</li>
+        <li data-reveal style="--stagger:2"><strong>Tu aporte llega</strong> a la comunidad y te compartimos el resultado.</li>
       </ol>
     </div>
   </section>
@@ -148,6 +148,32 @@ const faqs = [
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 700ms var(--ease-out);
+  }
+
+  .way :global(picture) {
+    overflow: hidden;
+  }
+
+  .way:hover .way__img {
+    transform: scale(1.06);
+  }
+
+  .faq details[open] p {
+    animation: faq-open 400ms var(--ease-out);
+  }
+
+  @keyframes faq-open {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq details[open] p {
+      animation: none;
+    }
   }
 
   .way__body {

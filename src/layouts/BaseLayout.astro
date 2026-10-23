@@ -1,5 +1,6 @@
 ---
 // Solo el subconjunto latino: cubre el español completo (tildes, ñ, ¿, ¡).
+import '@fontsource/ubuntu/latin-300.css';
 import '@fontsource/ubuntu/latin-400.css';
 import '@fontsource/ubuntu/latin-500.css';
 import '@fontsource/ubuntu/latin-700.css';
@@ -51,11 +52,17 @@ const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <Header />
     <main id="contenido" tabindex="-1">
       <slot />
     </main>
     <Footer />
+    <script>
+      import { initHeaderOnScroll, initReveal } from '../scripts/reveal.ts';
+      initReveal();
+      initHeaderOnScroll();
+    </script>
   </body>
 </html>

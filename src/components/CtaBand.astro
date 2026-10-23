@@ -11,12 +11,12 @@ const { title, text, primary, secondary } = Astro.props;
 
 <section class="cta" aria-labelledby="cta-title">
   <div class="container cta__inner">
-    <div>
+    <div data-reveal>
       <h2 id="cta-title">{title}</h2>
       <p>{text}</p>
     </div>
-    <div class="btn-row">
-      <a class="btn btn--light" href={primary.href}>{primary.label}</a>
+    <div class="btn-row" data-reveal style="--stagger:2">
+      <a class="btn btn--light btn--arrow" href={primary.href}>{primary.label}</a>
       {secondary && <a class="btn btn--ghost-light" href={secondary.href}>{secondary.label}</a>}
     </div>
   </div>
@@ -24,11 +24,27 @@ const { title, text, primary, secondary } = Astro.props;
 
 <style>
   .cta {
+    position: relative;
+    overflow: hidden;
+    animation: cta-shift 14s ease-in-out infinite alternate;
     background:
       radial-gradient(circle at 85% 20%, rgb(142 202 109 / 0.35), transparent 45%),
       linear-gradient(120deg, var(--verde-800) 0%, var(--turquesa-700) 100%);
+    background-size: 160% 160%;
     color: #fff;
     padding-block: var(--space-8);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cta {
+      animation: none;
+    }
+  }
+
+  @keyframes cta-shift {
+    to {
+      background-position: 100% 50%;
+    }
   }
 
   .cta__inner {
@@ -38,7 +54,19 @@ const { title, text, primary, secondary } = Astro.props;
   }
 
   @media (min-width: 56rem) {
-    .cta__inner {
+    @media (prefers-reduced-motion: reduce) {
+    .cta {
+      animation: none;
+    }
+  }
+
+  @keyframes cta-shift {
+    to {
+      background-position: 100% 50%;
+    }
+  }
+
+  .cta__inner {
       grid-template-columns: 1.4fr auto;
     }
   }
