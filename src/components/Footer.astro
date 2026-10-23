@@ -33,10 +33,6 @@ const socialIcons: Record<SocialLink['id'], string> = {
           <Image src={logoBlanco} alt="" width={110} height={127} densities={[1, 2]} />
         </a>
         <p class="site-footer__tagline">{site.tagline}.</p>
-        <p>
-          Mejoramos la calidad de vida, la educación, la salud, la vivienda y la recreación de personas de escasos
-          recursos en {site.contact.area}.
-        </p>
         <ul class="social" role="list" aria-label="Redes sociales (próximamente)">
           {
             socialLinks.map((social, i) => (
@@ -98,7 +94,6 @@ const socialIcons: Record<SocialLink['id'], string> = {
 
     <div class="container site-footer__bottom">
       <p>© {year} {site.name}. Todos los derechos reservados.</p>
-      <p class="site-footer__made">Quebradanegra · Tobia · Villeta</p>
     </div>
   </div>
 </footer>
@@ -399,12 +394,6 @@ const socialIcons: Record<SocialLink['id'], string> = {
 
   .site-footer__bottom p {
     margin: 0;
-  }
-
-  .site-footer__made {
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #a9cdbd;
   }
 
   @media (prefers-reduced-motion: no-preference) {

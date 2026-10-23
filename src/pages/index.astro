@@ -1,4 +1,5 @@
 ---
+import { Picture } from 'astro:assets';
 import RandomPicture from '../components/RandomPicture.astro';
 import { withBase } from '../lib/paths.ts';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -20,15 +21,14 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 ---
 
 <BaseLayout title={site.name}>
-  <HeroCarousel photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']} eyebrow="Bienvenidos a" title="Fundación Social Payandé" />
+  <HeroCarousel photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']} title="Fundación Social Payandé" />
 
   <Marquee items={services.map((service) => service.title)} />
 
   <section class="section" aria-labelledby="quienes-somos">
     <div class="container split">
       <div data-reveal>
-        <span class="eyebrow">Sobre nosotros</span>
-        <h2 id="quienes-somos">Nuestro <span class="script">objeto social</span></h2>
+        <h2 class="eyebrow" id="quienes-somos">Sobre nosotros</h2>
         <p class="lead">
           La Fundación tiene por objeto, desarrollar a su entera discreción actividades asistenciales y de beneficencia,
           tendientes a mejorar la calidad de vida, la educación, la salud, la vivienda y la recreación a las personas de
@@ -47,6 +47,11 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     </div>
   </section>
 
+  <PhotoRing
+    word="Payandé"
+    photoIds={['slider-13', 'slider-17', 'slider-11', 'slider-14', 'slider-18', 'slider-20', 'slider-9', 'slider-15', 'slider-16']}
+  />
+
   <section class="section section--alt" aria-labelledby="servicios">
     <div class="container">
       <div class="section__header section__header--center" data-reveal>
@@ -60,21 +65,12 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
   <section class="section section--alt events-section" aria-labelledby="eventos">
     <div class="container">
       <div class="section__header section__header--center" data-reveal>
-        <span class="eyebrow">Eventos</span>
-        <h2 id="eventos">Fortaleciendo comunidades, construyendo futuro</h2>
-        <p class="lead">
-          Trabajamos para generar oportunidades que impulsen el bienestar y desarrollo de nuestras comunidades.
-        </p>
+        <h2 class="eyebrow" id="eventos">Eventos</h2>
         <ProvisionalNote text="Salvo la jornada del 31 de octubre en Villeta, las fechas y lugares son de ejemplo." />
       </div>
       <EventCards events={events} />
     </div>
   </section>
-
-  <PhotoRing
-    word="Payandé"
-    photoIds={['slider-13', 'slider-17', 'slider-11', 'slider-14', 'slider-18', 'slider-20', 'slider-9', 'slider-15', 'slider-16']}
-  />
 
   <section class="section" aria-label="Testimonios">
     <div class="container split split--reverse">
@@ -88,10 +84,14 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
       </figure>
       <div data-reveal style="--stagger:1">
         <span class="eyebrow">Testimonios</span>
-        <RandomPicture
-          photo={thanks}
-          shape="portrait"
+        <Picture
+          src={thanks.src}
+          alt={thanks.alt}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[480, 640, 960, 1200]}
           sizes="(min-width: 56rem) 34rem, 92vw"
+          loading="lazy"
           class="rounded-img"
         />
       </div>

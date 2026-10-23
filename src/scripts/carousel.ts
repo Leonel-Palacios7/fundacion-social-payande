@@ -51,6 +51,7 @@ export function initCarousel(root: HTMLElement): void {
       if (i === index) dot.setAttribute('aria-current', 'true');
       else dot.removeAttribute('aria-current');
     });
+    root.dispatchEvent(new CustomEvent('carousel:change', { detail: index }));
   };
 
   const stop = () => {

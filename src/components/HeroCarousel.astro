@@ -1,18 +1,19 @@
 ---
+import { Image } from 'astro:assets';
 import HeroPicture from './HeroPicture.astro';
+import logo from '../assets/brand/logo-arbol.png';
 import { getPhoto } from '../data/photos.ts';
 import { renderShape } from '../lib/shapes.ts';
 import { site } from '../data/site.ts';
 
 interface Props {
   photoIds: readonly string[];
-  eyebrow?: string;
+  /** Título para lectores de pantalla: en pantalla solo se ve el logo. */
   title?: string;
 }
 
-const { photoIds, eyebrow, title = site.tagline } = Astro.props;
+const { photoIds, title = site.name } = Astro.props;
 const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), img: await renderShape(getPhoto(id), 'hero') })));
-const titleWords = title.split(' ');
 ---
 
 <section class="hero" aria-labelledby="hero-title" data-carousel>
@@ -47,8 +48,25 @@ const titleWords = title.split(' ');
   <div class="hero__overlay"></div>
 
   <div class="container hero__content">
-    <p class="hero__eyebrow hero__in" style="--d:0">{eyebrow ?? <Fragment>Fundación <span class="hero__script">Payandé</span></Fragment>}</p>
-    <h1 id="hero-title" set:html={titleWords.map((word, i) => `<span class="hero__word" style="--i:${i}">${word}</span>`).join(' ')} />
+    <h1 id="hero-title" class="hero__brand">
+      <span class="visually-hidden">{title}</span>
+      <span class="hero__logo" data-hero-logo aria-hidden="true">
+        <span class="hero__halo"></span>
+        <span class="hero__ripple"></span>
+        <span class="hero__ripple hero__ripple--late"></span>
+        <span class="hero__tilt" data-hero-tilt>
+          <Image
+            src={logo}
+            alt=""
+            widths={[240, 360, 450]}
+            sizes="(min-width: 48rem) 22rem, 15rem"
+            class="hero__tree"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </span>
+      </span>
+    </h1>
   </div>
 
   <div class="container hero__controls" data-carousel-controls hidden>
@@ -80,7 +98,11 @@ const titleWords = title.split(' ');
 
 <script>
   import { initCarousel } from '../scripts/carousel.ts';
-  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(initCarousel);
+  import { initHeroLogo } from '../scripts/hero-logo.ts';
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    initCarousel(root);
+    initHeroLogo(root);
+  });
 </script>
 
 <style>
@@ -118,15 +140,103 @@ const titleWords = title.split(' ');
       animation: kenburns 9s var(--ease-out) both;
     }
 
-    #hero-title :global(.hero__word) {
-      display: inline-block;
-      animation: word-in 1s var(--ease-out) both;
-      animation-delay: calc(150ms + var(--i) * 90ms);
+    /* Logo: entra creciendo y desenfocado, luego flota y respira sin parar. */
+    .hero__logo {
+      animation: logo-in 1.4s var(--ease-out) both;
     }
 
-    .hero__in {
-      animation: fade-up 1s var(--ease-out) both;
-      animation-delay: calc(150ms + var(--d) * 90ms);
+    .hero__tilt :global(.hero__tree) {
+      animation:
+        tree-grow 1.6s var(--ease-out) 200ms backwards,
+        tree-float 7s ease-in-out 1.8s infinite;
+    }
+
+    .hero__halo {
+      animation:
+        halo-in 1.2s var(--ease-out) both,
+        halo-breathe 5s ease-in-out 1.2s infinite;
+    }
+
+    .hero__ripple {
+      animation: ripple 4.5s var(--ease-out) 1.2s infinite;
+    }
+
+    .hero__ripple--late {
+      animation-delay: 3.45s;
+    }
+
+    /* Al cambiar de foto el logo da un pequeño salto. */
+    .hero__logo.is-bumping .hero__tilt {
+      animation: logo-bump 900ms var(--ease-out);
+    }
+
+    .hero__tilt {
+      transition: transform 600ms var(--ease-out);
+    }
+  }
+
+  @keyframes logo-in {
+    from {
+      opacity: 0;
+      transform: scale(0.55) rotate(-10deg);
+      filter: blur(12px);
+    }
+  }
+
+  @keyframes tree-grow {
+    from {
+      clip-path: inset(100% 0 0 0);
+      transform: translateY(14%);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes tree-float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    30% {
+      transform: translateY(-4%) rotate(-2deg);
+    }
+    65% {
+      transform: translateY(-1.5%) rotate(1.6deg);
+    }
+  }
+
+  @keyframes halo-in {
+    from {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+  }
+
+  @keyframes halo-breathe {
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes ripple {
+    from {
+      opacity: 0.7;
+      transform: scale(0.85);
+    }
+    70%,
+    to {
+      opacity: 0;
+      transform: scale(1.45);
+    }
+  }
+
+  @keyframes logo-bump {
+    35% {
+      transform: scale(1.08) rotate(-3deg);
+    }
+    70% {
+      transform: scale(0.97) rotate(1.5deg);
     }
   }
 
@@ -136,21 +246,6 @@ const titleWords = title.split(' ');
     }
     to {
       transform: scale(1);
-    }
-  }
-
-  @keyframes word-in {
-    from {
-      opacity: 0;
-      transform: translateY(0.55em) rotate(3deg);
-      filter: blur(6px);
-    }
-  }
-
-  @keyframes fade-up {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
     }
   }
 
@@ -177,22 +272,53 @@ const titleWords = title.split(' ');
     padding-block: var(--space-8) var(--space-6);
   }
 
-  .hero__content h1 {
-    max-width: 18ch;
-    color: #fff;
+  .hero__brand {
+    margin: 0;
   }
 
-  .hero__eyebrow {
-    margin-bottom: var(--space-2);
-    font-size: var(--fs-md);
-    letter-spacing: 0.04em;
-    color: #d8efe3;
+  /* Logo del árbol sobre un halo claro para que se lea encima de cualquier foto. */
+  .hero__logo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(15rem, 34vw, 22rem);
+    aspect-ratio: 1;
   }
 
-  .hero__script {
-    font-family: var(--font-script);
-    font-size: 1.5em;
-    color: #c9eab0;
+  .hero__halo,
+  .hero__ripple {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+  }
+
+  .hero__halo {
+    inset: 6%;
+    background: #fff;
+    box-shadow:
+      0 0 0 10px rgb(255 255 255 / 0.2),
+      0 0 0 22px rgb(255 255 255 / 0.08),
+      0 24px 60px rgb(0 0 0 / 0.35);
+  }
+
+  .hero__ripple {
+    inset: 8%;
+    border: 2px solid rgb(201 234 176 / 0.9);
+    opacity: 0;
+  }
+
+  .hero__tilt {
+    position: relative;
+    display: block;
+    width: 68%;
+    transform: perspective(700px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg));
+  }
+
+  .hero__tilt :global(.hero__tree) {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: 50% 90%;
   }
 
   .hero__controls {

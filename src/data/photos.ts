@@ -71,6 +71,15 @@ const entries: ReadonlyArray<[id: string, category: PhotoCategory, alt: string]>
   ['bano-nuevo', 'vivienda', 'Baño nuevo con sanitario, lavamanos y paredes enchapadas en blanco.'],
 ];
 
+/** Fotos donde aparece el pendón o el logo de la Fundación: no se usan como portada. */
+export const photosWithLogo: ReadonlySet<string> = new Set([
+  'portada-payande-3',
+  'morrales-pulgar',
+  'morrales-mural',
+  'morrales-ninas',
+  'grupo-gradas',
+]);
+
 export const photos: readonly Photo[] = entries.map(([id, category, alt]) => ({
   id,
   src: image(id),

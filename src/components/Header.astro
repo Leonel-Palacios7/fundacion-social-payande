@@ -10,10 +10,8 @@ const current = Astro.url.pathname;
 <header class="site-header" data-header>
   <div class="container site-header__inner">
     <a class="brand" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
-      <Image src={logo} alt="" width={64} height={44} densities={[1, 2, 3]} class="brand__logo" loading="eager" />
-      <span class="brand__text" aria-hidden="true">
-        <span class="brand__small">Fundación Social</span>
-        <span class="brand__script">Payandé</span>
+      <span class="brand__mark">
+        <Image src={logo} alt="" width={84} height={58} densities={[1, 2, 3]} class="brand__logo" loading="eager" />
       </span>
     </a>
 
@@ -89,16 +87,67 @@ const current = Astro.url.pathname;
     min-height: 3.75rem;
   }
 
-  .brand__logo {
+  .brand__mark {
+    display: block;
     transition: transform var(--dur-base) var(--ease-out);
   }
 
-  .site-header.is-scrolled .brand__logo {
-    transform: scale(0.86);
+  .site-header.is-scrolled .brand__mark {
+    transform: scale(0.82);
   }
 
-  .brand:hover .brand__logo {
-    transform: rotate(-6deg) scale(1.04);
+  .brand__logo {
+    transform-origin: 50% 95%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* El árbol brota al cargar, se mece con el viento y salta al pasar el ratón. */
+    .brand__logo {
+      animation:
+        brand-grow 1.2s var(--ease-out) backwards,
+        brand-sway 6s ease-in-out 1.2s infinite;
+    }
+
+    .brand:hover .brand__logo,
+    .brand:focus-visible .brand__logo {
+      animation: brand-bounce 800ms var(--ease-out);
+    }
+  }
+
+  @keyframes brand-grow {
+    from {
+      opacity: 0;
+      clip-path: inset(100% 0 0 0);
+      transform: scale(0.6) rotate(-12deg);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes brand-sway {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-3deg);
+    }
+    75% {
+      transform: rotate(2.5deg);
+    }
+  }
+
+  @keyframes brand-bounce {
+    30% {
+      transform: scale(1.14) rotate(-8deg);
+    }
+    60% {
+      transform: scale(0.95) rotate(4deg);
+    }
+    80% {
+      transform: scale(1.03) rotate(-1deg);
+    }
   }
 
   .site-header__inner {
@@ -118,27 +167,10 @@ const current = Astro.url.pathname;
   }
 
   .brand__logo {
-    width: 64px;
-    height: 44px;
+    display: block;
+    width: 84px;
+    height: 58px;
     object-fit: contain;
-  }
-
-  .brand__text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1;
-  }
-
-  .brand__small {
-    font-size: 0.95rem;
-    color: var(--turquesa-700);
-    letter-spacing: 0.02em;
-  }
-
-  .brand__script {
-    font-family: var(--font-script);
-    font-size: 1.6rem;
-    color: var(--verde-700);
   }
 
   .nav-toggle {
@@ -425,10 +457,6 @@ const current = Astro.url.pathname;
       animation: header-line 3s linear 1;
     }
 
-    .brand:hover .brand__script {
-      animation: brand-wave 0.8s var(--ease-out);
-    }
-
     .site-nav__link--cta:hover::before {
       transform: translateX(120%);
       transition: transform 0.8s var(--ease-out);
@@ -488,16 +516,4 @@ const current = Astro.url.pathname;
     }
   }
 
-  @keyframes brand-wave {
-    30% {
-      transform: rotate(-4deg) translateY(-2px);
-    }
-    60% {
-      transform: rotate(3deg);
-    }
-  }
-
-  .brand__script {
-    display: inline-block;
-  }
 </style>

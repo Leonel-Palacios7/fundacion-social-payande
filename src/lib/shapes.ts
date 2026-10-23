@@ -1,5 +1,5 @@
 import { getImage } from 'astro:assets';
-import { categoryLabels, photos, type Photo } from '../data/photos.ts';
+import { categoryLabels, photos, photosWithLogo, type Photo } from '../data/photos.ts';
 
 /**
  * Formatos de foto del sitio. Todas las ranuras de un mismo formato comparten
@@ -57,8 +57,10 @@ export async function renderLarge(photo: Photo) {
   return { src: large.src, width: Number(large.attributes.width), height: Number(large.attributes.height) };
 }
 
-/** Fotos aptas para portada: horizontales y con suficiente resolución. */
-export const heroPhotos = photos.filter((p) => p.src.width >= p.src.height * 1.2 && p.src.width >= 1280);
+/** Fotos aptas para portada: horizontales, con suficiente resolución y sin el logo de la Fundación. */
+export const heroPhotos = photos.filter(
+  (p) => p.src.width >= p.src.height * 1.2 && p.src.width >= 1280 && !photosWithLogo.has(p.id),
+);
 
 /** Entrada compacta del catálogo de fotos aleatorias (claves cortas: viaja en cada página). */
 export interface PoolEntry {

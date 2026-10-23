@@ -292,3 +292,14 @@ test('el botón de volver arriba aparece al bajar y regresa al inicio', async ({
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   await expect(page.locator('#contenido')).toBeFocused();
 });
+
+test('la portada muestra solo el logo animado y nunca fotos con el logo de la Fundación', async ({ page }) => {
+  for (let i = 0; i < 4; i++) {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Fundación Social Payandé' })).toBeAttached();
+    await expect(page.locator('.hero__tree')).toBeVisible();
+    const hero = await page.locator('.hero__slide.is-active img').getAttribute('src');
+    expect(hero).not.toMatch(/grupo-gradas|morrales-|portada-payande-3/);
+  }
+  await expect(page.locator('.hero__content')).not.toContainText('Bienvenidos');
+});
