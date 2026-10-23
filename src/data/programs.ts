@@ -1,68 +1,81 @@
 import type { PhotoCategory } from './photos.ts';
+import type { ServiceIcon } from './services.ts';
 
 export interface Program {
+  /** Igual al `id` del servicio: /programas/#<id> */
   id: string;
+  icon: ServiceIcon;
   category: PhotoCategory;
   title: string;
-  summary: string;
   description: string;
   actions: readonly string[];
   photoId: string;
 }
 
 /**
- * PROVISIONAL: líneas de acción deducidas de las fotografías del proyecto.
- * La Fundación debe confirmar nombres, alcance y descripción de cada programa.
+ * Los seis programas son los servicios del sitio actual de la Fundación (src/data/services.ts).
+ * PROVISIONAL: las descripciones y acciones se redactaron a partir de las fotografías;
+ * la Fundación debe confirmarlas.
  */
 export const programs: readonly Program[] = [
   {
     id: 'educacion',
+    icon: 'educacion',
     category: 'educacion',
-    title: 'Educación con dignidad',
-    summary: 'Útiles, zapatos, morrales y pupitres para que nadie deje de estudiar por falta de recursos.',
+    title: 'Educación',
     description:
-      'Acompañamos a las escuelas rurales y urbanas de Payandé con kits escolares, calzado y dotación de aulas, para que niñas y niños estudien en mejores condiciones.',
-    actions: ['Entrega de kits escolares y morrales', 'Calzado escolar', 'Dotación de pupitres y aulas', 'Libros y material de lectura'],
+      'Entregamos kits escolares, morrales, calzado y dotación para las aulas, para que niñas, niños y jóvenes estudien en mejores condiciones.',
+    actions: ['Kits escolares y morrales', 'Calzado escolar', 'Pupitres y dotación de aulas', 'Libros y material de lectura'],
     photoId: 'slider-10',
   },
   {
-    id: 'ninez',
+    id: 'plan-padrino',
+    icon: 'padrino',
     category: 'ninez',
-    title: 'Niñez feliz',
-    summary: 'Jornadas recreativas y celebraciones que llenan de alegría a la infancia de la región.',
+    title: 'Plan Padrino',
     description:
-      'Organizamos jornadas lúdicas, celebraciones de Navidad y entregas de juguetes que fortalecen los lazos entre las familias y la comunidad.',
-    actions: ['Celebraciones navideñas', 'Jornadas recreativas', 'Entrega de juguetes'],
+      'Creamos vínculos entre padrinos, madrinas y niñas y niños de la región para acompañar su crecimiento con regalos, celebraciones y apoyo en fechas especiales.',
+    actions: ['Celebraciones de Navidad', 'Entrega de regalos y juguetes', 'Jornadas recreativas'],
     photoId: 'slider-14',
   },
   {
-    id: 'vivienda',
-    category: 'vivienda',
-    title: 'Vivienda digna y personas mayores',
-    summary: 'Mejoramos cocinas y baños de familias y adultos mayores para vivir con más salud y seguridad.',
+    id: 'salud',
+    icon: 'salud',
+    category: 'salud',
+    title: 'Salud',
     description:
-      'Adecuamos espacios esenciales del hogar, como cocinas y unidades sanitarias, priorizando a personas mayores y familias en situación de vulnerabilidad.',
+      'Llevamos brigadas de salud a la comunidad junto al Hospital Salazar de Villeta, para acercar la atención a quienes más la necesitan.',
+    actions: ['Brigadas de salud', 'Atención en unidad móvil', 'Promoción de hábitos saludables'],
+    photoId: 'brigada-salud',
+  },
+  {
+    id: 'vivienda',
+    icon: 'vivienda',
+    category: 'vivienda',
+    title: 'Vivienda',
+    description:
+      'Adecuamos cocinas y baños de familias y personas mayores en situación de vulnerabilidad, para que vivan con más salud y seguridad.',
     actions: ['Mejoramiento de cocinas', 'Construcción de baños', 'Acompañamiento a personas mayores'],
     photoId: 'slider-20',
   },
   {
-    id: 'jovenes',
-    category: 'jovenes',
-    title: 'Jóvenes y deporte',
-    summary: 'Formación deportiva y oportunidades para que los jóvenes construyan su proyecto de vida.',
+    id: 'beneficiarios',
+    icon: 'beneficiarios',
+    category: 'comunidad',
+    title: 'Beneficiarios',
     description:
-      'Promovemos el deporte como herramienta de formación en valores y abrimos caminos de aprendizaje y empleo para los jóvenes del territorio.',
-    actions: ['Escuela deportiva de golf', 'Formación de caddies', 'Dotación deportiva'],
-    photoId: 'slider-4',
+      'Acompañamos de cerca a personas y familias de Quebradanegra, Tobia y Villeta con visitas, entregas y seguimiento a su desarrollo.',
+    actions: ['Visitas a familias', 'Entregas comunitarias', 'Seguimiento a cada beneficiario'],
+    photoId: 'slider-16',
   },
   {
-    id: 'comunidad',
-    category: 'comunidad',
-    title: 'Comunidad y alianzas',
-    summary: 'Trabajamos de la mano con familias, voluntarios y empresas para multiplicar el impacto.',
+    id: 'otros',
+    icon: 'otros',
+    category: 'jovenes',
+    title: 'Otros',
     description:
-      'Articulamos esfuerzos con aliados públicos y privados, voluntariado y líderes comunitarios para llegar a más hogares de la región.',
-    actions: ['Trabajo con líderes comunitarios', 'Entregas comunitarias'],
-    photoId: 'slider-16',
+      'Impulsamos iniciativas de deporte, cultura y formación que abren oportunidades para los jóvenes del territorio.',
+    actions: ['Escuelas de golf y tenis', 'Formación de caddies', 'Dotación deportiva', 'Actividades culturales'],
+    photoId: 'slider-4',
   },
 ];

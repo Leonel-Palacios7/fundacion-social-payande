@@ -4,7 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 const PAGES = [
   { path: '/', h1: /Fundación Social Payandé/ },
   { path: '/nosotros/', h1: /hecha por y para Payandé/ },
-  { path: '/programas/', h1: /Cinco ramas/ },
+  { path: '/programas/', h1: /Seis programas/ },
   { path: '/galeria/', h1: /Momentos/ },
   { path: '/contacto/', h1: /Contacto/ },
 ];
@@ -265,7 +265,7 @@ test('la cinta animada se puede detener', async ({ page }) => {
 
 test('los programas se revelan al hacer scroll y cargan su foto', async ({ page }) => {
   await page.goto('/programas/');
-  const photo = page.locator('#jovenes .editorial__photo');
+  const photo = page.locator('#otros .editorial__photo');
   await photo.scrollIntoViewIfNeeded();
   await expect(photo).toHaveClass(/is-visible/);
   await expect(photo.locator('img')).toHaveJSProperty('complete', true);
@@ -302,4 +302,13 @@ test('la portada muestra el logo animado con el saludo y nunca fotos con el logo
     expect(hero).not.toMatch(/grupo-gradas|morrales-|portada-payande-3/);
   }
   await expect(page.locator('.hero__content')).toContainText('Bienvenidos a');
+});
+
+test('cada tarjeta de servicio de Inicio lleva a su programa', async ({ page }) => {
+  await page.goto('/');
+  const cards = page.locator('.service__link');
+  await expect(cards).toHaveCount(6);
+  await cards.filter({ hasText: 'Salud' }).click();
+  await expect(page).toHaveURL(/\/programas\/#salud$/);
+  await expect(page.getByRole('heading', { level: 2, name: 'Salud' })).toBeInViewport();
 });

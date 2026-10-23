@@ -4,8 +4,21 @@ import { Image } from 'astro:assets';
 import logoBlanco from '../assets/brand/logo-blanco.png';
 import { navItems, site, socialLinks, type SocialLink } from '../data/site.ts';
 import { services } from '../data/services.ts';
+import { serviceIcons } from '../lib/service-icons.ts';
 
 const year = new Date().getFullYear();
+
+/** Hojas que suben por el fondo del pie: posición horizontal, tamaño, duración y retraso. */
+const leaves = [
+  [6, 18, 11, 0],
+  [17, 12, 13, 2.5],
+  [29, 22, 12, 5],
+  [43, 14, 14, 1.2],
+  [58, 20, 11.5, 3.8],
+  [71, 12, 13.5, 6],
+  [83, 24, 12.5, 0.8],
+  [94, 15, 14, 4.4],
+] as const;
 
 /** Íconos de redes sociales (trazos propios, viewBox 24×24). */
 const socialIcons: Record<SocialLink['id'], string> = {
@@ -20,13 +33,27 @@ const socialIcons: Record<SocialLink['id'], string> = {
 };
 ---
 
-<footer class="site-footer">
+<footer class="site-footer" data-footer>
   <svg class="site-footer__wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
     <path class="wave wave--back" d="M0 40c120-26 240-26 360 0s240 26 360 0 240-26 360 0 240 26 360 0v40H0z" />
     <path class="wave wave--front" d="M0 52c120-20 240-20 360 0s240 20 360 0 240-20 360 0 240 20 360 0v28H0z" />
   </svg>
 
   <div class="site-footer__body">
+    <div class="site-footer__leaves" aria-hidden="true">
+      {
+        leaves.map(([x, size, dur, delay], i) => (
+          <svg
+            class="leaf"
+            viewBox="0 0 24 24"
+            style={`--x:${x}%;--s:${size}px;--dur:${dur}s;--delay:${delay}s;--turn:${i % 2 ? -1 : 1}`}
+          >
+            <path d="M12 2C6 6 4 11 6 17c1 3 3.5 5 6 5s5-2 6-5c2-6 0-11-6-15z" />
+            <path d="M12 6v15" />
+          </svg>
+        ))
+      }
+    </div>
     <div class="container site-footer__grid">
       <div class="site-footer__brand" data-reveal>
         <a class="site-footer__logo" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
@@ -65,8 +92,17 @@ const socialIcons: Record<SocialLink['id'], string> = {
 
       <div data-reveal style="--stagger:2">
         <h2 class="site-footer__title">Servicios</h2>
-        <ul class="site-footer__list site-footer__list--plain" role="list">
-          {services.map((service) => <li>{service.title}</li>)}
+        <ul class="site-footer__list site-footer__services" role="list">
+          {
+            services.map((service) => (
+              <li>
+                <a class="site-footer__link site-footer__service" href={withBase(`/programas/#${service.id}`)}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" set:html={serviceIcons[service.icon]} />
+                  {service.title}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </div>
 
@@ -97,6 +133,16 @@ const socialIcons: Record<SocialLink['id'], string> = {
     </div>
   </div>
 </footer>
+
+<script>
+  // Las animaciones de fondo del pie solo corren mientras está en pantalla.
+  const footer = document.querySelector<HTMLElement>('[data-footer]');
+  if (footer && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => footer.classList.toggle('is-active', Boolean(entry?.isIntersecting)), {
+      threshold: 0.15,
+    }).observe(footer);
+  }
+</script>
 
 <style>
   .site-footer {
@@ -287,20 +333,48 @@ const socialIcons: Record<SocialLink['id'], string> = {
     transform: none;
   }
 
-  .site-footer__list--plain li {
-    display: flex;
+  /* Servicios: cada uno lleva a su programa, con su ícono. */
+  .site-footer__service {
+    display: inline-flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .site-footer__list--plain li::before {
-    content: '';
+  .site-footer__service svg {
     flex: none;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: var(--brand-verde);
-    box-shadow: 0 0 0 3px rgb(94 189 145 / 0.2);
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: var(--brand-lima);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.45s var(--ease-out);
+  }
+
+  .site-footer__service:hover svg,
+  .site-footer__service:focus-visible svg {
+    transform: scale(1.2) rotate(-8deg);
+  }
+
+  /* Hojas decorativas que suben por el fondo. */
+  .site-footer__leaves {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .leaf {
+    position: absolute;
+    left: var(--x);
+    bottom: -2rem;
+    width: var(--s);
+    height: var(--s);
+    fill: rgb(142 202 109 / 0.22);
+    stroke: rgb(142 202 109 / 0.35);
+    stroke-width: 1;
+    opacity: 0;
   }
 
   .site-footer__contact li {
@@ -405,6 +479,52 @@ const socialIcons: Record<SocialLink['id'], string> = {
       animation: wave-drift 10s ease-in-out 2 alternate-reverse;
     }
 
+    /* Mientras el pie está en pantalla: las hojas suben y la palabra se desliza.
+       Cada animación se repite pocas veces y luego se detiene. */
+    .is-active .leaf {
+      animation: leaf-rise var(--dur) linear var(--delay) 3;
+    }
+
+    .site-footer__body::before {
+      transform: translateX(12%);
+      opacity: 0;
+      transition:
+        transform 1.6s var(--ease-out),
+        opacity 1.6s var(--ease-out);
+    }
+
+    .is-active .site-footer__body::before {
+      transform: none;
+      opacity: 1;
+    }
+
+    .is-active .site-footer__title::after {
+      animation: title-line 1.2s var(--ease-out) 300ms both;
+    }
+
+    .is-active .site-footer__logo img {
+      animation: logo-sway 3s ease-in-out 600ms 3;
+    }
+
+    :global(.js) .site-footer__list li {
+      opacity: 0;
+      transform: translateX(-12px);
+      transition:
+        opacity 0.5s var(--ease-out),
+        transform 0.5s var(--ease-out);
+    }
+
+    :global(.js) .is-active .site-footer__list li {
+      opacity: 1;
+      transform: none;
+    }
+
+    :global(.js) .is-active .site-footer__list li:nth-child(2) { transition-delay: 80ms; }
+    :global(.js) .is-active .site-footer__list li:nth-child(3) { transition-delay: 160ms; }
+    :global(.js) .is-active .site-footer__list li:nth-child(4) { transition-delay: 240ms; }
+    :global(.js) .is-active .site-footer__list li:nth-child(5) { transition-delay: 320ms; }
+    :global(.js) .is-active .site-footer__list li:nth-child(6) { transition-delay: 400ms; }
+
     .site-footer__logo:hover img {
       transform: rotate(-5deg) scale(1.05);
     }
@@ -429,6 +549,45 @@ const socialIcons: Record<SocialLink['id'], string> = {
       opacity: 1;
       transform: none;
       transition-delay: calc(350ms + var(--i, 0) * 80ms);
+    }
+  }
+
+  @keyframes leaf-rise {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    15% {
+      opacity: 1;
+    }
+    50% {
+      transform: translate3d(calc(var(--turn) * 30px), -13rem, 0) rotate(calc(var(--turn) * 140deg));
+    }
+    85% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(calc(var(--turn) * -10px), -26rem, 0) rotate(calc(var(--turn) * 300deg));
+    }
+  }
+
+  @keyframes title-line {
+    from {
+      width: 0;
+    }
+  }
+
+  @keyframes logo-sway {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    30% {
+      transform: rotate(-4deg) translateY(-3px);
+    }
+    65% {
+      transform: rotate(3deg);
     }
   }
 

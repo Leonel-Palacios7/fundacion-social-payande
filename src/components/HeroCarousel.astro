@@ -50,7 +50,6 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
 
   <div class="container hero__content">
     <span class="hero__logo" data-hero-logo aria-hidden="true">
-        <span class="hero__halo"></span>
         <span class="hero__ripple"></span>
         <span class="hero__ripple hero__ripple--late"></span>
         <span class="hero__tilt" data-hero-tilt>
@@ -153,12 +152,6 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
         tree-float 7s ease-in-out 1.8s infinite;
     }
 
-    .hero__halo {
-      animation:
-        halo-in 1.2s var(--ease-out) both,
-        halo-breathe 5s ease-in-out 1.2s infinite;
-    }
-
     .hero__ripple {
       animation: ripple 4.5s var(--ease-out) 1.2s infinite;
     }
@@ -236,19 +229,6 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
     }
   }
 
-  @keyframes halo-in {
-    from {
-      opacity: 0;
-      transform: scale(0.4);
-    }
-  }
-
-  @keyframes halo-breathe {
-    50% {
-      transform: scale(1.05);
-    }
-  }
-
   @keyframes ripple {
     from {
       opacity: 0.7;
@@ -320,7 +300,7 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
     color: #d8efe3;
   }
 
-  /* Logo del árbol sobre un halo claro para que se lea encima de cualquier foto. */
+  /* Logo del árbol con fondo transparente; un brillo suave lo separa de la foto. */
   .hero__logo {
     position: relative;
     display: grid;
@@ -330,21 +310,12 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
     aspect-ratio: 1;
   }
 
-  .hero__halo,
   .hero__ripple {
     position: absolute;
     inset: 0;
     border-radius: 50%;
   }
 
-  .hero__halo {
-    inset: 6%;
-    background: #fff;
-    box-shadow:
-      0 0 0 6px rgb(255 255 255 / 0.2),
-      0 0 0 14px rgb(255 255 255 / 0.08),
-      0 24px 60px rgb(0 0 0 / 0.35);
-  }
 
   .hero__ripple {
     inset: 8%;
@@ -364,6 +335,7 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
     width: 100%;
     height: auto;
     transform-origin: 50% 90%;
+    filter: drop-shadow(0 0 10px rgb(255 255 255 / 0.55)) drop-shadow(0 6px 18px rgb(0 0 0 / 0.35));
   }
 
   .hero__controls {

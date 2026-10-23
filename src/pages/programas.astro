@@ -7,22 +7,23 @@ import CtaBand from '../components/CtaBand.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
 import { programs } from '../data/programs.ts';
 import { getPhoto } from '../data/photos.ts';
+import { serviceIcons } from '../lib/service-icons.ts';
 ---
 
 <BaseLayout
   title="Programas"
-  description="Educación, niñez, vivienda digna, jóvenes y deporte, y comunidad: conoce los programas de la Fundación Payandé."
+  description="Educación, Plan Padrino, Salud, Vivienda, Beneficiarios y otras iniciativas: conoce los programas de la Fundación Social Payandé."
   ogPhotoId="slider-10"
 >
   <PageHero
     eyebrow="Programas"
-    title="Cinco ramas, un mismo propósito"
-    lead="Así acompañamos a la comunidad de Payandé en cada etapa de la vida."
+    title="Seis programas, un mismo propósito"
+    lead="Así acompañamos a las familias de Quebradanegra, Tobia y Villeta en cada etapa de la vida."
     photoId="slider-7"
   />
 
   <nav class="container program-index" aria-label="Programas en esta página">
-    <ProvisionalNote text="Nombres y descripciones deducidos de las fotografías; la Fundación debe confirmarlos." />
+    <ProvisionalNote text="Las descripciones se redactaron a partir de las fotografías; la Fundación debe confirmarlas." />
     <ul role="list">
       {programs.map((p) => <li><a href={`#${p.id}`}>{p.title}</a></li>)}
     </ul>
@@ -37,13 +38,13 @@ import { getPhoto } from '../data/photos.ts';
           <div class:list={['container', 'editorial', { 'editorial--reverse': index % 2 === 1 }]}>
             <div class="editorial__panel" data-reveal data-number={number}>
               <div class="editorial__head">
-                <span class="editorial__arrow" aria-hidden="true">→</span>
+                <svg class="editorial__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={serviceIcons[program.icon]} />
                 <h2 id={`${program.id}-title`} class="editorial__title">{program.title}</h2>
               </div>
               <hr class="editorial__rule" data-reveal="line" />
               <div class="editorial__meta mono-label">
                 <span>programa {number}</span>
-                <span>payandé · tolima</span>
+                <span>quebradanegra · tobia · villeta</span>
               </div>
               <p class="editorial__text">{program.description}</p>
               <ul class="check-list">
@@ -69,8 +70,8 @@ import { getPhoto } from '../data/photos.ts';
   }
 
   <CtaBand
-    title="¿Quieres apoyar un programa?"
-    text="Cuéntanos qué te interesa y te diremos cómo tu ayuda puede llegar a donde más se necesita."
+    title="¿Quieres saber más de un programa?"
+    text="Escríbenos y te contamos cómo trabajamos con las familias de la región."
     primary={{ href: '/contacto/', label: 'Escríbenos' }}
     secondary={{ href: '/nosotros/', label: 'Conócenos' }}
   />
@@ -119,9 +120,35 @@ import { getPhoto } from '../data/photos.ts';
     text-align: right;
   }
 
-  .editorial__arrow {
-    font-size: 1.5rem;
-    color: var(--turquesa-700);
+  .editorial__icon {
+    flex: none;
+    align-self: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    fill: none;
+    stroke: var(--turquesa-700);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Al llegar desde una tarjeta de Inicio, el programa elegido se resalta un momento. */
+  .editorial-wrap:target .editorial {
+    outline: 3px solid var(--brand-lima);
+    outline-offset: 6px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .editorial-wrap:target .editorial {
+      animation: program-flash 1.6s var(--ease-out) 2;
+    }
+  }
+
+  @keyframes program-flash {
+    50% {
+      outline-color: transparent;
+      outline-offset: 14px;
+    }
   }
 
   .editorial__title {

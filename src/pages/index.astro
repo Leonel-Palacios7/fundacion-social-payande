@@ -41,6 +41,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
           photo={intro}
           shape="landscape"
           sizes="(min-width: 56rem) 34rem, 92vw"
+          random={false}
           class="rounded-img"
         />
       </div>
@@ -56,7 +57,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     <div class="container">
       <div class="section__header section__header--center" data-reveal>
         <span class="eyebrow">Servicios</span>
-        <h2 id="servicios">Transformando vidas con compromiso y solidaridad</h2>
+        <h2 id="servicios">Seis programas para el bienestar de nuestras comunidades</h2>
       </div>
       <ServiceGrid services={services} />
     </div>
@@ -101,8 +102,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
   <section class="section section--alt" aria-labelledby="historias">
     <div class="container">
       <div class="section__header" data-reveal>
-        <span class="eyebrow">Galería</span>
-        <h2 id="historias">Nuestras jornadas en imágenes</h2>
+        <h2 class="eyebrow" id="historias">Galería</h2>
       </div>
       <Gallery photos={highlights} id="galeria-inicio" />
       <p class="more-link"><a class="btn btn--outline btn--arrow" href={withBase('/galeria/')}>Ver todas las fotos</a></p>
