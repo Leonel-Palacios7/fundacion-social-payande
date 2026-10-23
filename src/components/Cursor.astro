@@ -1,0 +1,191 @@
+---
+// Cursor propio (solo con mouse). La lógica está en scripts/cursor.ts.
+---
+
+<div class="cursor" data-cursor data-mode="default" aria-hidden="true" hidden>
+  <span class="cursor__ring" data-cursor-ring><span class="cursor__label" data-cursor-label></span></span>
+  <span class="cursor__dot" data-cursor-dot></span>
+</div>
+
+<script>
+  import { initCursor } from '../scripts/cursor.ts';
+  initCursor();
+</script>
+
+<style>
+  /* Mientras el cursor propio está activo se oculta el del sistema, menos en los campos de texto. */
+  :global(html.has-cursor),
+  :global(html.has-cursor *) {
+    cursor: none !important;
+  }
+
+  :global(html.has-cursor :is(input:not([type='checkbox'], [type='radio'], [type='submit'], [type='button'], [type='range']), textarea, [contenteditable='true'])) {
+    cursor: text !important;
+  }
+
+  .cursor {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .cursor[hidden] {
+    display: none;
+  }
+
+  .cursor.is-out {
+    opacity: 0;
+  }
+
+  .cursor__dot,
+  .cursor__ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+
+  /* Punto: va exacto con el mouse. */
+  .cursor__dot {
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: var(--sena-verde-claro);
+    box-shadow:
+      0 0 0 2px rgb(15 59 46 / 0.55),
+      0 0 12px rgb(142 224 90 / 0.8);
+    transition:
+      width 0.25s ease,
+      height 0.25s ease,
+      margin 0.25s ease,
+      opacity 0.25s ease,
+      background-color 0.25s ease;
+  }
+
+  /* Anillo: alcanza al punto con suavidad y cambia de forma. */
+  .cursor__ring {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 2px solid rgb(142 202 109 / 0.9);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 1px rgb(15 59 46 / 0.18),
+      0 0 18px -4px rgb(51 184 184 / 0.6);
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      border-width 0.3s ease,
+      border-radius 0.3s ease,
+      opacity 0.3s ease,
+      scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .cursor__label {
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    scale: 0.6;
+    transition:
+      opacity 0.25s ease,
+      scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Botones y enlaces pequeños: el anillo los abraza. */
+  .cursor[data-mode='wrap'] .cursor__ring {
+    border-color: var(--sena-verde-claro);
+    background: rgb(142 224 90 / 0.12);
+  }
+
+  .cursor[data-mode='wrap'] .cursor__dot {
+    width: 5px;
+    height: 5px;
+    margin: -2.5px 0 0 -2.5px;
+  }
+
+  /* Tarjetas y enlaces grandes: círculo relleno con texto. */
+  .cursor[data-mode='link'] .cursor__ring,
+  .cursor[data-mode='drag'] .cursor__ring {
+    border-color: transparent;
+    background: linear-gradient(135deg, rgb(57 169 0 / 0.62), rgb(31 162 198 / 0.62));
+    backdrop-filter: blur(2px);
+    box-shadow: 0 10px 30px -8px rgb(15 59 46 / 0.5);
+  }
+
+  .cursor[data-mode='link'] .cursor__label,
+  .cursor[data-mode='drag'] .cursor__label {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .cursor[data-mode='link'] .cursor__dot,
+  .cursor[data-mode='drag'] .cursor__dot {
+    opacity: 0;
+  }
+
+  /* Imágenes: lupa con borde de los colores del logo que gira. */
+  .cursor[data-mode='image'] .cursor__ring {
+    border-color: transparent;
+    background:
+      radial-gradient(circle, rgb(255 255 255 / 0.12) 55%, transparent 56%),
+      conic-gradient(from 0deg, #8eca6d, #5ebd91, #33b8b8, #1fa2c6, #8eca6d);
+    -webkit-mask: radial-gradient(circle, transparent calc(50% - 3px), #000 calc(50% - 2px));
+    mask: radial-gradient(circle, transparent calc(50% - 3px), #000 calc(50% - 2px));
+    animation: cursor-spin 2.4s linear infinite;
+  }
+
+  .cursor[data-mode='image'] .cursor__dot {
+    background: #fff;
+  }
+
+  /* Campos de texto: vuelve el cursor del sistema. */
+  .cursor[data-mode='text'] .cursor__ring,
+  .cursor[data-mode='text'] .cursor__dot {
+    opacity: 0;
+  }
+
+  .cursor[data-mode='disabled'] .cursor__ring {
+    border-color: rgb(200 80 80 / 0.8);
+  }
+
+  /* Clic: el anillo se encoge y rebota. */
+  .cursor.is-down .cursor__ring {
+    scale: 0.78;
+  }
+
+  .cursor.is-down .cursor__dot {
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+  }
+
+  .cursor :global(.cursor__wave) {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--sena-verde-claro);
+    border-radius: 50%;
+  }
+
+  .cursor :global(.cursor__leaf) {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 0 70% 0 70%;
+  }
+
+  @keyframes cursor-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+</style>

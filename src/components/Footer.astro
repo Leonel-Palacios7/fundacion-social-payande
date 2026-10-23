@@ -78,19 +78,20 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     <div class="container site-footer__grid">
       <div class="site-footer__brand" data-reveal>
         <a class="site-footer__logo" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
-          <span class="footer-tree">
-            <Image src={logoBlanco} alt="" width={110} height={127} densities={[1, 2]} class="footer-tree__full" />
-            <Image src={tronco} alt="" width={110} height={127} densities={[1, 2]} class="footer-tree__base" />
+          <span class="footer-tree" style={`--logo:url(${logoBlanco.src})`}>
+            <span class="footer-tree__halo" aria-hidden="true"></span>
+            <Image src={logoBlanco} alt="" width={140} height={162} densities={[1, 2]} class="footer-tree__full" />
+            <Image src={tronco} alt="" width={140} height={162} densities={[1, 2]} class="footer-tree__base" />
             {
-              ramas.map(([src, dx, dy, ox, oy]) => (
+              ramas.map(([src, dx, dy, ox, oy], i) => (
                 <Image
                   src={src}
                   alt=""
-                  width={110}
-                  height={127}
+                  width={140}
+                  height={162}
                   densities={[1, 2]}
                   class="footer-tree__rama"
-                  style={`--dx:${dx};--dy:${dy};--ox:${ox}%;--oy:${oy}%`}
+                  style={`--dx:${dx};--dy:${dy};--ox:${ox}%;--oy:${oy}%;--i:${i}`}
                 />
               ))
             }
@@ -255,12 +256,13 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     margin-bottom: var(--space-4);
   }
 
-  /* Piezas del logo apiladas en el mismo lugar. */
+  /* Piezas del logo apiladas en el mismo lugar, con un halo suave detrás. */
   .footer-tree {
     position: relative;
     display: block;
-    width: 110px;
+    width: clamp(96px, 70px + 5vw, 140px);
     aspect-ratio: 450 / 522;
+    isolation: isolate;
   }
 
   .footer-tree :global(img) {
@@ -270,12 +272,41 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     height: 100%;
   }
 
+  .footer-tree__halo {
+    position: absolute;
+    inset: -22%;
+    z-index: -1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 42%, rgb(142 202 109 / 0.35), transparent 58%),
+      radial-gradient(circle at 50% 60%, rgb(51 184 184 / 0.22), transparent 66%);
+    filter: blur(6px);
+    pointer-events: none;
+  }
+
+  /* Destello que recorre la silueta del árbol cuando la copa vuelve a armarse. */
+  .footer-tree::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(105deg, transparent 38%, rgb(214 255 190 / 0.95) 50%, transparent 62%) 130% 0 / 260% 100% no-repeat;
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /*
-   * Quieto se ve el logo completo; mientras se anima se cambia por el tronco y las ramas
-   * sueltas (así no se notan las uniones entre piezas cuando está armado).
+   * Quieto se ve el logo completo (encima de todo); mientras se anima se esconde y
+   * quedan el tronco fijo y las ramas sueltas.
    */
-  .footer-tree__base,
-  .footer-tree__rama {
+  .footer-tree__full {
+    z-index: 1;
+    filter: drop-shadow(0 4px 14px rgb(0 0 0 / 0.25));
+  }
+
+  .footer-tree__base {
     opacity: 0;
   }
 
@@ -442,6 +473,12 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     gap: var(--space-3);
   }
 
+  /* El correo es largo: en pantallas angostas se achica un poco para no partirse. */
+  .site-footer__contact a[href^='mailto'] {
+    font-size: clamp(0.8rem, 0.6rem + 1.1vw, var(--fs-sm));
+    overflow-wrap: anywhere;
+  }
+
   .site-footer__contact svg {
     flex: none;
     width: 1.25rem;
@@ -561,32 +598,51 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
       animation: title-line 1.2s var(--ease-out) 300ms both;
     }
 
-    /* La copa se desarma hacia afuera con un acercamiento y vuelve a armarse; el tronco no se mueve. */
+    /* La copa se abre como una flor, pieza por pieza, y vuelve a armarse con un destello;
+       el tronco no se mueve. Al entrar el pie se repite 3 veces; con el cursor, sin parar. */
     .is-active .footer-tree__rama {
-      animation: rama-desarme 4s var(--ease-out) 600ms 3;
+      animation: rama-desarme 4.8s var(--ease-out) calc(600ms + var(--i) * 70ms) 3 both;
     }
 
     .is-active .footer-tree__base {
-      animation: tree-show 4s linear 600ms 3;
+      animation: tree-show 4.8s linear 600ms 3;
     }
 
     .is-active .footer-tree__full {
-      animation: tree-hide 4s linear 600ms 3;
+      animation: tree-hide 4.8s linear 600ms 3;
+    }
+
+    .is-active .footer-tree__halo {
+      animation: halo-pulse 4.8s ease-in-out 600ms 3;
+    }
+
+    .is-active .footer-tree::after {
+      animation: tree-shine 4.8s ease-in-out 600ms 3;
     }
 
     .site-footer__logo:hover .footer-tree__rama,
     .site-footer__logo:focus-visible .footer-tree__rama {
-      animation: rama-desarme 4s var(--ease-out) infinite;
+      animation: rama-desarme 4.8s var(--ease-out) calc(var(--i) * 70ms) infinite both;
     }
 
     .site-footer__logo:hover .footer-tree__base,
     .site-footer__logo:focus-visible .footer-tree__base {
-      animation: tree-show 4s linear infinite;
+      animation: tree-show 4.8s linear infinite;
     }
 
     .site-footer__logo:hover .footer-tree__full,
     .site-footer__logo:focus-visible .footer-tree__full {
-      animation: tree-hide 4s linear infinite;
+      animation: tree-hide 4.8s linear infinite;
+    }
+
+    .site-footer__logo:hover .footer-tree__halo,
+    .site-footer__logo:focus-visible .footer-tree__halo {
+      animation: halo-pulse 4.8s ease-in-out infinite;
+    }
+
+    .site-footer__logo:hover .footer-tree::after,
+    .site-footer__logo:focus-visible .footer-tree::after {
+      animation: tree-shine 4.8s ease-in-out infinite;
     }
 
     :global(.js) .site-footer__list li {
@@ -660,26 +716,26 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
 
   @keyframes rama-desarme {
     0%,
+    6% {
+      transform: none;
+      filter: none;
+    }
+    34% {
+      transform: translate(calc(var(--dx) * 20px), calc(var(--dy) * 20px)) scale(1.2) rotate(calc(var(--dx) * 14deg));
+      filter: drop-shadow(0 0 6px rgb(142 202 109 / 0.9)) blur(0.4px);
+    }
+    48% {
+      transform: translate(calc(var(--dx) * 22px), calc(var(--dy) * 22px)) scale(1.24) rotate(calc(var(--dx) * 16deg));
+      filter: drop-shadow(0 0 8px rgb(51 184 184 / 0.8));
+    }
+    68% {
+      transform: translate(calc(var(--dx) * -2px), calc(var(--dy) * -2px)) scale(0.97);
+      filter: drop-shadow(0 0 3px rgb(142 202 109 / 0.6));
+    }
+    78%,
     100% {
       transform: none;
-      opacity: 0;
-    }
-    2%,
-    84% {
-      opacity: 1;
-    }
-    30% {
-      transform: translate(calc(var(--dx) * 16px), calc(var(--dy) * 16px)) scale(1.18) rotate(calc(var(--dx) * 10deg));
-      opacity: 0.9;
-    }
-    45% {
-      transform: translate(calc(var(--dx) * 18px), calc(var(--dy) * 18px)) scale(1.22) rotate(calc(var(--dx) * 12deg));
-    }
-    65% {
-      transform: scale(0.96);
-    }
-    82% {
-      transform: none;
+      filter: none;
     }
   }
 
@@ -688,8 +744,8 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     100% {
       opacity: 0;
     }
-    2%,
-    84% {
+    3%,
+    88% {
       opacity: 1;
     }
   }
@@ -699,9 +755,36 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     100% {
       opacity: 1;
     }
-    2%,
-    84% {
+    3%,
+    88% {
       opacity: 0;
+    }
+  }
+
+  @keyframes halo-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    45% {
+      transform: scale(1.35);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes tree-shine {
+    0%,
+    86% {
+      opacity: 0;
+      background-position: 130% 0;
+    }
+    89% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      background-position: -30% 0;
     }
   }
 

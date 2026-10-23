@@ -6,13 +6,6 @@ import { navItems, isCurrentPath, site } from '../data/site.ts';
 
 const current = Astro.url.pathname;
 
-/** Íconos de la barra (trazos de 24×24). */
-const icons: Record<string, string> = {
-  '/': '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
-  '/programas/': '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><path d="M17 13.5v7M13.5 17h7"/>',
-  '/galeria/': '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="m3.5 18 5.5-5 4 3.5 3-2.5 4.5 4"/>',
-  '/contacto/': '<path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/>',
-};
 ---
 
 <header class="site-header" data-header>
@@ -31,11 +24,7 @@ const icons: Record<string, string> = {
                 href={withBase(item.href)}
                 aria-current={isCurrentPath(current, withBase(item.href)) ? 'page' : undefined}
               >
-                <span class="tabbar__icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" set:html={icons[item.href] ?? ''} />
-                  {item.href === '/contacto/' && <span class="tabbar__badge" />}
-                </span>
-                <span class="tabbar__label">{item.label}</span>
+                {item.label}
               </a>
             </li>
           ))
@@ -196,75 +185,50 @@ const icons: Record<string, string> = {
     min-width: 0;
   }
 
-  /* Cada enlace: ícono y nombre en una misma línea. */
+  /* Cada enlace: solo el nombre, sin relieve; una línea fina marca hover y página actual. */
   .tabbar__link {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 0.45rem;
     min-height: 2.75rem;
-    padding: 0.35rem 0.95rem;
-    border-radius: var(--radius-pill);
+    padding: 0.35rem 0.9rem;
     color: var(--bar-muted);
     font-size: 0.95rem;
     font-weight: 500;
+    letter-spacing: 0.01em;
     text-decoration: none;
     white-space: nowrap;
-    transition:
-      color 0.3s var(--ease),
-      box-shadow 0.3s var(--ease);
+    transition: color 0.3s var(--ease);
+  }
+
+  .tabbar__link::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.4rem;
+    width: calc(100% - 1.8rem);
+    height: 2px;
+    border-radius: 2px;
+    background: var(--sena-verde-claro);
+    transform: translateX(-50%) scaleX(0);
+    transition: transform 0.35s var(--ease-out);
   }
 
   .tabbar__link:hover {
     color: var(--bar-ink);
-    box-shadow:
-      inset 3px 3px 6px var(--neo-dark),
-      inset -3px -3px 6px var(--neo-light);
   }
 
-  /* Página actual: relieve hundido y el ícono en verde. */
+  .tabbar__link:hover::after {
+    transform: translateX(-50%) scaleX(0.6);
+  }
+
   .tabbar__link[aria-current='page'] {
     color: var(--bar-ink);
     font-weight: 700;
-    box-shadow:
-      inset 3px 3px 6px var(--neo-dark),
-      inset -3px -3px 6px var(--neo-light);
   }
 
-  .tabbar__link[aria-current='page'] .tabbar__icon {
-    color: var(--sena-verde-claro);
-  }
-
-  .tabbar__icon {
-    position: relative;
-    flex: none;
-    display: block;
-    width: 1.35rem;
-    height: 1.35rem;
-    transition:
-      transform 0.55s var(--ease-out),
-      color 0.3s var(--ease);
-  }
-
-  .tabbar__icon svg {
-    width: 100%;
-    height: 100%;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.9;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .tabbar__badge {
-    position: absolute;
-    top: -2px;
-    right: -3px;
-    width: 9px;
-    height: 9px;
-    border: 2px solid var(--verde-900);
-    border-radius: 50%;
-    background: var(--sena-verde);
+  .tabbar__link[aria-current='page']::after {
+    transform: translateX(-50%) scaleX(1);
   }
 
   .tabbar__brand:focus-visible,
@@ -355,7 +319,7 @@ const icons: Record<string, string> = {
     transform: rotate(-90deg) scale(0.4);
   }
 
-  /* Móvil: solo íconos, repartidos en la misma línea; el nombre sigue disponible para lectores. */
+  /* Pantallas pequeñas: todo en la misma línea, con texto y espacios más compactos. */
   @media (max-width: 44rem) {
     .tabbar {
       gap: var(--space-1);
@@ -363,26 +327,77 @@ const icons: Record<string, string> = {
     }
 
     .tabbar__list {
+      min-width: 0;
       justify-content: space-around;
       gap: 0;
     }
 
     .tabbar__link {
-      padding: 0.35rem 0.7rem;
+      padding: 0.35rem clamp(0.3rem, 1.6vw, 0.7rem);
+      font-size: clamp(0.78rem, 0.62rem + 0.9vw, 0.95rem);
     }
 
-    .tabbar__label {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
+    .tabbar__link::after {
+      width: calc(100% - 2 * clamp(0.3rem, 1.6vw, 0.7rem));
     }
 
     .tabbar__logo {
       width: 2.4rem;
       height: 2.4rem;
+    }
+  }
+
+  /*
+   * Teléfonos muy angostos: logo y botón de tema más pequeños; si aun así los nombres
+   * no caben, la lista se desliza de lado dentro de la barra (sigue en una sola línea).
+   */
+  @media (max-width: 26.5rem) {
+    .tabbar {
+      gap: 0.15rem;
+      padding-inline: 0.25rem;
+    }
+
+    .tabbar__brand {
+      padding: 0.1rem;
+    }
+
+    .tabbar__logo {
+      width: 2.1rem;
+      height: 2.1rem;
+    }
+
+    .theme-toggle {
+      width: 2.4rem;
+      height: 2.4rem;
+    }
+
+    .tabbar__list {
+      min-width: 0;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scrollbar-width: none;
+      mask-image: linear-gradient(90deg, transparent, #000 0.5rem, #000 calc(100% - 0.5rem), transparent);
+    }
+
+    .tabbar__list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tabbar__list > li {
+      flex: none;
+    }
+
+    .tabbar__link {
+      padding-inline: clamp(0.2rem, -0.3rem + 2.5vw, 0.3rem);
+      font-size: clamp(0.7rem, 0.38rem + 1.6vw, 0.82rem);
+    }
+
+    .tabbar__link:focus-visible {
+      outline-offset: -3px;
+    }
+
+    .tabbar__link::after {
+      width: calc(100% - 0.6rem);
     }
   }
 
@@ -399,10 +414,6 @@ const icons: Record<string, string> = {
     .tabbar__logo {
       animation: logo-sway 6s ease-in-out 1s infinite;
       transform-origin: 50% 90%;
-    }
-
-    .tabbar__badge {
-      animation: badge 2s ease-in-out infinite;
     }
 
     /* Destello en anillo al cambiar de tema. */
@@ -446,12 +457,6 @@ const icons: Record<string, string> = {
     }
     75% {
       transform: rotate(4deg);
-    }
-  }
-
-  @keyframes badge {
-    50% {
-      transform: scale(1.35);
     }
   }
 

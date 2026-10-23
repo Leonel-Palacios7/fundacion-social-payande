@@ -45,7 +45,7 @@ for (const { path, h1 } of PAGES) {
   });
 
   test(`${path} no tiene desplazamiento horizontal`, async ({ page }) => {
-    for (const width of [320, 375, 768, 1024, 1440]) {
+    for (const width of [280, 320, 360, 375, 414, 768, 1024, 1440, 1920, 2560]) {
       await page.setViewportSize({ width, height: 800 });
       await page.goto(path);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -358,8 +358,12 @@ test('el carrusel de «Sobre nosotros» cambia de foto con los botones y se pued
   await car.getByRole('button', { name: 'Foto siguiente' }).click();
   await expect(slides.nth(1)).toHaveClass(/is-active/);
   await expect(slides.first()).toHaveAttribute('aria-hidden', 'true');
-  await car.getByRole('button', { name: 'Ver foto 4' }).click();
-  await expect(slides.nth(3)).toHaveClass(/is-active/);
+  // En teléfonos angostos los puntos se ocultan; quedan anterior, pausa y siguiente.
+  const dot = car.getByRole('button', { name: 'Ver foto 4' });
+  if (await dot.isVisible()) {
+    await dot.click();
+    await expect(slides.nth(3)).toHaveClass(/is-active/);
+  }
   const pause = car.getByRole('button', { name: 'Pausar fotos' });
   await pause.click();
   await expect(pause).toHaveAttribute('aria-pressed', 'true');
@@ -401,3 +405,54 @@ for (const path of ['/', '/programas/', '/galeria/', '/contacto/']) {
     expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
   });
 }
+
+test('la barra muestra los enlaces solo con texto y caben en una línea desde 320px', async ({ page }) => {
+  await page.goto('/');
+  const nav = page.getByRole('navigation', { name: 'Principal' });
+  await expect(nav.locator('.tabbar__link svg')).toHaveCount(0);
+  await expect(nav.locator('.tabbar__link').first()).toHaveCSS('box-shadow', 'none');
+  for (const width of [320, 375, 768, 1440]) {
+    await page.setViewportSize({ width, height: 800 });
+    const fits = await page.locator('.tabbar__list').evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
+    expect(fits, `ancho ${width}px`).toBe(true);
+    const tops = await nav.locator('.tabbar__link, .tabbar__brand, .theme-toggle').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 20)));
+    expect(new Set(tops).size, `una sola línea a ${width}px`).toBe(1);
+  }
+});
+
+test('la tarjeta «Otros» muestra la foto de los jóvenes caddies', async ({ page }) => {
+  await page.goto('/');
+  const img = page.locator('.service', { hasText: 'Otros' }).locator('.service__photo img');
+  await expect(img).toHaveAttribute('src', /slider-3\./);
+});
+
+test('el cursor propio cambia sobre botones, imágenes y al hacer clic', async ({ page }) => {
+  test.skip(isMobile(page), 'El cursor propio es solo para mouse');
+  await page.goto('/');
+  const cursor = page.locator('[data-cursor]');
+  await page.mouse.move(400, 400);
+  await expect(cursor).toBeVisible();
+  await expect(page.locator('html')).toHaveClass(/has-cursor/);
+  const toggle = await page.locator('.theme-toggle').boundingBox();
+  await page.mouse.move(toggle!.x + toggle!.width / 2, toggle!.y + toggle!.height / 2);
+  await expect(cursor).toHaveAttribute('data-mode', 'wrap');
+  const img = page.locator('.event__img').first();
+  await img.scrollIntoViewIfNeeded();
+  const box = await img.boundingBox();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await expect(cursor).toHaveAttribute('data-mode', 'image');
+  await page.mouse.down();
+  await expect(cursor).toHaveClass(/is-down/);
+  await expect(cursor.locator('.cursor__leaf').first()).toBeAttached();
+  await page.mouse.up();
+});
+
+test('con movimiento reducido se usa el cursor del sistema', async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.mouse.move(400, 400);
+  await expect(page.locator('[data-cursor]')).toBeHidden();
+  await expect(page.locator('html')).not.toHaveClass(/has-cursor/);
+  await context.close();
+});

@@ -206,6 +206,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   .about-car__btn {
+    flex: none;
     display: grid;
     place-items: center;
     width: 40px;
@@ -237,6 +238,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .about-car__dots {
     display: flex;
     margin-inline: var(--space-2);
+  }
+
+  /* Teléfonos angostos: no caben los puntos; quedan anterior, pausa, siguiente y el contador. */
+  @media (max-width: 26.5rem) {
+    .about-car__dots {
+      display: none;
+    }
   }
 
   /* Área táctil de 24px con un punto pequeño dentro. */

@@ -201,6 +201,19 @@ const heroPhoto = getPhoto('slider-19');
     .badge--mail {
       right: 6%;
     }
+
+    /* Bajo la barra de navegación, para no taparla. */
+    .badge--phone,
+    .badge--mail {
+      top: calc(var(--header-h) + 0.5rem);
+    }
+  }
+
+  /* En los teléfonos más angostos no hay espacio junto al título. */
+  @media (max-width: 21.5rem) {
+    .contact-hero__badges {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -403,6 +416,12 @@ const heroPhoto = getPhoto('slider-19');
 
   .info__card {
     border-radius: var(--radius-lg);
+  }
+
+  /* El correo es largo: se achica un poco en pantallas angostas para no partirse. */
+  .info__link[href^='mailto'] .info__value {
+    font-size: clamp(0.82rem, 0.6rem + 1.2vw, 1rem);
+    overflow-wrap: anywhere;
   }
 
   .info__link {

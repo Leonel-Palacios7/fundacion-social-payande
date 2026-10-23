@@ -12,10 +12,14 @@ interface Props {
 
 const { services } = Astro.props;
 
-// Cada tarjeta muestra al pasar el cursor la foto de su programa.
+// Cada tarjeta muestra al pasar el cursor la foto de su programa, salvo las que tienen
+// una foto propia para la tarjeta (pedido de la Fundación).
+const cardPhoto: Record<string, string> = { otros: 'slider-3' };
+
 const photoFor = (id: string) => {
   const program = programs.find((p) => p.id === id);
-  return program ? getPhoto(program.photoId) : undefined;
+  const photoId = cardPhoto[id] ?? program?.photoId;
+  return photoId ? getPhoto(photoId) : undefined;
 };
 
 ---

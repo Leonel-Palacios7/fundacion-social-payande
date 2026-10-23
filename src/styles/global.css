@@ -12,6 +12,23 @@ html {
   scroll-padding-top: calc(var(--header-h) + var(--space-4));
 }
 
+/* Pantallas grandes: el contenido gana ancho y, en las muy grandes, todo escala un poco. */
+@media (min-width: 100em) {
+  :root {
+    --container: 82rem;
+  }
+}
+
+@media (min-width: 150em) {
+  html {
+    font-size: 112.5%;
+  }
+
+  :root {
+    --container: 86rem;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
@@ -200,6 +217,14 @@ textarea {
     background-color var(--dur-fast) var(--ease),
     color var(--dur-fast) var(--ease),
     border-color var(--dur-fast) var(--ease);
+}
+
+/* Teléfonos angostos: botones algo más compactos para que el texto quepa en una línea. */
+@media (max-width: 26.5rem) {
+  .btn {
+    padding-inline: 1rem;
+    font-size: 0.92rem;
+  }
 }
 
 .btn--primary {
