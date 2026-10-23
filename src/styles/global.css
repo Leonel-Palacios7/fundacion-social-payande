@@ -520,13 +520,6 @@ html:not(.js) picture[data-random] {
   display: none;
 }
 
-/* Centro de la burbuja de la barra; registrado para que la hendidura se deslice con transición. */
-@property --cx {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-
 /* ---------- Barra de scroll con los colores del logo ---------- */
 ::-webkit-scrollbar {
   width: 14px;

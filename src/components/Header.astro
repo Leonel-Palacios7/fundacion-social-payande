@@ -17,12 +17,10 @@ const icons: Record<string, string> = {
 
 <header class="site-header" data-header>
   <div class="container site-header__inner">
-    <nav class="tabbar" aria-label="Principal" data-tabbar>
+    <nav class="tabbar" aria-label="Principal">
       <span class="tabbar__shell" aria-hidden="true"><span class="tabbar__surface"></span></span>
-      <span class="tabbar__bubble" aria-hidden="true"></span>
       <a class="tabbar__brand" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
         <Image src={logo} alt="" width={46} height={32} densities={[1, 2, 3]} class="tabbar__logo" loading="eager" />
-        <span class="tabbar__name" aria-hidden="true">Payandé</span>
       </a>
       <ul class="tabbar__list" data-nav-list>
         {
@@ -60,9 +58,7 @@ const icons: Record<string, string> = {
 </header>
 
 <script>
-  import { initNavIndicator } from '../scripts/navigation.ts';
   import { initThemeToggle } from '../scripts/theme.ts';
-  initNavIndicator();
   initThemeToggle();
 </script>
 
@@ -103,16 +99,14 @@ const icons: Record<string, string> = {
   .site-header__inner {
     position: relative;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     min-height: var(--header-h);
-    padding-bottom: 0.55rem;
   }
 
   /*
    * ---------- Barra neomórfica (paleta Payandé) ----------
-   * Ocupa todo el ancho del contenedor y va en una sola línea. Una burbuja verde lima
-   * flota sobre el enlace actual y abre una hendidura en la barra, como el modelo.
-   * navigation.ts pone --cx (centro del ícono) y mueve la burbuja al pasar el puntero.
+   * Ocupa todo el ancho del contenedor y va en una sola línea. La página actual
+   * se marca con un relieve hundido.
    */
   .tabbar {
     --bar-bg: #e4f1e9;
@@ -120,8 +114,6 @@ const icons: Record<string, string> = {
     --bar-muted: #3f5a4f;
     --neo-dark: rgb(6 33 25 / 0.45);
     --neo-light: rgb(255 255 255 / 0.55);
-    --bubble: 3.1rem;
-    --notch: calc(var(--bubble) / 2 + 0.4rem);
     position: relative;
     display: flex;
     align-items: center;
@@ -141,7 +133,7 @@ const icons: Record<string, string> = {
     --neo-light: rgb(94 189 145 / 0.18);
   }
 
-  /* La sombra va en un envoltorio con filtro porque la máscara de la hendidura recortaría box-shadow. */
+  /* Relieve exterior de la barra. */
   .tabbar__shell {
     position: absolute;
     inset: 0;
@@ -159,45 +151,12 @@ const icons: Record<string, string> = {
       inset -2px -2px 4px rgb(0 0 0 / 0.08);
   }
 
-  :global(.js) .tabbar.has-bubble .tabbar__surface {
-    -webkit-mask: radial-gradient(circle var(--notch) at var(--cx) -0.15rem, transparent calc(100% - 1px), #000 100%);
-    mask: radial-gradient(circle var(--notch) at var(--cx) -0.15rem, transparent calc(100% - 1px), #000 100%);
-  }
-
-  .tabbar.has-bubble {
-    transition: --cx 0.55s var(--ease-out);
-  }
-
-  /* Burbuja con relieve; el ícono activo sube hasta quedar dentro de ella. */
-  .tabbar__bubble {
-    position: absolute;
-    top: calc(var(--bubble) / -2 - 0.15rem);
-    left: 0;
-    width: var(--bubble);
-    height: var(--bubble);
-    border-radius: 50%;
-    background: radial-gradient(circle at 32% 28%, #c9f0a8, var(--brand-lima) 55%, #6fae4f);
-    box-shadow:
-      5px 6px 12px var(--neo-dark),
-      -3px -3px 8px var(--neo-light),
-      inset -3px -4px 6px rgb(0 0 0 / 0.15),
-      inset 3px 3px 5px rgb(255 255 255 / 0.45);
-    transform: translateX(calc(var(--cx) - var(--bubble) / 2));
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .tabbar.has-bubble .tabbar__bubble {
-    opacity: 1;
-  }
-
   .tabbar__brand {
     flex: none;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.2rem 0.8rem 0.2rem 0.2rem;
-    border-radius: var(--radius-pill);
+    display: grid;
+    place-items: center;
+    padding: 0.25rem;
+    border-radius: 50%;
     color: var(--bar-ink);
     text-decoration: none;
     box-shadow:
@@ -220,13 +179,6 @@ const icons: Record<string, string> = {
     border-radius: 50%;
     background: #fff;
     object-fit: contain;
-  }
-
-  .tabbar__name {
-    font-family: var(--font-script);
-    font-size: 1.35rem;
-    line-height: 1;
-    color: var(--bar-ink);
   }
 
   .tabbar__list {
@@ -271,9 +223,17 @@ const icons: Record<string, string> = {
       inset -3px -3px 6px var(--neo-light);
   }
 
+  /* Página actual: relieve hundido y el ícono en verde. */
   .tabbar__link[aria-current='page'] {
     color: var(--bar-ink);
     font-weight: 700;
+    box-shadow:
+      inset 3px 3px 6px var(--neo-dark),
+      inset -3px -3px 6px var(--neo-light);
+  }
+
+  .tabbar__link[aria-current='page'] .tabbar__icon {
+    color: var(--ink-accent);
   }
 
   .tabbar__icon {
@@ -297,12 +257,6 @@ const icons: Record<string, string> = {
     stroke-linejoin: round;
   }
 
-  /* El ícono del enlace señalado sube a la burbuja (la altura la calcula navigation.ts). */
-  .tabbar__link.is-lifted .tabbar__icon {
-    color: var(--verde-900);
-    transform: translateY(var(--lift, -1.6rem)) scale(1.1);
-  }
-
   .tabbar__badge {
     position: absolute;
     top: -2px;
@@ -312,13 +266,6 @@ const icons: Record<string, string> = {
     border: 2px solid var(--bar-bg);
     border-radius: 50%;
     background: var(--sena-verde);
-  }
-
-  /* Sin JavaScript, la página actual se marca con un relieve hundido. */
-  :global(html:not(.js)) .tabbar__link[aria-current='page'] {
-    box-shadow:
-      inset 3px 3px 6px var(--neo-dark),
-      inset -3px -3px 6px var(--neo-light);
   }
 
   .tabbar__brand:focus-visible,
@@ -409,17 +356,6 @@ const icons: Record<string, string> = {
     transform: rotate(-90deg) scale(0.4);
   }
 
-  /* Pantallas medianas: sin el nombre junto al logo. */
-  @media (max-width: 62rem) {
-    .tabbar__name {
-      display: none;
-    }
-
-    .tabbar__brand {
-      padding: 0.2rem;
-    }
-  }
-
   /* Móvil: solo íconos, repartidos en la misma línea; el nombre sigue disponible para lectores. */
   @media (max-width: 44rem) {
     .tabbar {
@@ -451,12 +387,6 @@ const icons: Record<string, string> = {
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .tabbar.has-bubble {
-      transition: none;
-    }
-  }
-
   @media (prefers-reduced-motion: no-preference) {
     .tabbar {
       animation: bar-in 0.8s var(--ease-out) backwards;
@@ -465,12 +395,6 @@ const icons: Record<string, string> = {
     .tabbar__list > li {
       animation: item-in 0.6s var(--ease-out) backwards;
       animation-delay: calc(250ms + var(--i, 0) * 80ms);
-    }
-
-    .tabbar__bubble {
-      transition:
-        transform 0.55s var(--ease-out),
-        opacity 0.3s var(--ease);
     }
 
     .tabbar__logo {

@@ -86,7 +86,7 @@
   --container: 72rem;
   --container-narrow: 46rem;
   --gutter: clamp(1rem, 0.5rem + 2.5vw, 2rem);
-  --header-h: 6rem;
+  --header-h: 5rem;
 
   /* Forma */
   --radius-sm: 0.375rem;

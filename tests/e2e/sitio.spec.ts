@@ -382,12 +382,12 @@ test('el botón de tema cambia a modo oscuro, se recuerda y vuelve a claro', asy
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  // El fondo cambia con una transición: se espera a que termine.
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(8, 24, 19)');
   await page.goto('/galeria/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: 'Modo oscuro' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  expect(bg).not.toBe('rgb(255, 255, 255)');
 });
 
 for (const path of ['/', '/programas/', '/galeria/', '/contacto/']) {
