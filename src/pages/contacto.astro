@@ -12,8 +12,8 @@ const faqPhoto = getPhoto('slider-17');
 /** PROVISIONAL: preguntas redactadas a partir del sitio actual; la Fundación debe validar las respuestas. */
 const faqs = [
   {
-    q: '¿Cómo puedo hacer una donación?',
-    a: 'Escríbenos con el formulario eligiendo «Donaciones» y te enviaremos las opciones disponibles. También puedes revisar la página Cómo ayudar.',
+    q: '¿La Fundación recibe donaciones?',
+    a: 'No. La Fundación no recibe dinero ni donaciones de terceros: se sostiene con los aportes de su propio grupo de socios.',
   },
   {
     q: '¿Qué es el Plan Padrino?',
@@ -28,19 +28,15 @@ const faqs = [
     a: 'Personas y familias de escasos recursos económicos de nuestra zona de trabajo. Contáctanos para conocer los requisitos de cada servicio.',
   },
   {
-    q: '¿Puedo ser voluntario?',
-    a: 'Sí. Elige «Voluntariado» en el formulario y cuéntanos en qué te gustaría apoyar y en qué horarios.',
-  },
-  {
-    q: '¿Mi empresa puede hacer una alianza con la Fundación?',
-    a: 'Claro que sí. Elige «Alianzas» en el formulario y te contactaremos para construir juntos una propuesta.',
+    q: '¿Cómo puedo pedir información sobre un servicio?',
+    a: 'Elige «Servicios de la Fundación» en el formulario y cuéntanos cuál te interesa. Te responderemos lo antes posible.',
   },
 ];
 ---
 
 <BaseLayout
   title="Contacto"
-  description="Escríbele a la Fundación Social Payandé para donar, ser voluntario, crear una alianza o pedir información."
+  description="Escríbele a la Fundación Social Payandé para pedir información sobre sus servicios."
   ogPhotoId="slider-17"
 >
   <section class="contact-hero" aria-labelledby="page-title">
@@ -49,7 +45,7 @@ const faqs = [
     <div class="container contact-hero__content">
       <h1 id="page-title" class="contact-hero__in" style="--d:0">Contacto</h1>
       <p class="contact-hero__lead contact-hero__in" style="--d:1">
-        Cuéntanos cómo quieres ayudar o qué información necesitas.
+        Cuéntanos qué información necesitas y te responderemos pronto.
       </p>
     </div>
   </section>
@@ -137,7 +133,7 @@ const faqs = [
 </BaseLayout>
 
 <script>
-  // Preselecciona el motivo cuando se llega desde "Cómo ayudar" (?motivo=Donaciones).
+  // Preselecciona el motivo cuando el enlace lo indica (?motivo=Otro).
   const motivo = new URLSearchParams(window.location.search).get('motivo');
   const select = document.querySelector<HTMLSelectElement>('#motivo');
   if (motivo && select && Array.from(select.options).some((o) => o.value === motivo)) select.value = motivo;

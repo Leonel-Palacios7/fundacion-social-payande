@@ -4,9 +4,9 @@
  * ser confirmado por la Fundación antes de publicar el sitio.
  */
 export const site = {
-  name: 'Fundación Payandé',
+  name: 'Fundación Social Payandé',
   shortName: 'Payandé',
-  tagline: 'Sembramos oportunidades en nuestra comunidad',
+  tagline: 'Transformando vidas con compromiso y solidaridad',
   description:
     'La Fundación Social Payandé mejora la calidad de vida, la educación, la salud, la vivienda y la recreación de personas de escasos recursos en Quebradanegra, Tobia y Villeta (Cundinamarca).',
   locale: 'es_CO',
@@ -26,6 +26,21 @@ export const site = {
   },
 } as const;
 
+export interface SocialLink {
+  id: 'facebook' | 'instagram' | 'x' | 'youtube' | 'whatsapp';
+  label: string;
+  /** Vacío mientras la Fundación no confirme sus cuentas: el ícono se muestra sin enlace. */
+  href: string;
+}
+
+export const socialLinks: readonly SocialLink[] = [
+  { id: 'facebook', label: 'Facebook', href: '' },
+  { id: 'instagram', label: 'Instagram', href: '' },
+  { id: 'x', label: 'X (Twitter)', href: '' },
+  { id: 'youtube', label: 'YouTube', href: '' },
+  { id: 'whatsapp', label: 'WhatsApp', href: '' },
+];
+
 export interface NavItem {
   href: string;
   label: string;
@@ -36,7 +51,6 @@ export const navItems: readonly NavItem[] = [
   { href: '/nosotros/', label: 'Nosotros' },
   { href: '/programas/', label: 'Programas' },
   { href: '/galeria/', label: 'Galería' },
-  { href: '/como-ayudar/', label: 'Cómo ayudar' },
   { href: '/contacto/', label: 'Contacto' },
 ];
 

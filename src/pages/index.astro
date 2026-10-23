@@ -3,12 +3,14 @@ import { withBase } from '../lib/paths.ts';
 import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroCarousel from '../components/HeroCarousel.astro';
-import ProgramCard from '../components/ProgramCard.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import EventCards from '../components/EventCards.astro';
+import ProvisionalNote from '../components/ProvisionalNote.astro';
 import Gallery from '../components/Gallery.astro';
-import CtaBand from '../components/CtaBand.astro';
 import PhotoRing from '../components/PhotoRing.astro';
 import Marquee from '../components/Marquee.astro';
 import { services } from '../data/services.ts';
+import { events } from '../data/events.ts';
 import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
 
@@ -18,12 +20,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 ---
 
 <BaseLayout title={site.name}>
-  <HeroCarousel
-    photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']}
-    eyebrow="Bienvenidos a"
-    title="Fundación Social Payandé"
-    lead="Transformando vidas con compromiso y solidaridad en Quebradanegra, Tobia y Villeta."
-  />
+  <HeroCarousel photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']} eyebrow="Bienvenidos a" title="Fundación Social Payandé" />
 
   <Marquee items={services.map((service) => service.title)} />
 
@@ -33,13 +30,13 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
         <span class="eyebrow">Sobre nosotros</span>
         <h2 id="quienes-somos">Nuestro <span class="script">objeto social</span></h2>
         <p class="lead">
-          La Fundación tiene por objeto desarrollar, a su entera discreción, actividades asistenciales y de beneficencia
-          tendientes a mejorar la calidad de vida, la educación, la salud, la vivienda y la recreación de las personas de
+          La Fundación tiene por objeto, desarrollar a su entera discreción actividades asistenciales y de beneficencia,
+          tendientes a mejorar la calidad de vida, la educación, la salud, la vivienda y la recreación a las personas de
           escasos recursos económicos, localizadas principalmente en los municipios de Quebradanegra, Tobia y Villeta.
         </p>
         <a class="btn btn--outline btn--arrow" href={withBase('/nosotros/')}>Conoce nuestra historia</a>
       </div>
-      <div class="intro-photo" data-reveal="mask" data-tone="mono" style="--stagger:2">
+      <div data-reveal="mask" data-tone="mono" style="--stagger:2">
         <Picture
           src={intro.src}
           alt={intro.alt}
@@ -50,8 +47,31 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
           sizes="(min-width: 56rem) 34rem, 92vw"
           class="rounded-img"
         />
-        <span class="intro-photo__tag mono-label" aria-hidden="true">quebradanegra · tobia · villeta</span>
       </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="servicios">
+    <div class="container">
+      <div class="section__header section__header--center" data-reveal>
+        <span class="eyebrow">Servicios</span>
+        <h2 id="servicios">Transformando vidas con compromiso y solidaridad</h2>
+      </div>
+      <ServiceGrid services={services} />
+    </div>
+  </section>
+
+  <section class="section section--alt events-section" aria-labelledby="eventos">
+    <div class="container">
+      <div class="section__header section__header--center" data-reveal>
+        <span class="eyebrow">Eventos</span>
+        <h2 id="eventos">Fortaleciendo comunidades, construyendo futuro</h2>
+        <p class="lead">
+          Trabajamos para generar oportunidades que impulsen el bienestar y desarrollo de nuestras comunidades.
+        </p>
+        <ProvisionalNote text="Salvo la jornada del 31 de octubre en Villeta, las fechas y lugares son de ejemplo." />
+      </div>
+      <EventCards events={events} />
     </div>
   </section>
 
@@ -60,25 +80,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     photoIds={['slider-13', 'slider-17', 'slider-11', 'slider-14', 'slider-18', 'slider-20', 'slider-9', 'slider-15', 'slider-16']}
   />
 
-  <section class="section section--alt" aria-labelledby="lineas">
-    <div class="container">
-      <div class="section__header section__header--center" data-reveal>
-        <span class="eyebrow">Servicios</span>
-        <h2 id="lineas">Transformando vidas con compromiso y solidaridad</h2>
-      </div>
-      <div class="grid-auto">
-        {
-          services.map((service, i) => (
-            <div data-reveal style={`--stagger:${i}`}>
-              <ProgramCard program={service} href={service.href} />
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="gracias">
+  <section class="section" aria-label="Testimonios">
     <div class="container split split--reverse">
       <figure class="quote" data-reveal>
         <blockquote>
@@ -87,11 +89,9 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
             esta escuela de Payandé».
           </p>
         </blockquote>
-        <figcaption>Cartel hecho a mano por estudiantes de una escuela beneficiada</figcaption>
       </figure>
       <div data-reveal style="--stagger:1">
         <span class="eyebrow">Testimonios</span>
-        <h2 id="gracias">Nuestra gestión narrada por sus <span class="script">protagonistas</span></h2>
         <Picture
           src={thanks.src}
           alt={thanks.alt}
@@ -109,38 +109,19 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
   <section class="section section--alt" aria-labelledby="historias">
     <div class="container">
       <div class="section__header" data-reveal>
-        <span class="eyebrow">Eventos</span>
-        <h2 id="historias">Fortaleciendo comunidades, construyendo futuro</h2>
-        <p class="lead">
-          Trabajamos para generar oportunidades que impulsen el bienestar y desarrollo de nuestras comunidades.
-        </p>
+        <span class="eyebrow">Galería</span>
+        <h2 id="historias">Nuestras jornadas en imágenes</h2>
       </div>
       <Gallery photos={highlights} id="galeria-inicio" />
       <p class="more-link"><a class="btn btn--outline btn--arrow" href={withBase('/galeria/')}>Ver todas las fotos</a></p>
     </div>
   </section>
-
-  <CtaBand
-    title="Tu apoyo también siembra futuro"
-    text="Dona, sé voluntario o crea una alianza con nosotros. Toda ayuda llega a las familias de Quebradanegra, Tobia y Villeta."
-    primary={{ href: '/como-ayudar/', label: 'Cómo ayudar' }}
-    secondary={{ href: '/contacto/', label: 'Escríbenos' }}
-  />
 </BaseLayout>
 
 <style>
-  .intro-photo {
-    position: relative;
-  }
-
-  .intro-photo__tag {
-    position: absolute;
-    left: var(--space-4);
-    bottom: var(--space-4);
-    padding: var(--space-1) var(--space-3);
-    background: rgb(255 255 255 / 0.92);
-    border-radius: var(--radius-pill);
-    color: var(--verde-900);
+  /* Dos secciones seguidas con el mismo fondo: se juntan sin doble espacio. */
+  .events-section {
+    padding-top: 0;
   }
 
   .quote {
@@ -160,11 +141,6 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     font-size: var(--fs-lg);
     line-height: 1.45;
     color: var(--verde-900);
-  }
-
-  .quote figcaption {
-    color: var(--color-text-muted);
-    font-size: var(--fs-sm);
   }
 
   .more-link {

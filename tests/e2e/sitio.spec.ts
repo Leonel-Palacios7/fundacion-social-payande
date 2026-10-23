@@ -6,7 +6,6 @@ const PAGES = [
   { path: '/nosotros/', h1: /hecha por y para Payandé/ },
   { path: '/programas/', h1: /Cinco ramas/ },
   { path: '/galeria/', h1: /Momentos/ },
-  { path: '/como-ayudar/', h1: /Cada aporte/ },
   { path: '/contacto/', h1: /Contacto/ },
 ];
 
@@ -37,7 +36,7 @@ for (const { path, h1 } of PAGES) {
     expect(response?.status()).toBe(200);
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveText(h1);
-    await expect(page).toHaveTitle(/Fundación Payandé/);
+    await expect(page).toHaveTitle(/Fundación Social Payandé/);
     expect(errors).toEqual([]);
   });
 
@@ -62,12 +61,12 @@ for (const { path, h1 } of PAGES) {
 
 test('la navegación lleva a cada página y marca la actual', async ({ page }) => {
   await page.goto('/');
-  for (const label of ['Nosotros', 'Programas', 'Galería', 'Cómo ayudar', 'Contacto']) {
+  for (const label of ['Nosotros', 'Programas', 'Galería', 'Contacto']) {
     await openMenuIfMobile(page);
     await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: label }).click();
     // En móvil el menú se cierra al cambiar de página, por eso se busca sin filtrar por visibilidad.
     await expect(page.locator('#menu-principal [aria-current="page"]')).toHaveText(label);
-    await expect(page).toHaveURL(new RegExp(`/${label === 'Cómo ayudar' ? 'como-ayudar' : label.toLowerCase().replace('í', 'i')}/$`));
+    await expect(page).toHaveURL(new RegExp(`/${label.toLowerCase().replace('í', 'i')}/$`));
   }
 });
 
@@ -138,8 +137,8 @@ test('la galería acepta un filtro por URL', async ({ page }) => {
 });
 
 test('el formulario muestra errores accesibles y prepara el correo', async ({ page }) => {
-  await page.goto('/contacto/?motivo=Voluntariado');
-  await expect(page.getByLabel('Motivo')).toHaveValue('Voluntariado');
+  await page.goto('/contacto/?motivo=Servicios%20de%20la%20Fundaci%C3%B3n');
+  await expect(page.getByLabel('Motivo')).toHaveValue('Servicios de la Fundación');
 
   await page.getByRole('button', { name: 'Preparar mensaje' }).click();
   const summary = page.getByRole('alert');
@@ -167,7 +166,7 @@ test('el formulario muestra errores accesibles y prepara el correo', async ({ pa
   await expect(page.getByRole('alert')).toBeHidden();
   const href = await mailto.getAttribute('href');
   expect(href).toMatch(/^mailto:contacto@example\.org\?subject=/);
-  expect(decodeURIComponent(href ?? '')).toContain('[Sitio web] Voluntariado - Ana Gómez');
+  expect(decodeURIComponent(href ?? '')).toContain('[Sitio web] Servicios de la Fundación - Ana Gómez');
 });
 
 test('la página 404 responde y ofrece volver al inicio', async ({ page }) => {
@@ -261,9 +260,20 @@ test('los programas se revelan al hacer scroll y cargan su foto', async ({ page 
 test('las preguntas frecuentes de contacto abren de a una', async ({ page }) => {
   await page.goto('/contacto/');
   const items = page.locator('.faq__item');
-  await expect(items).toHaveCount(6);
+  await expect(items).toHaveCount(5);
   await expect(items.first()).toHaveAttribute('open', '');
   await items.nth(2).locator('summary').click();
   await expect(items.nth(2)).toHaveAttribute('open', '');
   await expect(items.first()).not.toHaveAttribute('open', '');
+});
+
+test('el botón de volver arriba aparece al bajar y regresa al inicio', async ({ page }) => {
+  await page.goto('/nosotros/');
+  const toTop = page.getByRole('link', { name: 'Volver al inicio de la página' });
+  await expect(toTop).toBeHidden();
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(toTop).toBeVisible();
+  await toTop.click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  await expect(page.locator('#contenido')).toBeFocused();
 });

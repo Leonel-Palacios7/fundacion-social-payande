@@ -2,56 +2,157 @@
 import { withBase } from '../lib/paths.ts';
 import { Image } from 'astro:assets';
 import logoBlanco from '../assets/brand/logo-blanco.png';
-import { navItems, site } from '../data/site.ts';
+import { navItems, site, socialLinks, type SocialLink } from '../data/site.ts';
+import { services } from '../data/services.ts';
 
 const year = new Date().getFullYear();
+
+/** Íconos de redes sociales (trazos propios, viewBox 24×24). */
+const socialIcons: Record<SocialLink['id'], string> = {
+  facebook: '<path d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H8v4h2v7h4v-7h3l1-4h-4V8.5a.5.5 0 0 1 .5-.5z" fill="currentColor"/>',
+  instagram:
+    '<rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/>',
+  x: '<path d="M4 4h4.6l4 5.6L17.3 4H20l-6.1 7.1L20.5 20h-4.6l-4.3-6-5.1 6H3.8l6.6-7.6z" fill="currentColor"/>',
+  youtube:
+    '<path d="M21.6 7.2a2.6 2.6 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.6 2.6 0 0 0 2.4 7.2 27 27 0 0 0 2 12a27 27 0 0 0 .4 4.8 2.6 2.6 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.6 2.6 0 0 0 1.8-1.8A27 27 0 0 0 22 12a27 27 0 0 0-.4-4.8zM10 15V9l5.2 3z" fill="currentColor"/>',
+  whatsapp:
+    '<path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 7.8c-.3 0-.7.1-.9.5-.3.4-.8 1.2-.3 2.6.6 1.6 2.4 3.6 4.6 4.4 1.3.5 2.1.3 2.6-.1.4-.3.6-.9.6-1.2 0-.2-.1-.3-.3-.4l-1.6-.8c-.2-.1-.4 0-.5.1l-.6.8c-.1.1-.3.2-.5.1a6 6 0 0 1-2.8-2.5c-.1-.2 0-.3.1-.4l.5-.6c.1-.1.1-.3 0-.5l-.7-1.7c-.1-.3-.3-.3-.5-.3z" fill="currentColor"/>',
+};
 ---
 
 <footer class="site-footer">
-  <div class="container site-footer__grid">
-    <div class="site-footer__brand">
-      <Image src={logoBlanco} alt={site.name} width={96} height={111} densities={[1, 2]} />
-      <p>{site.tagline}.</p>
+  <svg class="site-footer__wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path class="wave wave--back" d="M0 40c120-26 240-26 360 0s240 26 360 0 240-26 360 0 240 26 360 0v40H0z" />
+    <path class="wave wave--front" d="M0 52c120-20 240-20 360 0s240 20 360 0 240-20 360 0 240 20 360 0v28H0z" />
+  </svg>
+
+  <div class="site-footer__body">
+    <div class="container site-footer__grid">
+      <div class="site-footer__brand" data-reveal>
+        <a class="site-footer__logo" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
+          <Image src={logoBlanco} alt="" width={110} height={127} densities={[1, 2]} />
+        </a>
+        <p class="site-footer__tagline">{site.tagline}.</p>
+        <p>
+          Mejoramos la calidad de vida, la educación, la salud, la vivienda y la recreación de personas de escasos
+          recursos en {site.contact.area}.
+        </p>
+        <ul class="social" role="list" aria-label="Redes sociales (próximamente)">
+          {
+            socialLinks.map((social, i) => (
+              <li style={`--i:${i}`}>
+                {social.href ? (
+                  <a class="social__item" href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={socialIcons[social.id]} />
+                  </a>
+                ) : (
+                  <span class="social__item" role="img" aria-label={`${social.label} (próximamente)`} title={`${social.label}: próximamente`}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={socialIcons[social.id]} />
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <nav aria-labelledby="pie-navegacion" data-reveal style="--stagger:1">
+        <h2 class="site-footer__title" id="pie-navegacion">Navegación</h2>
+        <ul class="site-footer__list" role="list">
+          {navItems.map((item) => (
+            <li>
+              <a class="site-footer__link" href={withBase(item.href)}>{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div data-reveal style="--stagger:2">
+        <h2 class="site-footer__title">Servicios</h2>
+        <ul class="site-footer__list site-footer__list--plain" role="list">
+          {services.map((service) => <li>{service.title}</li>)}
+        </ul>
+      </div>
+
+      <div data-reveal style="--stagger:3">
+        <h2 class="site-footer__title">Contacto</h2>
+        <ul class="site-footer__list site-footer__contact" role="list">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+            <a class="site-footer__link" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+            <a class="site-footer__link" href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+            <span>{site.contact.area}, Cundinamarca</span>
+          </li>
+        </ul>
+        {site.showProvisionalNotes && site.contact.provisional && (
+          <p class="site-footer__note">Correo y teléfono provisionales.</p>
+        )}
+      </div>
     </div>
 
-    <nav aria-label="Pie de página">
-      <h2 class="site-footer__title">Navegación</h2>
-      <ul class="site-footer__list">
-        {navItems.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
-      </ul>
-    </nav>
-
-    <div>
-      <h2 class="site-footer__title">Contacto</h2>
-      <ul class="site-footer__list">
-        <li><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></li>
-        <li><a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a></li>
-        <li>{site.contact.location}</li>
-      </ul>
-      {site.showProvisionalNotes && site.contact.provisional && (
-        <p class="site-footer__note">Datos de contacto provisionales.</p>
-      )}
+    <div class="container site-footer__bottom">
+      <p>© {year} {site.name}. Todos los derechos reservados.</p>
+      <p class="site-footer__made">Quebradanegra · Tobia · Villeta</p>
     </div>
-  </div>
-  <div class="container site-footer__bottom">
-    <p>© {year} {site.name}. Todos los derechos reservados.</p>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    background: var(--verde-900);
-    color: #e3f1ea;
-    padding-top: var(--space-8);
+    position: relative;
+    /* La ola se monta sobre el final de la última sección. */
+    margin-top: calc(-1 * clamp(40px, 6vw, 80px));
+    color: #d9ece2;
+  }
+
+  .site-footer__wave {
+    display: block;
+    width: 100%;
+    height: clamp(40px, 6vw, 80px);
+    margin-bottom: -1px;
+  }
+
+  .wave--back {
+    fill: var(--verde-700);
+    opacity: 0.55;
+  }
+
+  .wave--front {
+    fill: var(--verde-900);
+  }
+
+  .site-footer__body {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(40rem 22rem at 100% 0%, rgb(51 184 184 / 0.16), transparent 70%),
+      radial-gradient(36rem 20rem at 0% 100%, rgb(142 202 109 / 0.12), transparent 70%),
+      var(--verde-900);
+    padding-top: var(--space-6);
     padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
+  }
+
+  /* Palabra decorativa de fondo. */
+  .site-footer__body::before {
+    content: 'Payandé';
+    position: absolute;
+    right: -2rem;
+    bottom: -2.5rem;
+    font-family: var(--font-script);
+    font-size: clamp(6rem, 18vw, 14rem);
+    line-height: 1;
+    color: rgb(255 255 255 / 0.035);
+    pointer-events: none;
   }
 
   .site-footer a {
     color: #fff;
-  }
-
-  .site-footer a:hover {
-    color: var(--brand-lima);
   }
 
   .site-footer :focus-visible {
@@ -59,47 +160,292 @@ const year = new Date().getFullYear();
   }
 
   .site-footer__grid {
+    position: relative;
     display: grid;
     gap: var(--space-7);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
   }
 
-  .site-footer__brand img {
-    width: 96px;
-    height: auto;
+  @media (min-width: 64rem) {
+    .site-footer__grid {
+      grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+    }
+  }
+
+  .site-footer__logo {
+    display: inline-block;
     margin-bottom: var(--space-4);
   }
 
+  .site-footer__logo img {
+    width: 110px;
+    height: auto;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .site-footer__tagline {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-script);
+    font-size: var(--fs-md);
+    color: #c9eab0;
+  }
+
+  .site-footer__brand p:not(.site-footer__tagline) {
+    max-width: 24rem;
+    font-size: var(--fs-sm);
+  }
+
   .site-footer__title {
+    position: relative;
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-3);
     font-size: 1rem;
     color: #fff;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
+  .site-footer__title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 2.5rem;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--brand-lima), var(--brand-turquesa));
+    transform-origin: left;
+    transition: width 0.5s var(--ease-out);
+  }
+
+  div:hover > .site-footer__title::after,
+  nav:hover > .site-footer__title::after {
+    width: 4.5rem;
+  }
+
   .site-footer__list {
-    list-style: none;
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
     padding: 0;
+    list-style: none;
   }
 
   .site-footer__list li {
-    margin-bottom: var(--space-2);
     overflow-wrap: anywhere;
   }
 
+  /* Enlaces: una flecha aparece y el texto se desliza. */
+  .site-footer__link {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    transition:
+      color var(--dur-base) var(--ease),
+      transform 0.35s var(--ease-out);
+  }
+
+  .site-footer__list:not(.site-footer__contact) .site-footer__link::before {
+    content: '›';
+    position: absolute;
+    left: -1rem;
+    color: var(--brand-lima);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition:
+      opacity var(--dur-base) var(--ease),
+      transform 0.35s var(--ease-out);
+  }
+
+  .site-footer__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.35s var(--ease-out);
+  }
+
+  .site-footer__link:hover,
+  .site-footer__link:focus-visible {
+    color: var(--brand-lima);
+  }
+
+  .site-footer__link:hover::after,
+  .site-footer__link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .site-footer__list:not(.site-footer__contact) .site-footer__link:hover,
+  .site-footer__list:not(.site-footer__contact) .site-footer__link:focus-visible {
+    transform: translateX(1rem);
+  }
+
+  .site-footer__list:not(.site-footer__contact) .site-footer__link:hover::before,
+  .site-footer__list:not(.site-footer__contact) .site-footer__link:focus-visible::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  .site-footer__list--plain li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .site-footer__list--plain li::before {
+    content: '';
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--brand-verde);
+    box-shadow: 0 0 0 3px rgb(94 189 145 / 0.2);
+  }
+
+  .site-footer__contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .site-footer__contact svg {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    fill: none;
+    stroke: var(--brand-lima);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   .site-footer__note {
+    margin-top: var(--space-4);
     font-size: var(--fs-sm);
     color: #f6dd8b;
   }
 
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .social__item {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    overflow: hidden;
+    border-radius: 50%;
+    color: #fff;
+    box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.3);
+    cursor: default;
+    transition:
+      transform 0.4s var(--ease-out),
+      box-shadow 0.4s var(--ease-out),
+      color 0.3s var(--ease);
+  }
+
+  /* Círculo de color que crece desde el centro. */
+  .social__item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--brand-lima), var(--brand-turquesa));
+    transform: scale(0);
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .social__item svg {
+    position: relative;
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .social__item:hover {
+    color: var(--verde-900);
+    box-shadow: inset 0 0 0 1.5px transparent, 0 10px 20px -10px rgb(0 0 0 / 0.6);
+  }
+
+  .social__item:hover::before {
+    transform: scale(1);
+  }
+
   .site-footer__bottom {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
     margin-top: var(--space-7);
     padding-top: var(--space-5);
-    border-top: 1px solid rgb(255 255 255 / 0.18);
+    border-top: 1px solid rgb(255 255 255 / 0.14);
     font-size: var(--fs-sm);
   }
 
   .site-footer__bottom p {
     margin: 0;
+  }
+
+  .site-footer__made {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a9cdbd;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .wave--back {
+      animation: wave-drift 14s ease-in-out 2 alternate;
+    }
+
+    .wave--front {
+      animation: wave-drift 10s ease-in-out 2 alternate-reverse;
+    }
+
+    .site-footer__logo:hover img {
+      transform: rotate(-5deg) scale(1.05);
+    }
+
+    .social__item:hover {
+      transform: translateY(-4px);
+    }
+
+    .social__item:hover svg {
+      transform: scale(1.12) rotate(-8deg);
+    }
+
+    :global(.js) .social li {
+      opacity: 0;
+      transform: translateY(12px) scale(0.8);
+      transition:
+        opacity 0.5s var(--ease-out),
+        transform 0.5s var(--ease-out);
+    }
+
+    :global(.js) .is-visible .social li {
+      opacity: 1;
+      transform: none;
+      transition-delay: calc(350ms + var(--i, 0) * 80ms);
+    }
+  }
+
+  @keyframes wave-drift {
+    to {
+      transform: translateX(-4%) scaleX(1.08);
+    }
   }
 </style>

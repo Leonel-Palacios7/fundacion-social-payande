@@ -1,5 +1,4 @@
 ---
-import { withBase } from '../lib/paths.ts';
 import { Picture } from 'astro:assets';
 import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
@@ -8,10 +7,9 @@ interface Props {
   photoIds: readonly string[];
   eyebrow?: string;
   title?: string;
-  lead: string;
 }
 
-const { photoIds, eyebrow, title = site.tagline, lead } = Astro.props;
+const { photoIds, eyebrow, title = site.tagline } = Astro.props;
 const slides = photoIds.map(getPhoto);
 const titleWords = title.split(' ');
 ---
@@ -59,11 +57,6 @@ const titleWords = title.split(' ');
   <div class="container hero__content">
     <p class="hero__eyebrow hero__in" style="--d:0">{eyebrow ?? <Fragment>Fundación <span class="hero__script">Payandé</span></Fragment>}</p>
     <h1 id="hero-title" set:html={titleWords.map((word, i) => `<span class="hero__word" style="--i:${i}">${word}</span>`).join(' ')} />
-    <p class="hero__lead hero__in" style="--d:6">{lead}</p>
-    <div class="btn-row hero__in" style="--d:8">
-      <a class="btn btn--light btn--arrow" href={withBase('/programas/')}>Conoce nuestros programas</a>
-      <a class="btn btn--ghost-light" href={withBase('/como-ayudar/')}>Quiero ayudar</a>
-    </div>
   </div>
 
   <div class="container hero__controls" data-carousel-controls hidden>
@@ -208,12 +201,6 @@ const titleWords = title.split(' ');
     font-family: var(--font-script);
     font-size: 1.5em;
     color: #c9eab0;
-  }
-
-  .hero__lead {
-    max-width: 36rem;
-    font-size: var(--fs-md);
-    margin-bottom: var(--space-6);
   }
 
   .hero__controls {

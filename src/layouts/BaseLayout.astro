@@ -10,6 +10,7 @@ import '../styles/global.css';
 import { getImage } from 'astro:assets';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import BackToTop from '../components/BackToTop.astro';
 import { site } from '../data/site.ts';
 import { getPhoto } from '../data/photos.ts';
 
@@ -39,6 +40,7 @@ const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.
     {noindex && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="theme-color" content="#1e6b4f" />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="any" />
     <link rel="icon" href={withBase('/favicon.png')} type="image/png" />
     <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
     <link rel="manifest" href={withBase('/site.webmanifest')} />
@@ -60,6 +62,7 @@ const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.
       <slot />
     </main>
     <Footer />
+    <BackToTop />
     <script>
       import { initHeaderOnScroll, initReveal } from '../scripts/reveal.ts';
       initReveal();

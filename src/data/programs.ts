@@ -62,7 +62,7 @@ export const programs: readonly Program[] = [
     summary: 'Trabajamos de la mano con familias, voluntarios y empresas para multiplicar el impacto.',
     description:
       'Articulamos esfuerzos con aliados públicos y privados, voluntariado y líderes comunitarios para llegar a más hogares de la región.',
-    actions: ['Voluntariado', 'Alianzas empresariales', 'Entregas comunitarias'],
+    actions: ['Trabajo con líderes comunitarios', 'Entregas comunitarias'],
     photoId: 'slider-16',
   },
 ];

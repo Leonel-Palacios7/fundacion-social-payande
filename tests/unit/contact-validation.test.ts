@@ -6,7 +6,7 @@ const valid: ContactData = {
   nombre: 'Ana Gómez',
   correo: 'ana@correo.com',
   telefono: '',
-  motivo: 'Voluntariado',
+  motivo: 'Servicios de la Fundación',
   mensaje: 'Quiero apoyar las jornadas escolares.',
   consentimiento: true,
 };
@@ -50,7 +50,7 @@ describe('buildMailto', () => {
     assert.ok(href.startsWith('mailto:contacto@example.org?subject='));
     assert.ok(!href.includes(' '));
     const url = new URL(href);
-    assert.equal(url.searchParams.get('subject'), '[Sitio web] Voluntariado - Ana Gómez');
+    assert.equal(url.searchParams.get('subject'), '[Sitio web] Servicios de la Fundación - Ana Gómez');
     assert.match(url.searchParams.get('body') ?? '', /Hola & gracias\?\r\nSaludos/);
   });
 

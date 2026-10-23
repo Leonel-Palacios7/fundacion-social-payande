@@ -15,7 +15,7 @@ export interface ContactData {
 
 export type ContactErrors = Partial<Record<ContactField, string>>;
 
-export const MOTIVOS = ['Información general', 'Donaciones', 'Voluntariado', 'Alianzas', 'Otro'] as const;
+export const MOTIVOS = ['Información general', 'Servicios de la Fundación', 'Otro'] as const;
 
 export const LIMITS = {
   nombreMin: 2,
