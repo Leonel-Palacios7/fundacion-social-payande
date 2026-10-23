@@ -23,18 +23,35 @@ const items = await Promise.all(
 );
 
 const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[];
+const countOf = (category: PhotoCategory) => photos.filter((p) => p.category === category).length;
+
+/** Íconos pequeños de cada filtro (trazos de 24×24). */
+const filterIcons: Record<PhotoCategory | 'todas', string> = {
+  todas: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  educacion: '<path d="M3 6.5c3-1.5 6-1.5 9 .5 3-2 6-2 9-.5V19c-3-1.5-6-1.5-9 .5-3-2-6-2-9-.5z"/><path d="M12 7v12.5"/>',
+  ninez: '<path d="M12 3a5 5 0 0 1 5 5c0 3.5-3 6-5 6s-5-2.5-5-6a5 5 0 0 1 5-5z"/><path d="M12 14l-1 2h2l-1-2M12 16c0 2 1.5 3 0 5"/>',
+  vivienda: '<path d="M3 11 12 4l9 7"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/>',
+  jovenes: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6c3 3 3 9 0 12M18 6c-3 3-3 9 0 12"/>',
+  salud: '<path d="M12 20.5S3 15 3 8.8a4.8 4.8 0 0 1 9-2.4 4.8 4.8 0 0 1 9 2.4C21 15 12 20.5 12 20.5z"/><path d="M12 9v5M9.5 11.5h5"/>',
+  comunidad: '<circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 20v-1.5a5.5 5.5 0 0 1 11 0V20M13.5 14.2a4.5 4.5 0 0 1 8 3V20"/>',
+};
 ---
 
 <div class="gallery" data-gallery data-shuffle={filterable ? '' : undefined} id={id}>
   {
     filterable && (
-      <div class="gallery__filters" role="group" aria-label="Filtrar fotos por programa">
+      <div class="gallery__filters" role="group" aria-label="Filtrar fotos por programa" data-filters>
+        <span class="gallery__pill" aria-hidden="true" data-filter-pill></span>
         <button type="button" class="chip" aria-pressed="true" data-filter="todas">
+          <svg class="chip__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={filterIcons.todas} />
           Todas
+          <span class="chip__count" aria-hidden="true">{photos.length}</span>
         </button>
         {categories.map((category) => (
           <button type="button" class="chip" aria-pressed="false" data-filter={category}>
+            <svg class="chip__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={filterIcons[category]} />
             {categoryLabels[category]}
+            <span class="chip__count" aria-hidden="true">{countOf(category)}</span>
           </button>
         ))}
       </div>
@@ -104,32 +121,159 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
 </script>
 
 <style>
+  /* ---------- Filtros: una píldora se desliza hasta el filtro elegido ---------- */
   .gallery__filters {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
     margin-bottom: var(--space-3);
+    padding: var(--space-2);
+    border-radius: 1.75rem;
+    background: var(--verde-50);
+  }
+
+  @media (max-width: 40rem) {
+    /* En móvil los filtros se deslizan de lado en una sola fila. */
+    .gallery__filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+    }
+
+    .gallery__filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      flex: none;
+      scroll-snap-align: center;
+    }
+  }
+
+  .gallery__pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    display: none;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(135deg, var(--verde-700), var(--turquesa-700));
+    box-shadow: 0 8px 20px -8px rgb(15 59 46 / 0.6);
+    pointer-events: none;
+  }
+
+  .gallery__filters.has-pill .gallery__pill {
+    display: block;
+    transition:
+      transform 0.55s var(--ease-out),
+      width 0.55s var(--ease-out),
+      height 0.55s var(--ease-out);
   }
 
   .chip {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
     min-height: 44px;
-    padding: 0.4rem 1rem;
-    border: 1px solid var(--color-border);
+    padding: 0.4rem 0.6rem 0.4rem 0.9rem;
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
     background: #fff;
     color: var(--color-text);
     font-weight: 500;
+    white-space: nowrap;
     cursor: pointer;
+    transition:
+      color 0.35s var(--ease),
+      background-color 0.35s var(--ease),
+      transform 0.35s var(--ease-out),
+      border-color 0.35s var(--ease);
   }
 
   .chip:hover {
     border-color: var(--verde-700);
+    transform: translateY(-2px);
+  }
+
+  .chip:active {
+    transform: scale(0.95);
   }
 
   .chip[aria-pressed='true'] {
     background: var(--verde-700);
-    border-color: var(--verde-700);
     color: #fff;
+  }
+
+  /* Con la píldora animada, el botón activo se vuelve transparente encima de ella. */
+  .has-pill .chip[aria-pressed='true'] {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .chip__icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.45s var(--ease-out);
+  }
+
+  .chip:hover .chip__icon,
+  .chip[aria-pressed='true'] .chip__icon {
+    transform: rotate(-10deg) scale(1.15);
+  }
+
+  .chip__count {
+    display: grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding: 0 0.4rem;
+    border-radius: var(--radius-pill);
+    background: var(--verde-100);
+    color: var(--verde-900);
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition:
+      background-color 0.35s var(--ease),
+      color 0.35s var(--ease);
+  }
+
+  .chip[aria-pressed='true'] .chip__count {
+    background: #fff;
+    color: var(--verde-900);
+  }
+
+  /* Las fotos que quedan al filtrar entran una tras otra. */
+  @media (prefers-reduced-motion: no-preference) {
+    .gallery__item.is-entering {
+      animation: item-in 0.6s var(--ease-out) backwards;
+      animation-delay: calc(var(--order, 0) * 45ms);
+    }
+
+    .chip.is-bumping .chip__count {
+      animation: count-bump 0.5s var(--ease-out);
+    }
+  }
+
+  @keyframes item-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.92);
+    }
+  }
+
+  @keyframes count-bump {
+    40% {
+      transform: scale(1.35);
+    }
   }
 
   .gallery__status {

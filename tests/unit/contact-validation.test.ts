@@ -1,6 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildMailto, composeMessage, LIMITS, validateContact, type ContactData } from '../../src/scripts/contact-validation.ts';
+import { buildMailto, buildPayload, composeMessage, LIMITS, validateContact, type ContactData } from '../../src/scripts/contact-validation.ts';
 
 const valid: ContactData = {
   nombre: 'Ana Gómez',
@@ -57,5 +57,13 @@ describe('buildMailto', () => {
   test('incluye el teléfono solo si existe', () => {
     assert.ok(!composeMessage(valid).body.includes('Teléfono'));
     assert.ok(composeMessage({ ...valid, telefono: '3001234567' }).body.includes('Teléfono: 3001234567'));
+  });
+
+  test('arma los campos para el envío directo', () => {
+    const payload = buildPayload({ ...valid, telefono: '312 000 0000' });
+    assert.equal(payload['_subject'], '[Sitio web] Servicios de la Fundación - Ana Gómez');
+    assert.equal(payload['_replyto'], 'ana@correo.com');
+    assert.equal(payload['Teléfono'], '312 000 0000');
+    assert.equal(buildPayload(valid)['Teléfono'], undefined);
   });
 });

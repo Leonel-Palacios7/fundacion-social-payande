@@ -72,24 +72,58 @@ function initFilters(root: HTMLElement): void {
   const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter]'));
   const items = Array.from(root.querySelectorAll<HTMLElement>('.gallery__item'));
   const status = root.querySelector<HTMLElement>('[data-gallery-status]');
+  const bar = root.querySelector<HTMLElement>('[data-filters]');
+  const pill = root.querySelector<HTMLElement>('[data-filter-pill]');
   if (buttons.length === 0) return;
+
+  // La píldora de color se desliza bajo el filtro activo.
+  const movePill = () => {
+    const active = buttons.find((b) => b.getAttribute('aria-pressed') === 'true');
+    if (!bar || !pill || !active) return;
+    pill.style.width = `${active.offsetWidth}px`;
+    pill.style.height = `${active.offsetHeight}px`;
+    pill.style.transform = `translate(${active.offsetLeft}px, ${active.offsetTop}px)`;
+  };
+  if (bar && pill) {
+    movePill();
+    bar.classList.add('has-pill');
+    window.addEventListener('resize', movePill);
+    document.fonts?.ready.then(movePill);
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
       const filter = button.dataset['filter'] ?? 'todas';
       buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+      movePill();
+      button.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+      button.classList.remove('is-bumping');
+      void button.offsetWidth;
+      button.classList.add('is-bumping');
+
       let shown = 0;
       items.forEach((item) => {
         const match = filter === 'todas' || item.dataset['category'] === filter;
         item.hidden = !match;
-        if (match) shown += 1;
+        item.classList.remove('is-entering');
+        if (!match) return;
+        // Las fotos que quedan entran en cascada.
+        item.style.setProperty('--order', String(Math.min(shown, 12)));
+        item.classList.add('is-visible');
+        void item.offsetWidth;
+        item.classList.add('is-entering');
+        shown += 1;
       });
       if (status) {
-        const label = filter === 'todas' ? '' : ` de ${button.textContent?.trim()}`;
+        const label = filter === 'todas' ? '' : ` de ${button.textContent?.replace(/\d+/g, '').trim()}`;
         status.textContent = `Mostrando ${shown} ${shown === 1 ? 'foto' : 'fotos'}${label}.`;
       }
     });
   });
+
+  items.forEach((item) => item.addEventListener('animationend', () => item.classList.remove('is-entering')));
 
   // Permite enlazar a un filtro concreto: /galeria/?programa=educacion
   const requested = new URLSearchParams(window.location.search).get('programa');

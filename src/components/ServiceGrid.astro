@@ -2,12 +2,21 @@
 import type { Service } from '../data/services.ts';
 import { serviceIcons } from '../lib/service-icons.ts';
 import { withBase } from '../lib/paths.ts';
+import RandomPicture from './RandomPicture.astro';
+import { programs } from '../data/programs.ts';
+import { getPhoto } from '../data/photos.ts';
 
 interface Props {
   services: readonly Service[];
 }
 
 const { services } = Astro.props;
+
+// Cada tarjeta muestra al pasar el cursor la foto de su programa.
+const photoFor = (id: string) => {
+  const program = programs.find((p) => p.id === id);
+  return program ? getPhoto(program.photoId) : undefined;
+};
 
 ---
 
@@ -19,6 +28,11 @@ const { services } = Astro.props;
         data-reveal
         style={`--stagger:${i}`}
       >
+        {photoFor(service.id) && (
+          <span class="service__photo" aria-hidden="true">
+            <RandomPicture photo={photoFor(service.id)!} shape="landscape" sizes="(min-width: 56rem) 24rem, 92vw" random={false} decorative />
+          </span>
+        )}
         <a class="service__link" href={withBase(`/programas/#${service.id}`)}>
           <svg class="service__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={serviceIcons[service.icon]} />
           <h3 class="service__title">{service.title}</h3>
@@ -94,12 +108,35 @@ const { services } = Astro.props;
     transition: transform 0.55s var(--ease-out);
   }
 
-  .service--dark::before {
-    background: linear-gradient(150deg, var(--verde-700), var(--turquesa-700));
+  /* Velo sobre la foto para que el texto se lea bien. */
+  .service::before {
+    background: linear-gradient(160deg, rgb(15 59 46 / 0.86) 0%, rgb(15 59 46 / 0.7) 55%, rgb(11 106 115 / 0.78) 100%);
   }
 
-  .service--light::before {
-    background: linear-gradient(150deg, var(--verde-900), var(--verde-700));
+  /* Foto del programa: aparece con un acercamiento suave al pasar el cursor. */
+  .service__photo {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    opacity: 0;
+    transform: scale(1.18);
+    transition:
+      opacity 0.5s var(--ease),
+      transform 1.2s var(--ease-out);
+  }
+
+  .service__photo :global(picture),
+  .service__photo :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .service:hover .service__photo,
+  .service:focus-within .service__photo {
+    opacity: 1;
+    transform: scale(1);
   }
 
   /* Luz que sigue al puntero. */
@@ -222,11 +259,16 @@ const { services } = Astro.props;
     opacity: 1;
   }
 
-  .service--light:hover,
-  .service--light:focus-within,
-  .service--light:hover .service__text,
-  .service--light:focus-within .service__text {
+  .service:hover,
+  .service:focus-within,
+  .service:hover .service__text,
+  .service:focus-within .service__text {
     color: #fff;
+  }
+
+  .service:hover .service__icon,
+  .service:focus-within .service__icon {
+    stroke: var(--brand-lima);
   }
 
   .service--light:hover .service__icon,

@@ -17,7 +17,7 @@ const { photoIds, word } = Astro.props;
 const photos = photoIds.map(getPhoto);
 ---
 
-<section class="ring" aria-labelledby="ring-title" data-ring>
+<section class="ring" aria-labelledby="ring-title" style={`--n:${photos.length}`} data-ring>
   <div class="container ring__intro">
     <span class="eyebrow ring__eyebrow" data-reveal>Payandé en movimiento</span>
     <h2 id="ring-title" data-reveal style="--stagger:1">Transformando vidas con compromiso y solidaridad</h2>
@@ -26,7 +26,7 @@ const photos = photoIds.map(getPhoto);
   <div class="ring__stage" data-ring-stage>
     <div class="ring__scene">
       <p class="ring__word" aria-hidden="true">{word}</p>
-      <ul class="ring__track" style={`--n:${photos.length}`} data-ring-track aria-hidden="true">
+      <ul class="ring__track" data-ring-track aria-hidden="true">
         {
           photos.map((photo, i) => (
             <li class="ring__card" style={`--i:${i}`} data-ring-card>
@@ -67,9 +67,10 @@ const photos = photoIds.map(getPhoto);
 
 <style>
   .ring {
-    --card-w: clamp(110px, 14vw, 200px);
+    --card-w: clamp(96px, 12vw, 172px);
     --card-h: calc(var(--card-w) * 1.43);
-    --radius: calc(var(--card-w) * 2.25);
+    /* El radio crece con el número de fotos para que no se monten unas sobre otras. */
+    --radius: calc(var(--card-w) * var(--n) * 0.25);
     position: relative;
     overflow: hidden;
     padding-block: var(--section-y);

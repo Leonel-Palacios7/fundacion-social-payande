@@ -19,12 +19,17 @@ export const site = {
     phoneHref: '+573123788070',
     /** Dirección en dos líneas, tal como la usa la Fundación. */
     address: ['Km 75 vía Bogotá-Villeta, Vereda Pilones.', 'Quebradanegra, Cundinamarca.'],
-    location: 'Vereda Pilones, Quebradanegra, Cundinamarca',
+    location: 'Km 75 vía Bogotá-Villeta, Vereda Pilones, Quebradanegra, Cundinamarca',
     /** Municipios donde trabaja la Fundación, según su sitio actual. */
     area: 'Quebradanegra, Tobia y Villeta',
-    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Vereda%20Pilones%2C%20Quebradanegra%2C%20Cundinamarca',
-    mapEmbedUrl: 'https://www.google.com/maps?q=Vereda%20Pilones%2C%20Quebradanegra%2C%20Cundinamarca&z=12&output=embed',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Km%2075%20v%C3%ADa%20Bogot%C3%A1-Villeta%2C%20Vereda%20Pilones%2C%20Quebradanegra%2C%20Cundinamarca',
+    mapEmbedUrl: 'https://www.google.com/maps?q=Km%2075%20v%C3%ADa%20Bogot%C3%A1-Villeta%2C%20Vereda%20Pilones%2C%20Quebradanegra%2C%20Cundinamarca&z=14&output=embed',
     provisional: false,
+    /**
+     * Envío real sin backend propio: FormSubmit reenvía el mensaje al correo de la Fundación.
+     * El primer envío manda un correo de activación a esa dirección; hay que confirmarlo una vez.
+     */
+    formEndpoint: 'https://formsubmit.co/ajax/direccion@fundacionpayande.com',
   },
 } as const;
 

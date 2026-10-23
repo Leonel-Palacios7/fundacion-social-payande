@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = [
   { path: '/', h1: /Fundación Social Payandé/ },
-  { path: '/programas/', h1: /Seis programas/ },
+  { path: '/programas/', h1: /Programas Sociales/ },
   { path: '/galeria/', h1: /Momentos/ },
   { path: '/contacto/', h1: /Contacto/ },
 ];
@@ -96,15 +96,13 @@ test('la portada anima el logo de fondo y su animación se puede pausar', async 
   expect(state).toContain('paused');
 });
 
-test('la portada muestra los datos de contacto reales', async ({ page }) => {
+test('la portada deja solo el lema y el pie lleva los datos de contacto reales', async ({ page }) => {
   await page.goto('/');
   const details = page.locator('.hero__details');
-  await expect(details).toContainText('Transformando vidas con compromiso y solidaridad');
-  await expect(details).toContainText('Km 75 vía Bogotá-Villeta, Vereda Pilones.');
-  await expect(details).toContainText('Quebradanegra, Cundinamarca.');
-  await expect(details.getByRole('link', { name: 'direccion@fundacionpayande.com' })).toHaveAttribute('href', 'mailto:direccion@fundacionpayande.com');
-  await expect(details.getByRole('link', { name: '312 378 8070' })).toHaveAttribute('href', 'tel:+573123788070');
+  await expect(details).toHaveText(/^\s*Transformando vidas con compromiso y solidaridad\s*$/);
+  await expect(page.locator('.hero')).not.toContainText('Km 75');
   await expect(page.locator('.site-footer')).toContainText('direccion@fundacionpayande.com');
+  await expect(page.locator('.site-footer')).toContainText('Km 75 vía Bogotá-Villeta, Vereda Pilones.');
 });
 
 test('no quedan enlaces a Nosotros y el botón de historia no navega', async ({ page }) => {
@@ -158,11 +156,12 @@ test('las fotos cambian al azar sin repetirse en la página', async ({ page }) =
   expect(others.some((ids) => ids.join() !== first.join())).toBe(true);
 });
 
-test('el formulario muestra errores accesibles y prepara el correo', async ({ page }) => {
+test('el formulario muestra errores accesibles y, si el envío falla, prepara el correo', async ({ page }) => {
+  await page.route('https://formsubmit.co/**', (route) => route.fulfill({ status: 500, body: '{}' }));
   await page.goto('/contacto/?motivo=Servicios%20de%20la%20Fundaci%C3%B3n');
   await expect(page.getByLabel('Motivo')).toHaveValue('Servicios de la Fundación');
 
-  await page.getByRole('button', { name: 'Preparar mensaje' }).click();
+  await page.getByRole('button', { name: 'Enviar mensaje' }).click();
   const summary = page.getByRole('alert');
   await expect(summary).toBeVisible();
   await expect(summary).toBeFocused();
@@ -183,8 +182,8 @@ test('el formulario muestra errores accesibles y prepara el correo', async ({ pa
   await page.getByLabel(/Autorizo/).check();
 
   const mailto = page.locator('[data-mailto-retry]');
-  await page.getByRole('button', { name: 'Preparar mensaje' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Abrimos tu aplicación de correo' })).toBeVisible();
+  await page.getByRole('button', { name: 'Enviar mensaje' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'No pudimos enviar el mensaje' })).toBeVisible();
   await expect(page.getByRole('alert')).toBeHidden();
   const href = await mailto.getAttribute('href');
   expect(href).toMatch(/^mailto:direccion@fundacionpayande\.com\?subject=/);
@@ -279,14 +278,40 @@ test('los programas se revelan al hacer scroll y cargan su foto', async ({ page 
   expect(await photo.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
 });
 
-test('las preguntas frecuentes de contacto abren de a una', async ({ page }) => {
+test('el formulario envía el mensaje y confirma el envío', async ({ page }) => {
+  let payload: Record<string, string> = {};
+  await page.route('https://formsubmit.co/**', async (route) => {
+    payload = route.request().postDataJSON() as Record<string, string>;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":"true"}' });
+  });
   await page.goto('/contacto/');
-  const items = page.locator('.faq__item');
-  await expect(items).toHaveCount(5);
-  await expect(items.first()).toHaveAttribute('open', '');
-  await items.nth(2).locator('summary').click();
-  await expect(items.nth(2)).toHaveAttribute('open', '');
-  await expect(items.first()).not.toHaveAttribute('open', '');
+  await page.getByLabel('Nombre completo').fill('Ana Gómez');
+  await page.getByLabel('Correo electrónico').fill('ana@correo.com');
+  await page.getByLabel('Motivo').selectOption('Otro');
+  await page.getByRole('textbox', { name: 'Mensaje' }).fill('Hola, quiero más información.');
+  await page.getByLabel(/Autorizo/).check();
+  await page.getByRole('button', { name: 'Enviar mensaje' }).click();
+  const sent = page.getByRole('status').filter({ hasText: 'Tu mensaje fue enviado' });
+  await expect(sent).toBeVisible();
+  await expect(sent).toBeFocused();
+  expect(payload['Nombre']).toBe('Ana Gómez');
+  expect(payload['_subject']).toBe('[Sitio web] Otro - Ana Gómez');
+  await expect(page.getByLabel('Nombre completo')).toHaveValue('');
+});
+
+test('contacto ya no tiene preguntas frecuentes y el mapa apunta a la dirección', async ({ page }) => {
+  await page.goto('/contacto/');
+  await expect(page.locator('.faq__item')).toHaveCount(0);
+  await expect(page.locator('.contact-card__map iframe')).toHaveAttribute('src', /Km%2075/);
+});
+
+test('las tarjetas de programas muestran su foto al pasar el cursor', async ({ page }) => {
+  await page.goto('/');
+  test.skip(isMobile(page), 'El efecto es de puntero');
+  const card = page.locator('.service').first();
+  await card.scrollIntoViewIfNeeded();
+  await card.hover();
+  await expect(card.locator('.service__photo')).toHaveCSS('opacity', '1');
 });
 
 test('el botón de volver arriba aparece al bajar y regresa al inicio', async ({ page }) => {
@@ -318,6 +343,7 @@ test('cada tarjeta de servicio de Inicio lleva a su programa', async ({ page }) 
 
 test('la galería se muestra en mosaico con fotos de proporciones distintas', async ({ page }) => {
   await page.goto('/galeria/');
+  await expect(page.locator('.gallery__filters')).toHaveClass(/has-pill/);
   const grid = page.locator('.gallery__grid--masonry');
   await expect(grid).toBeVisible();
   const ratios = await grid.locator('.gallery__img').evaluateAll((imgs) =>

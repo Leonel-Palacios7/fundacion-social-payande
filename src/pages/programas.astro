@@ -3,7 +3,6 @@ import RandomPicture from '../components/RandomPicture.astro';
 import { withBase } from '../lib/paths.ts';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
-import CtaBand from '../components/CtaBand.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
 import { programs } from '../data/programs.ts';
 import { getPhoto } from '../data/photos.ts';
@@ -16,9 +15,8 @@ import { serviceIcons } from '../lib/service-icons.ts';
   ogPhotoId="slider-10"
 >
   <PageHero
-    eyebrow="Programas"
-    title="Seis programas, un mismo propósito"
-    lead="Así acompañamos a las familias de Quebradanegra, Tobia y Villeta en cada etapa de la vida."
+    title="Programas Sociales"
+    lead="Quebradanegra, Tobia y Villeta"
     photoId="slider-7"
   />
 
@@ -69,11 +67,6 @@ import { serviceIcons } from '../lib/service-icons.ts';
     })
   }
 
-  <CtaBand
-    title="¿Quieres saber más de un programa?"
-    text="Escríbenos y te contamos cómo trabajamos con las familias de la región."
-    primary={{ href: '/contacto/', label: 'Escríbenos' }}
-  />
 </BaseLayout>
 
 <style>

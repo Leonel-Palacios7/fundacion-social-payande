@@ -3,11 +3,23 @@ import { LIMITS, MOTIVOS } from '../scripts/contact-validation.ts';
 import { site } from '../data/site.ts';
 ---
 
-<form class="contact-form" novalidate data-contact-form data-to={site.contact.email}>
+<form
+  class="contact-form"
+  novalidate
+  data-contact-form
+  data-to={site.contact.email}
+  data-endpoint={site.contact.formEndpoint}
+>
   <p class="contact-form__intro">
     Los campos marcados con <span aria-hidden="true">*</span><span class="visually-hidden">asterisco</span> son
-    obligatorios. Al enviar, se abrirá tu aplicación de correo con el mensaje listo para que lo revises y lo envíes.
+    obligatorios. Tu mensaje llega directamente al correo de la Fundación.
   </p>
+
+  <!-- Trampa para robots: las personas no ven este campo. -->
+  <div class="contact-form__trap" aria-hidden="true">
+    <label for="sitio-web">No llenes este campo</label>
+    <input id="sitio-web" name="_honey" type="text" tabindex="-1" autocomplete="off" />
+  </div>
 
   <div class="form-summary" role="alert" tabindex="-1" hidden data-error-summary>
     <h2 class="form-summary__title">Revisa los siguientes campos</h2>
@@ -59,17 +71,33 @@ import { site } from '../data/site.ts';
   </div>
 
   <div class="contact-form__actions">
-    <button class="btn btn--primary" type="submit" data-submit>Preparar mensaje</button>
+    <button class="btn btn--primary contact-form__submit" type="submit" data-submit>
+      <span class="contact-form__spinner" aria-hidden="true"></span>
+      <span data-submit-label>Enviar mensaje</span>
+      <svg class="contact-form__plane" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M21 3 3 10.5l7 2.5 2.5 7z M10 13l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+    </button>
   </div>
 
-  <div class="form-result" role="status" hidden data-result>
-    <p class="form-result__title"><strong>Abrimos tu aplicación de correo con el mensaje listo.</strong></p>
+  <div class="form-sent" role="status" tabindex="-1" hidden data-sent>
+    <svg class="form-sent__check" viewBox="0 0 52 52" aria-hidden="true">
+      <circle cx="26" cy="26" r="24" pathLength="1"></circle>
+      <path d="M15 27l7 7 15-16" pathLength="1"></path>
+    </svg>
+    <div>
+      <p class="form-sent__title"><strong>¡Gracias! Tu mensaje fue enviado.</strong></p>
+      <p>Te responderemos pronto al correo que nos dejaste.</p>
+      <button class="btn btn--outline" type="button" data-new-message>Escribir otro mensaje</button>
+    </div>
+  </div>
+
+  <div class="form-result" role="status" tabindex="-1" hidden data-result>
+    <p class="form-result__title"><strong>No pudimos enviar el mensaje desde aquí.</strong></p>
     <p>
-      El mensaje todavía no se ha enviado: revísalo y pulsa «Enviar» en tu correo. Si no se abrió ninguna aplicación,
-      copia el texto y envíalo a <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
+      Puedes enviarlo desde tu aplicación de correo con el mensaje ya escrito, o copiarlo y mandarlo a
+      <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
     </p>
     <div class="btn-row">
-      <a class="btn btn--outline" href="#" data-mailto-retry>Abrir de nuevo el correo</a>
+      <a class="btn btn--outline" href="#" data-mailto-retry>Abrir mi correo</a>
       <button class="btn btn--outline" type="button" data-copy>Copiar mensaje</button>
     </div>
     <p class="form-result__copy" aria-live="polite" data-copy-status></p>
@@ -90,6 +118,132 @@ import { site } from '../data/site.ts';
   .contact-form__intro {
     margin: 0;
     color: var(--color-text-muted);
+  }
+
+  .contact-form__trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .field label {
+    transition: color 0.3s var(--ease);
+  }
+
+  .field:focus-within > label {
+    color: var(--verde-700);
+  }
+
+  .contact-form__actions {
+    display: flex;
+  }
+
+  .contact-form__submit {
+    gap: var(--space-2);
+    min-width: 12rem;
+    justify-content: center;
+  }
+
+  .contact-form__plane {
+    transition: transform 0.45s var(--ease-out);
+  }
+
+  .contact-form__submit:hover .contact-form__plane {
+    transform: translate(4px, -4px) rotate(8deg);
+  }
+
+  .contact-form__spinner {
+    display: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2.5px solid rgb(255 255 255 / 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .contact-form__submit.is-sending {
+    cursor: progress;
+    opacity: 0.85;
+  }
+
+  .contact-form__submit.is-sending .contact-form__spinner {
+    display: block;
+  }
+
+  .contact-form__submit.is-sending .contact-form__plane {
+    display: none;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Mensaje de envío correcto con una marca que se dibuja. */
+  .form-sent {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    background: var(--color-success-bg);
+  }
+
+  .form-sent[hidden] {
+    display: none;
+  }
+
+  .form-sent p {
+    margin: 0 0 var(--space-2);
+  }
+
+  .form-sent__title {
+    font-size: var(--fs-md);
+    color: var(--verde-800);
+  }
+
+  .form-sent__check {
+    flex: none;
+    width: 3.25rem;
+    height: 3.25rem;
+    fill: none;
+    stroke: var(--verde-700);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .form-sent:not([hidden]) {
+      animation: sent-in 0.6s var(--ease-out);
+    }
+
+    .form-sent:not([hidden]) .form-sent__check > * {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: check-draw 0.7s var(--ease-out) forwards;
+    }
+
+    .form-sent:not([hidden]) .form-sent__check path {
+      animation-delay: 0.45s;
+    }
+  }
+
+  @keyframes sent-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+    }
+  }
+
+  @keyframes check-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   .field-row {
@@ -126,7 +280,25 @@ import { site } from '../data/site.ts';
     border: 1.5px solid #8aa79a;
     border-radius: var(--radius-sm);
     background: #fff;
+    font: inherit;
     font-size: 1rem;
+    transition:
+      border-color 0.3s var(--ease),
+      box-shadow 0.3s var(--ease),
+      transform 0.3s var(--ease-out);
+  }
+
+  .field input:not([type='checkbox']):hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--verde-700);
+  }
+
+  .field input:not([type='checkbox']):focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--verde-700);
+    box-shadow: 0 0 0 4px rgb(94 189 145 / 0.25);
   }
 
   .field textarea {

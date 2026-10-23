@@ -77,3 +77,20 @@ export function buildMailto(to: string, data: ContactData): string {
   const params = `subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.replace(/\n/g, '\r\n'))}`;
   return `mailto:${encodeURIComponent(to).replace(/%40/g, '@')}?${params}`;
 }
+
+/** Campos que se envían a FormSubmit (los que empiezan con _ son opciones del servicio). */
+export function buildPayload(data: ContactData): Record<string, string> {
+  const { subject } = composeMessage(data);
+  const payload: Record<string, string> = {
+    _subject: subject,
+    _template: 'table',
+    _captcha: 'false',
+    _replyto: data.correo.trim(),
+    Nombre: data.nombre.trim(),
+    Correo: data.correo.trim(),
+    Motivo: data.motivo,
+    Mensaje: data.mensaje.trim(),
+  };
+  if (data.telefono.trim()) payload['Teléfono'] = data.telefono.trim();
+  return payload;
+}
