@@ -8,11 +8,12 @@ import { site } from '../data/site.ts';
 
 interface Props {
   photoIds: readonly string[];
-  /** Título para lectores de pantalla: en pantalla solo se ve el logo. */
+  eyebrow?: string;
   title?: string;
 }
 
-const { photoIds, title = site.name } = Astro.props;
+const { photoIds, eyebrow = 'Bienvenidos a', title = site.name } = Astro.props;
+const titleWords = title.split(' ');
 const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), img: await renderShape(getPhoto(id), 'hero') })));
 ---
 
@@ -48,9 +49,7 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
   <div class="hero__overlay"></div>
 
   <div class="container hero__content">
-    <h1 id="hero-title" class="hero__brand">
-      <span class="visually-hidden">{title}</span>
-      <span class="hero__logo" data-hero-logo aria-hidden="true">
+    <span class="hero__logo" data-hero-logo aria-hidden="true">
         <span class="hero__halo"></span>
         <span class="hero__ripple"></span>
         <span class="hero__ripple hero__ripple--late"></span>
@@ -59,14 +58,17 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
             src={logo}
             alt=""
             widths={[240, 360, 450]}
-            sizes="(min-width: 48rem) 22rem, 15rem"
+            sizes="(min-width: 48rem) 13rem, 8rem"
             class="hero__tree"
             loading="eager"
             fetchpriority="high"
           />
         </span>
-      </span>
-    </h1>
+    </span>
+    <div class="hero__text">
+      <p class="hero__eyebrow hero__in" style="--d:0">{eyebrow}</p>
+      <h1 id="hero-title" set:html={titleWords.map((word, i) => `<span class="hero__word" style="--i:${i}">${word}</span>`).join(' ')} />
+    </div>
   </div>
 
   <div class="container hero__controls" data-carousel-controls hidden>
@@ -175,6 +177,34 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
     }
   }
 
+  @media (prefers-reduced-motion: no-preference) {
+    #hero-title :global(.hero__word) {
+      display: inline-block;
+      animation: word-in 1s var(--ease-out) both;
+      animation-delay: calc(450ms + var(--i) * 90ms);
+    }
+
+    .hero__in {
+      animation: fade-up 1s var(--ease-out) both;
+      animation-delay: calc(350ms + var(--d) * 90ms);
+    }
+  }
+
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.55em) rotate(3deg);
+      filter: blur(6px);
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
   @keyframes logo-in {
     from {
       opacity: 0;
@@ -266,14 +296,28 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
       linear-gradient(0deg, rgb(15 59 46 / 0.6) 0%, transparent 40%);
   }
 
+  /* Logo y texto lado a lado en pantallas anchas; en móvil, el logo arriba. */
   .hero__content {
     position: relative;
     align-self: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-6);
     padding-block: var(--space-8) var(--space-6);
   }
 
-  .hero__brand {
-    margin: 0;
+  .hero__text h1 {
+    max-width: 18ch;
+    margin-bottom: 0;
+    color: #fff;
+  }
+
+  .hero__eyebrow {
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-md);
+    letter-spacing: 0.04em;
+    color: #d8efe3;
   }
 
   /* Logo del árbol sobre un halo claro para que se lea encima de cualquier foto. */
@@ -281,7 +325,8 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
     position: relative;
     display: grid;
     place-items: center;
-    width: clamp(15rem, 34vw, 22rem);
+    flex: none;
+    width: clamp(8.5rem, 20vw, 13rem);
     aspect-ratio: 1;
   }
 
@@ -296,8 +341,8 @@ const slides = await Promise.all(photoIds.map(async (id) => ({ ...getPhoto(id), 
     inset: 6%;
     background: #fff;
     box-shadow:
-      0 0 0 10px rgb(255 255 255 / 0.2),
-      0 0 0 22px rgb(255 255 255 / 0.08),
+      0 0 0 6px rgb(255 255 255 / 0.2),
+      0 0 0 14px rgb(255 255 255 / 0.08),
       0 24px 60px rgb(0 0 0 / 0.35);
   }
 
