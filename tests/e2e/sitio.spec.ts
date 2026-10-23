@@ -3,7 +3,6 @@ import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = [
   { path: '/', h1: /Fundación Social Payandé/ },
-  { path: '/nosotros/', h1: /hecha por y para Payandé/ },
   { path: '/programas/', h1: /Seis programas/ },
   { path: '/galeria/', h1: /Momentos/ },
   { path: '/contacto/', h1: /Contacto/ },
@@ -61,7 +60,7 @@ for (const { path, h1 } of PAGES) {
 
 test('la navegación lleva a cada página y marca la actual', async ({ page }) => {
   await page.goto('/');
-  for (const label of ['Nosotros', 'Programas', 'Galería', 'Contacto']) {
+  for (const label of ['Programas', 'Galería', 'Contacto']) {
     await openMenuIfMobile(page);
     await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: label }).click();
     // En móvil el menú se cierra al cambiar de página, por eso se busca sin filtrar por visibilidad.
@@ -84,27 +83,37 @@ test('el menú móvil abre, cierra con Escape y devuelve el foco', async ({ page
   await expect(toggle).toBeFocused();
 });
 
-test('el carrusel avanza con los controles y se puede pausar', async ({ page }) => {
+test('la portada anima el logo de fondo y su animación se puede pausar', async ({ page }) => {
   await page.goto('/');
-  const slides = page.locator('[data-slide]');
-  await expect(slides.nth(0)).toHaveClass(/is-active/);
-  await page.getByRole('button', { name: 'Foto siguiente' }).click();
-  await expect(slides.nth(1)).toHaveClass(/is-active/);
-  await expect(slides.nth(0)).toHaveAttribute('aria-hidden', 'true');
-  await page.getByRole('button', { name: 'Ver foto 3' }).click();
-  await expect(slides.nth(2)).toHaveClass(/is-active/);
-  const toggle = page.getByRole('button', { name: /Pausar presentación|Reanudar presentación/ });
-  const before = await toggle.getAttribute('aria-label');
-  await toggle.click();
-  await expect(toggle).not.toHaveAttribute('aria-label', before ?? '');
+  const hero = page.locator('[data-hero]');
+  await expect(hero.locator('.hero__tree')).toBeVisible();
+  await expect(hero.locator('img')).toHaveCount(1);
+  const pause = hero.getByRole('button', { name: 'Pausar animación de la portada' });
+  await pause.click();
+  await expect(hero).toHaveClass(/is-paused/);
+  await expect(pause).toHaveAttribute('aria-pressed', 'true');
+  const state = await hero.locator('.hero__orbit--1').evaluate((el) => getComputedStyle(el).animationPlayState);
+  expect(state).toContain('paused');
 });
 
-test('el carrusel no avanza solo con movimiento reducido', async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: 'reduce' });
-  const page = await context.newPage();
+test('la portada muestra los datos de contacto reales', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Reanudar presentación' })).toBeVisible();
-  await context.close();
+  const details = page.locator('.hero__details');
+  await expect(details).toContainText('Transformando vidas con compromiso y solidaridad');
+  await expect(details).toContainText('Km 75 vía Bogotá-Villeta, Vereda Pilones.');
+  await expect(details).toContainText('Quebradanegra, Cundinamarca.');
+  await expect(details.getByRole('link', { name: 'direccion@fundacionpayande.com' })).toHaveAttribute('href', 'mailto:direccion@fundacionpayande.com');
+  await expect(details.getByRole('link', { name: '312 378 8070' })).toHaveAttribute('href', 'tel:+573123788070');
+  await expect(page.locator('.site-footer')).toContainText('direccion@fundacionpayande.com');
+});
+
+test('no quedan enlaces a Nosotros y el botón de historia no navega', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('a[href*="nosotros"]')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Conoce nuestra historia' })).toHaveCount(0);
+  await expect(page.getByText('Conoce nuestra historia')).toBeVisible();
+  await page.goto('/programas/');
+  await expect(page.locator('a[href*="nosotros"]')).toHaveCount(0);
 });
 
 test('la galería filtra, abre el visor y navega con el teclado', async ({ page }) => {
@@ -147,8 +156,6 @@ test('las fotos cambian al azar sin repetirse en la página', async ({ page }) =
   // Con 39 fotos, tres visitas seguidas idénticas son prácticamente imposibles.
   const others = [await visit(), await visit()];
   expect(others.some((ids) => ids.join() !== first.join())).toBe(true);
-  // La portada también se elige al azar y queda con su texto alternativo.
-  await expect(page.locator('.hero__slide.is-active img')).toHaveAttribute('alt', /.+/);
 });
 
 test('el formulario muestra errores accesibles y prepara el correo', async ({ page }) => {
@@ -180,7 +187,7 @@ test('el formulario muestra errores accesibles y prepara el correo', async ({ pa
   await expect(page.getByRole('status').filter({ hasText: 'Abrimos tu aplicación de correo' })).toBeVisible();
   await expect(page.getByRole('alert')).toBeHidden();
   const href = await mailto.getAttribute('href');
-  expect(href).toMatch(/^mailto:contacto@example\.org\?subject=/);
+  expect(href).toMatch(/^mailto:direccion@fundacionpayande\.com\?subject=/);
   expect(decodeURIComponent(href ?? '')).toContain('[Sitio web] Servicios de la Fundación - Ana Gómez');
 });
 
@@ -283,7 +290,7 @@ test('las preguntas frecuentes de contacto abren de a una', async ({ page }) => 
 });
 
 test('el botón de volver arriba aparece al bajar y regresa al inicio', async ({ page }) => {
-  await page.goto('/nosotros/');
+  await page.goto('/programas/');
   const toTop = page.getByRole('link', { name: 'Volver al inicio de la página' });
   await expect(toTop).toBeHidden();
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -293,14 +300,10 @@ test('el botón de volver arriba aparece al bajar y regresa al inicio', async ({
   await expect(page.locator('#contenido')).toBeFocused();
 });
 
-test('la portada muestra el logo animado con el saludo y nunca fotos con el logo de la Fundación', async ({ page }) => {
-  for (let i = 0; i < 4; i++) {
-    await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1, name: 'Fundación Social Payandé' })).toBeAttached();
-    await expect(page.locator('.hero__tree')).toBeVisible();
-    const hero = await page.locator('.hero__slide.is-active img').getAttribute('src');
-    expect(hero).not.toMatch(/grupo-gradas|morrales-|portada-payande-3/);
-  }
+test('la portada muestra el logo animado con el saludo', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Fundación Social Payandé' })).toBeAttached();
+  await expect(page.locator('.hero__tree')).toBeVisible();
   await expect(page.locator('.hero__content')).toContainText('Bienvenidos a');
 });
 
@@ -311,4 +314,14 @@ test('cada tarjeta de servicio de Inicio lleva a su programa', async ({ page }) 
   await cards.filter({ hasText: 'Salud' }).click();
   await expect(page).toHaveURL(/\/programas\/#salud$/);
   await expect(page.getByRole('heading', { level: 2, name: 'Salud' })).toBeInViewport();
+});
+
+test('la galería se muestra en mosaico con fotos de proporciones distintas', async ({ page }) => {
+  await page.goto('/galeria/');
+  const grid = page.locator('.gallery__grid--masonry');
+  await expect(grid).toBeVisible();
+  const ratios = await grid.locator('.gallery__img').evaluateAll((imgs) =>
+    imgs.map((img) => ((img as HTMLImageElement).height / (img as HTMLImageElement).width).toFixed(2)),
+  );
+  expect(new Set(ratios).size).toBeGreaterThan(1);
 });

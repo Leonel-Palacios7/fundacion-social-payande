@@ -8,9 +8,11 @@ interface Props {
   filterable?: boolean;
   /** Identificador único cuando hay más de una galería en la página. */
   id?: string;
+  /** Mosaico estilo Pinterest: cada foto con su proporción original. */
+  masonry?: boolean;
 }
 
-const { photos, filterable = false, id = 'galeria' } = Astro.props;
+const { photos, filterable = false, id = 'galeria', masonry = false } = Astro.props;
 
 // Versión ampliada para el visor: WebP de 1600px (los navegadores objetivo soportan WebP).
 const items = await Promise.all(
@@ -40,10 +42,10 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
   }
   {filterable && <p class="gallery__status" aria-live="polite" data-gallery-status>{`Mostrando ${photos.length} fotos.`}</p>}
 
-  <ul class="gallery__grid" role="list">
+  <ul class:list={['gallery__grid', { 'gallery__grid--masonry': masonry }]} role="list">
     {
       items.map((item, index) => (
-        <li class="gallery__item" data-category={item.category} data-reveal style={`--stagger:${index % 6}`}>
+        <li class="gallery__item" data-category={item.category} data-reveal style={`--stagger:${index % (masonry ? 4 : 6)}`}>
           <a
             class="gallery__link"
             href={item.largeSrc}
@@ -56,12 +58,17 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
           >
             <RandomPicture
               photo={item}
-              shape="landscape"
-              sizes="(min-width: 72rem) 18rem, (min-width: 40rem) 30vw, 46vw"
+              shape={masonry ? 'natural' : 'landscape'}
+              sizes={masonry ? '(min-width: 72rem) 17rem, (min-width: 64rem) 23vw, (min-width: 40rem) 31vw, 46vw' : '(min-width: 72rem) 18rem, (min-width: 40rem) 30vw, 46vw'}
               random={!filterable}
               class="gallery__img"
             />
             <span class="gallery__caption">{categoryLabels[item.category]}</span>
+            {masonry && (
+              <span class="gallery__zoom" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2" /><path d="M16 16l4.5 4.5M11 8.5v5M8.5 11h5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+              </span>
+            )}
           </a>
         </li>
       ))
@@ -144,6 +151,114 @@ const categories = [...new Set(photos.map((p) => p.category))] as PhotoCategory[
     .gallery__grid {
       grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
       gap: var(--space-4);
+    }
+  }
+
+  /* ---------- Mosaico estilo Pinterest ---------- */
+  .gallery__grid--masonry {
+    display: block;
+    columns: 2;
+    column-gap: var(--space-3);
+  }
+
+  @media (min-width: 40rem) {
+    .gallery__grid--masonry {
+      columns: 3;
+      column-gap: var(--space-4);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .gallery__grid--masonry {
+      columns: 4;
+    }
+  }
+
+  .gallery__grid--masonry .gallery__item {
+    break-inside: avoid;
+    margin-bottom: var(--space-3);
+  }
+
+  @media (min-width: 40rem) {
+    .gallery__grid--masonry .gallery__item {
+      margin-bottom: var(--space-4);
+    }
+  }
+
+  .gallery__grid--masonry .gallery__link {
+    aspect-ratio: auto;
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 2px rgb(15 59 46 / 0.08);
+    transition:
+      transform 450ms var(--ease-out),
+      box-shadow 450ms var(--ease-out);
+  }
+
+  .gallery__grid--masonry .gallery__img {
+    height: auto;
+  }
+
+  /* Velo oscuro que aparece al pasar el cursor, como en Pinterest. */
+  .gallery__grid--masonry .gallery__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(8 28 22 / 0.28);
+    opacity: 0;
+    transition: opacity 350ms ease;
+  }
+
+  .gallery__grid--masonry .gallery__caption {
+    z-index: 1;
+  }
+
+  .gallery__zoom {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--verde-900);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.2);
+    opacity: 0;
+    transform: scale(0.6) rotate(-45deg);
+    transition:
+      opacity 300ms ease,
+      transform 450ms var(--ease-out);
+  }
+
+  .gallery__grid--masonry .gallery__link:hover,
+  .gallery__grid--masonry .gallery__link:focus-visible {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 36px -12px rgb(15 59 46 / 0.45);
+  }
+
+  .gallery__grid--masonry .gallery__link:hover::after,
+  .gallery__grid--masonry .gallery__link:focus-visible::after,
+  .gallery__link:hover .gallery__zoom,
+  .gallery__link:focus-visible .gallery__zoom {
+    opacity: 1;
+  }
+
+  .gallery__link:hover .gallery__zoom,
+  .gallery__link:focus-visible .gallery__zoom {
+    transform: none;
+  }
+
+  /* Las fotos del mosaico entran creciendo, una tras otra. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .gallery__grid--masonry .gallery__item[data-reveal] {
+      transform: translateY(48px) scale(0.9);
+      transition-duration: 1s;
+    }
+
+    :global(.js) .gallery__grid--masonry .gallery__item[data-reveal]:global(.is-visible) {
+      transform: none;
     }
   }
 

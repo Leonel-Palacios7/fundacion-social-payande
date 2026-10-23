@@ -11,6 +11,8 @@ export const shapes = {
   landscape: { width: 720, height: 540, widths: [360, 540, 720, 1080] },
   /** 4:5, para fotos verticales de sección. */
   portrait: { width: 640, height: 800, widths: [320, 480, 640, 960] },
+  /** Proporción original, para el mosaico estilo Pinterest de la galería. */
+  natural: { width: 720, height: undefined, widths: [360, 540, 720, 1080] },
   /** Tarjetas del carrusel 3D (tamaño fijo en pantalla). */
   ring: { width: 320, height: 458, widths: [320, 640] },
   /** Portadas a todo el ancho: sin recorte, la foto cubre el área con CSS. Tope de 1600px: más ancho casi no se nota bajo el degradado y pesa el doble. */

@@ -1,39 +1,54 @@
 /**
- * Movimiento del logo de la portada:
- * - Da un pequeño salto cada vez que cambia la foto del carrusel.
- * - Se inclina siguiendo el puntero (solo con ratón).
+ * Movimiento de la portada de Inicio:
+ * - Las capas del logo se desplazan siguiendo el puntero (solo con ratón).
+ * - Al bajar por la página el árbol se aleja y se desvanece.
+ * - Un botón pausa todas las animaciones (WCAG 2.2.2).
  * Nada de esto ocurre si el usuario pidió reducir movimiento.
  */
-export function initHeroLogo(root: HTMLElement): void {
-  const logo = root.querySelector<HTMLElement>('[data-hero-logo]');
+export function initHero(root: HTMLElement): void {
+  const stage = root.querySelector<HTMLElement>('[data-hero-stage]');
   const tilt = root.querySelector<HTMLElement>('[data-hero-tilt]');
-  if (!logo || !tilt || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const pause = root.querySelector<HTMLButtonElement>('[data-hero-pause]');
+  if (!stage || !tilt || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  root.addEventListener('carousel:change', () => {
-    logo.classList.remove('is-bumping');
-    // Fuerza un reflujo para que la animación vuelva a empezar.
-    void logo.offsetWidth;
-    logo.classList.add('is-bumping');
-  });
-  logo.addEventListener('animationend', (event) => {
-    if (event.animationName.includes('logo-bump')) logo.classList.remove('is-bumping');
-  });
+  if (pause) {
+    pause.hidden = false;
+    // Botón de alternancia: el nombre se mantiene y aria-pressed indica si está en pausa.
+    pause.addEventListener('click', () => {
+      const paused = root.classList.toggle('is-paused');
+      pause.setAttribute('aria-pressed', String(paused));
+    });
+  }
+
+  let scrollFrame = 0;
+  const onScroll = () => {
+    cancelAnimationFrame(scrollFrame);
+    scrollFrame = requestAnimationFrame(() => {
+      const progress = Math.min(1, Math.max(0, window.scrollY / root.offsetHeight));
+      stage.style.setProperty('--scroll', progress.toFixed(3));
+    });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
   if (!window.matchMedia('(pointer: fine)').matches) return;
   let frame = 0;
   root.addEventListener('pointermove', (event) => {
+    if (root.classList.contains('is-paused')) return;
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
-      const box = logo.getBoundingClientRect();
-      const x = (event.clientX - (box.left + box.width / 2)) / window.innerWidth;
-      const y = (event.clientY - (box.top + box.height / 2)) / window.innerHeight;
-      tilt.style.setProperty('--rx', `${(x * 18).toFixed(2)}deg`);
-      tilt.style.setProperty('--ry', `${(-y * 14).toFixed(2)}deg`);
+      const box = root.getBoundingClientRect();
+      const x = (event.clientX - box.left) / box.width - 0.5;
+      const y = (event.clientY - box.top) / box.height - 0.5;
+      stage.style.setProperty('--px', x.toFixed(3));
+      stage.style.setProperty('--py', y.toFixed(3));
+      tilt.style.setProperty('--rx', `${(x * 22).toFixed(2)}deg`);
+      tilt.style.setProperty('--ry', `${(-y * 16).toFixed(2)}deg`);
     });
   });
   root.addEventListener('pointerleave', () => {
     cancelAnimationFrame(frame);
-    tilt.style.setProperty('--rx', '0deg');
-    tilt.style.setProperty('--ry', '0deg');
+    ['--px', '--py'].forEach((name) => stage.style.setProperty(name, '0'));
+    ['--rx', '--ry'].forEach((name) => tilt.style.setProperty(name, '0deg'));
   });
 }

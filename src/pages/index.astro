@@ -3,7 +3,7 @@ import { Picture } from 'astro:assets';
 import RandomPicture from '../components/RandomPicture.astro';
 import { withBase } from '../lib/paths.ts';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HeroCarousel from '../components/HeroCarousel.astro';
+import HeroBrand from '../components/HeroBrand.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import EventCards from '../components/EventCards.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
@@ -21,7 +21,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 ---
 
 <BaseLayout title={site.name}>
-  <HeroCarousel photoIds={['portada-payande-2', 'slider-2', 'portada-sliders']} eyebrow="Bienvenidos a" title="Fundación Social Payandé" />
+  <HeroBrand eyebrow="Bienvenidos a" title="Fundación Social Payandé" />
 
   <Marquee items={services.map((service) => service.title)} />
 
@@ -30,11 +30,13 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
       <div data-reveal>
         <h2 class="eyebrow" id="quienes-somos">Sobre nosotros</h2>
         <p class="lead">
-          La Fundación tiene por objeto, desarrollar a su entera discreción actividades asistenciales y de beneficencia,
-          tendientes a mejorar la calidad de vida, la educación, la salud, la vivienda y la recreación a las personas de
-          escasos recursos económicos, localizadas principalmente en los municipios de Quebradanegra, Tobia y Villeta.
+          La Fundación Social Payandé es una organización sin ánimo de lucro que tiene por objeto, desarrollar a su entera
+          discreción actividades asistenciales y de beneficencia, tendientes a mejorar la calidad de vida, la educación, la
+          salud, la vivienda y la recreación a las personas de escasos recursos económicos, localizadas principalmente en los
+          municipios de Quebradanegra, Tobia y Villeta.
         </p>
-        <a class="btn btn--outline btn--arrow" href={withBase('/nosotros/')}>Conoce nuestra historia</a>
+        <!-- Leonel pidió dejar el botón sin ninguna acción (2026-10-23). -->
+        <span class="btn btn--outline btn--arrow btn--static">Conoce nuestra historia</span>
       </div>
       <div data-reveal="mask" data-tone="mono" style="--stagger:2">
         <RandomPicture
@@ -57,7 +59,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     <div class="container">
       <div class="section__header section__header--center" data-reveal>
         <span class="eyebrow">Servicios</span>
-        <h2 id="servicios">Seis programas para el bienestar de nuestras comunidades</h2>
+        <h2 id="servicios">Programas Sociales <span class="heading-sub">Quebradanegra, Tobia y Villeta</span></h2>
       </div>
       <ServiceGrid services={services} />
     </div>
@@ -112,6 +114,18 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 
 <style>
   /* Dos secciones seguidas con el mismo fondo: se juntan sin doble espacio. */
+  .btn--static {
+    pointer-events: none;
+  }
+
+  .heading-sub {
+    display: block;
+    margin-top: var(--space-2);
+    font-size: var(--fs-md);
+    font-weight: 500;
+    color: var(--verde-700);
+  }
+
   .events-section {
     padding-top: 0;
   }

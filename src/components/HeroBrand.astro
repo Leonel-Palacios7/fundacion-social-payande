@@ -1,0 +1,616 @@
+---
+/**
+ * Portada de Inicio sin fotos: el árbol del logo ocupa el fondo con capas animadas
+ * (destello giratorio, órbitas, ondas y hojas que suben) y el texto va encima.
+ */
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo-arbol.png';
+import { site } from '../data/site.ts';
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+}
+
+const { eyebrow = 'Bienvenidos a', title = site.name } = Astro.props;
+const titleWords = title.split(' ');
+const { contact } = site;
+
+// [posición %, tamaño px, duración s, retraso s]
+const leaves: [number, number, number, number][] = [
+  [6, 16, 14, 0],
+  [18, 11, 11, 4],
+  [31, 20, 16, 7],
+  [44, 13, 12, 2],
+  [57, 18, 15, 9],
+  [66, 12, 10, 5],
+  [74, 22, 17, 1],
+  [83, 14, 13, 6],
+  [91, 17, 15, 3],
+  [97, 10, 11, 8],
+];
+---
+
+<section class="hero" aria-labelledby="hero-title" data-hero>
+  <div class="hero__bg" aria-hidden="true">
+    <span class="hero__blob hero__blob--a"></span>
+    <span class="hero__blob hero__blob--b"></span>
+    <span class="hero__blob hero__blob--c"></span>
+
+    <div class="hero__stage" data-hero-stage>
+      <span class="hero__rays"></span>
+      <span class="hero__orbit hero__orbit--1"><span class="hero__seed"></span></span>
+      <span class="hero__orbit hero__orbit--2"><span class="hero__seed"></span><span class="hero__seed hero__seed--alt"></span></span>
+      <span class="hero__orbit hero__orbit--3"><span class="hero__seed"></span></span>
+      <span class="hero__ripple"></span>
+      <span class="hero__ripple hero__ripple--2"></span>
+      <span class="hero__ripple hero__ripple--3"></span>
+      <span class="hero__tilt" data-hero-tilt>
+        <Image
+          src={logo}
+          alt=""
+          widths={[360, 450]}
+          sizes="(min-width: 48rem) 30rem, 70vw"
+          class="hero__tree"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </span>
+    </div>
+
+    <div class="hero__leaves">
+      {
+        leaves.map(([x, size, dur, delay], i) => (
+          <svg class="hero__leaf" viewBox="0 0 24 24" style={`--x:${x}%;--s:${size}px;--dur:${dur}s;--delay:${delay}s;--turn:${i % 2 ? -1 : 1}`}>
+            <path d="M12 2C6 6 4 11 6 17c1 3 3.5 5 6 5s5-2 6-5c2-6 0-11-6-15z" />
+            <path d="M12 6v15" />
+          </svg>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="container hero__content">
+    <div class="hero__text">
+      <p class="hero__eyebrow hero__in" style="--d:0">{eyebrow}</p>
+      <h1 id="hero-title" set:html={titleWords.map((word, i) => `<span class="hero__word" style="--i:${i}">${word}</span>`).join(' ')} />
+    </div>
+    <p class="hero__details">
+      <strong class="hero__tagline hero__in" style="--d:5">{site.tagline}</strong>
+      <span class="hero__line hero__in" style="--d:6">{contact.address[0]}</span>
+      <span class="hero__line hero__in" style="--d:7">{contact.address[1]}</span>
+      <span class="hero__line hero__in" style="--d:8"><a href={`mailto:${contact.email}`}>{contact.email}</a></span>
+      <span class="hero__line hero__in" style="--d:9">Contacto: <a href={`tel:${contact.phoneHref}`}>{contact.phoneDisplay}</a></span>
+    </p>
+  </div>
+
+  <button class="hero__pause" type="button" data-hero-pause aria-pressed="false" hidden>
+    <svg class="icon-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+    <svg class="icon-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>
+    <span class="visually-hidden">Pausar animación de la portada</span>
+  </button>
+</section>
+
+<script>
+  import { initHero } from '../scripts/hero-logo.ts';
+  document.querySelectorAll<HTMLElement>('[data-hero]').forEach(initHero);
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: min(90svh, 48rem);
+    overflow: hidden;
+    isolation: isolate;
+    color: #fff;
+    background:
+      radial-gradient(120% 90% at 75% 45%, #17553f 0%, transparent 60%),
+      linear-gradient(160deg, #0f3b2e 0%, #0b2f25 55%, #0a3a3f 100%);
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Manchas de color de la marca que se desplazan despacio. */
+  .hero__blob {
+    position: absolute;
+    width: 42vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.45;
+  }
+
+  .hero__blob--a {
+    top: -14vmax;
+    left: -10vmax;
+    background: var(--brand-verde);
+  }
+
+  .hero__blob--b {
+    right: -12vmax;
+    bottom: -18vmax;
+    background: var(--brand-azul);
+    opacity: 0.35;
+  }
+
+  .hero__blob--c {
+    top: 20%;
+    left: 42%;
+    width: 26vmax;
+    background: var(--brand-lima);
+    opacity: 0.22;
+  }
+
+  /* Escenario del logo: a la derecha en pantallas anchas, detrás del texto en móvil. */
+  .hero__stage {
+    position: absolute;
+    top: 50%;
+    right: max(-4rem, calc((100vw - 76rem) / 2 - 2rem));
+    display: grid;
+    place-items: center;
+    width: clamp(20rem, 46vw, 40rem);
+    aspect-ratio: 1;
+    translate: calc(var(--px, 0) * -18px) calc(-50% + var(--py, 0) * -14px + var(--scroll, 0) * 60px);
+    scale: calc(1 + var(--scroll, 0) * 0.12);
+    opacity: calc(1 - var(--scroll, 0) * 0.8);
+  }
+
+  .hero__stage > * {
+    grid-area: 1 / 1;
+  }
+
+  /* Destello de rayos detrás del árbol. */
+  .hero__rays {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, rgb(201 234 176 / 0.16) 0deg 6deg, transparent 6deg 18deg);
+    mask-image: radial-gradient(circle, #000 18%, transparent 68%);
+  }
+
+  .hero__orbit {
+    position: relative;
+    border: 1.5px dashed rgb(201 234 176 / 0.45);
+    border-radius: 50%;
+  }
+
+  .hero__orbit--1 {
+    width: 62%;
+    height: 62%;
+  }
+
+  .hero__orbit--2 {
+    width: 80%;
+    height: 80%;
+    border-style: dotted;
+    border-color: rgb(51 184 184 / 0.55);
+  }
+
+  .hero__orbit--3 {
+    width: 96%;
+    height: 96%;
+    border-color: rgb(255 255 255 / 0.18);
+  }
+
+  /* Semillas que viajan sobre las órbitas. */
+  .hero__seed {
+    position: absolute;
+    top: -6px;
+    left: calc(50% - 6px);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--brand-lima);
+    box-shadow: 0 0 14px 4px rgb(142 202 109 / 0.7);
+  }
+
+  .hero__seed--alt {
+    top: auto;
+    bottom: -5px;
+    width: 10px;
+    height: 10px;
+    background: var(--brand-turquesa);
+    box-shadow: 0 0 14px 4px rgb(51 184 184 / 0.7);
+  }
+
+  .hero__orbit--3 .hero__seed {
+    background: #fff;
+    box-shadow: 0 0 16px 5px rgb(255 255 255 / 0.6);
+  }
+
+  .hero__ripple {
+    width: 46%;
+    height: 46%;
+    border: 2px solid rgb(201 234 176 / 0.8);
+    border-radius: 50%;
+    opacity: 0;
+  }
+
+  .hero__tilt {
+    width: 60%;
+    transform: perspective(900px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg));
+    transition: transform 700ms var(--ease-out);
+  }
+
+  .hero__tilt :global(.hero__tree) {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: 50% 92%;
+    filter: drop-shadow(0 0 22px rgb(201 234 176 / 0.45)) drop-shadow(0 18px 30px rgb(0 0 0 / 0.4));
+  }
+
+  /* Hojas que suben por todo el fondo. */
+  .hero__leaves {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .hero__leaf {
+    position: absolute;
+    bottom: -30px;
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    fill: rgb(142 202 109 / 0.55);
+    stroke: rgb(15 59 46 / 0.6);
+    stroke-width: 1;
+    opacity: 0;
+  }
+
+  .hero__content {
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  .hero__text h1 {
+    max-width: 14ch;
+    margin-bottom: 0;
+    color: #fff;
+    font-size: clamp(2.5rem, 1.6rem + 4vw, 4.75rem);
+    text-shadow: 0 4px 30px rgb(0 0 0 / 0.35);
+  }
+
+  .hero__eyebrow {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-script);
+    font-size: var(--fs-lg);
+    color: #c9eab0;
+  }
+
+  .hero__details {
+    display: grid;
+    gap: 0.15rem;
+    max-width: 30rem;
+    margin: 0;
+    padding: var(--space-4) var(--space-5);
+    border-left: 3px solid var(--brand-lima);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: rgb(8 32 25 / 0.55);
+    backdrop-filter: blur(6px);
+    color: #e6f4ec;
+    line-height: 1.5;
+  }
+
+  .hero__tagline {
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-md);
+    color: #fff;
+    background: linear-gradient(90deg, #fff 0%, #c9eab0 40%, #fff 60%, #fff 100%) 0 0 / 250% 100% text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero__details a {
+    color: #fff;
+    text-decoration-color: rgb(201 234 176 / 0.7);
+    text-underline-offset: 3px;
+  }
+
+  .hero__details a:hover {
+    color: #c9eab0;
+  }
+
+  .hero__details a:focus-visible,
+  .hero__pause:focus-visible {
+    outline-color: #fff;
+  }
+
+  .hero__pause {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgb(255 255 255 / 0.6);
+    border-radius: 50%;
+    background: rgb(15 59 46 / 0.6);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .hero__pause:hover {
+    background: rgb(15 59 46 / 0.9);
+  }
+
+  .hero__pause[hidden] {
+    display: none;
+  }
+
+  .hero__pause .icon-play,
+  .hero__pause[aria-pressed='true'] .icon-pause {
+    display: none;
+  }
+
+  .hero__pause[aria-pressed='true'] .icon-play {
+    display: block;
+  }
+
+  /* En móvil el árbol queda grande y tenue detrás del texto. */
+  @media (max-width: 47.99rem) {
+    .hero__stage {
+      top: 2rem;
+      right: 50%;
+      width: min(34rem, 130vw);
+      translate: 50% calc(var(--scroll, 0) * 60px);
+      opacity: calc(0.42 - var(--scroll, 0) * 0.3);
+    }
+
+    .hero__content {
+      padding-top: 7rem;
+    }
+  }
+
+  /* ---------- Movimiento ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__blob--a {
+      animation: blob-a 18s ease-in-out infinite alternate;
+    }
+
+    .hero__blob--b {
+      animation: blob-b 22s ease-in-out infinite alternate;
+    }
+
+    .hero__blob--c {
+      animation: blob-c 16s ease-in-out infinite alternate;
+    }
+
+    .hero__rays {
+      animation:
+        fade-in 2s var(--ease-out) 600ms backwards,
+        spin 60s linear infinite;
+    }
+
+    .hero__orbit {
+      animation:
+        orbit-in 1.4s var(--ease-out) backwards,
+        spin var(--spin, 24s) linear infinite;
+    }
+
+    .hero__orbit--1 {
+      --spin: 18s;
+      animation-delay: 500ms, 0s;
+    }
+
+    .hero__orbit--2 {
+      --spin: 30s;
+      animation-direction: normal, reverse;
+      animation-delay: 700ms, 0s;
+    }
+
+    .hero__orbit--3 {
+      --spin: 46s;
+      animation-delay: 900ms, 0s;
+    }
+
+    .hero__seed {
+      animation: seed-pulse 2.4s ease-in-out infinite;
+    }
+
+    .hero__ripple {
+      animation: ripple 6s var(--ease-out) 1.4s infinite;
+    }
+
+    .hero__ripple--2 {
+      animation-delay: 3.4s;
+    }
+
+    .hero__ripple--3 {
+      animation-delay: 5.4s;
+    }
+
+    .hero__tilt :global(.hero__tree) {
+      animation:
+        tree-grow 1.8s var(--ease-out) 200ms backwards,
+        tree-sway 8s ease-in-out 2s infinite;
+    }
+
+    .hero__tilt {
+      animation: logo-in 1.6s var(--ease-out) backwards;
+    }
+
+    .hero__leaf {
+      animation: leaf-rise var(--dur) linear var(--delay) infinite;
+    }
+
+    #hero-title :global(.hero__word) {
+      display: inline-block;
+      animation: word-in 1.1s var(--ease-out) both;
+      animation-delay: calc(400ms + var(--i) * 110ms);
+    }
+
+    .hero__in {
+      animation: fade-up 0.9s var(--ease-out) both;
+      animation-delay: calc(300ms + var(--d) * 110ms);
+    }
+
+    .hero__details {
+      animation: panel-in 1.1s var(--ease-mask) 800ms backwards;
+    }
+
+    .hero__tagline {
+      animation:
+        fade-up 0.9s var(--ease-out) 850ms both,
+        shimmer 5s ease-in-out 2.5s infinite;
+    }
+
+    /* Botón de pausa: detiene todo lo que se mueve en la portada. */
+    .hero.is-paused *,
+    .hero.is-paused :global(*) {
+      animation-play-state: paused !important;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes orbit-in {
+    from {
+      opacity: 0;
+      scale: 0.6;
+    }
+  }
+
+  @keyframes seed-pulse {
+    50% {
+      scale: 1.5;
+    }
+  }
+
+  @keyframes ripple {
+    from {
+      opacity: 0.8;
+      scale: 0.9;
+    }
+    70%,
+    to {
+      opacity: 0;
+      scale: 2.1;
+    }
+  }
+
+  @keyframes logo-in {
+    from {
+      opacity: 0;
+      scale: 0.5;
+      rotate: -12deg;
+      filter: blur(14px);
+    }
+  }
+
+  @keyframes tree-grow {
+    from {
+      clip-path: inset(100% 0 0 0);
+      transform: translateY(16%);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes tree-sway {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-3%) rotate(-2.5deg);
+    }
+    50% {
+      transform: translateY(-5%) rotate(0deg);
+    }
+    75% {
+      transform: translateY(-2%) rotate(2deg);
+    }
+  }
+
+  @keyframes leaf-rise {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    10% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(calc(var(--turn) * 70px), -105vh, 0) rotate(calc(var(--turn) * 540deg));
+    }
+  }
+
+  @keyframes blob-a {
+    to {
+      transform: translate(18vw, 12vh) scale(1.2);
+    }
+  }
+
+  @keyframes blob-b {
+    to {
+      transform: translate(-14vw, -10vh) scale(0.85);
+    }
+  }
+
+  @keyframes blob-c {
+    to {
+      transform: translate(-20vw, 14vh) scale(1.3);
+    }
+  }
+
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.6em) rotate(4deg);
+      filter: blur(8px);
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
+  @keyframes panel-in {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes shimmer {
+    0%,
+    60% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: -50% 0;
+    }
+  }
+</style>

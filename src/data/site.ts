@@ -13,16 +13,18 @@ export const site = {
   /** Muestra avisos visibles en los textos que aún son de ejemplo. Poner en false al confirmar el contenido. */
   showProvisionalNotes: true,
   contact: {
-    // PROVISIONAL: reemplazar por los datos reales de la Fundación.
-    email: 'contacto@example.org',
-    phoneDisplay: '+57 300 000 0000',
-    phoneHref: '+573000000000',
-    location: 'Villeta, Cundinamarca, Colombia',
+    // Datos oficiales entregados por Leonel (2026-10-23).
+    email: 'direccion@fundacionpayande.com',
+    phoneDisplay: '312 378 8070',
+    phoneHref: '+573123788070',
+    /** Dirección en dos líneas, tal como la usa la Fundación. */
+    address: ['Km 75 vía Bogotá-Villeta, Vereda Pilones.', 'Quebradanegra, Cundinamarca.'],
+    location: 'Vereda Pilones, Quebradanegra, Cundinamarca',
     /** Municipios donde trabaja la Fundación, según su sitio actual. */
     area: 'Quebradanegra, Tobia y Villeta',
-    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Villeta%2C%20Cundinamarca%2C%20Colombia',
-    mapEmbedUrl: 'https://www.google.com/maps?q=Villeta%2C%20Cundinamarca%2C%20Colombia&z=11&output=embed',
-    provisional: true,
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Vereda%20Pilones%2C%20Quebradanegra%2C%20Cundinamarca',
+    mapEmbedUrl: 'https://www.google.com/maps?q=Vereda%20Pilones%2C%20Quebradanegra%2C%20Cundinamarca&z=12&output=embed',
+    provisional: false,
   },
 } as const;
 
@@ -48,7 +50,6 @@ export interface NavItem {
 
 export const navItems: readonly NavItem[] = [
   { href: '/', label: 'Inicio' },
-  { href: '/nosotros/', label: 'Nosotros' },
   { href: '/programas/', label: 'Programas' },
   { href: '/galeria/', label: 'Galería' },
   { href: '/contacto/', label: 'Contacto' },
