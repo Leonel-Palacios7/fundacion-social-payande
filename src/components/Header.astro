@@ -17,13 +17,14 @@ const icons: Record<string, string> = {
 
 <header class="site-header" data-header>
   <div class="container site-header__inner">
-    <nav class="tabbar" aria-label="Principal">
+    <nav class="tabbar" aria-label="Principal" data-tabbar>
+      <span class="tabbar__shell" aria-hidden="true"><span class="tabbar__surface"></span></span>
+      <span class="tabbar__bubble" aria-hidden="true"></span>
       <a class="tabbar__brand" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
-        <span class="tabbar__ring" aria-hidden="true"></span>
         <Image src={logo} alt="" width={46} height={32} densities={[1, 2, 3]} class="tabbar__logo" loading="eager" />
+        <span class="tabbar__name" aria-hidden="true">Payandé</span>
       </a>
       <ul class="tabbar__list" data-nav-list>
-        <li class="tabbar__indicator" aria-hidden="true" data-nav-indicator><span class="tabbar__beam"></span></li>
         {
           navItems.map((item, i) => (
             <li style={`--i:${i}`}>
@@ -86,7 +87,7 @@ const icons: Record<string, string> = {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgb(6 28 22 / 0.6), rgb(6 28 22 / 0.15));
+    background: linear-gradient(180deg, rgb(6 28 22 / 0.55), rgb(6 28 22 / 0.1));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     mask-image: linear-gradient(180deg, #000 60%, transparent);
@@ -102,113 +103,188 @@ const icons: Record<string, string> = {
   .site-header__inner {
     position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
     min-height: var(--header-h);
+    padding-bottom: 0.55rem;
   }
 
-  /* ---------- Barra translúcida con indicador tipo lámpara (colores SENA) ---------- */
+  /*
+   * ---------- Barra neomórfica (paleta Payandé) ----------
+   * Ocupa todo el ancho del contenedor y va en una sola línea. Una burbuja verde lima
+   * flota sobre el enlace actual y abre una hendidura en la barra, como el modelo.
+   * navigation.ts pone --cx (centro del ícono) y mueve la burbuja al pasar el puntero.
+   */
   .tabbar {
+    --bar-bg: #e4f1e9;
+    --bar-ink: var(--verde-900);
+    --bar-muted: #3f5a4f;
+    --neo-dark: rgb(6 33 25 / 0.45);
+    --neo-light: rgb(255 255 255 / 0.55);
+    --bubble: 3.1rem;
+    --notch: calc(var(--bubble) / 2 + 0.4rem);
+    position: relative;
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    width: min(100%, 40rem);
-    padding: 0.3rem;
-    border: 1px solid rgb(255 255 255 / 0.14);
-    border-radius: 1.6rem;
-    background: rgb(0 50 77 / 0.62);
-    backdrop-filter: blur(16px) saturate(1.4);
-    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    gap: var(--space-3);
+    width: 100%;
+    min-height: 3.6rem;
+    padding: 0.35rem 0.5rem;
+    color: var(--bar-ink);
+    font-family: var(--font-sans);
+  }
+
+  :global([data-theme='dark']) .tabbar {
+    --bar-bg: #12302a;
+    --bar-ink: #e6f4ec;
+    --bar-muted: #b4cdc1;
+    --neo-dark: rgb(0 0 0 / 0.6);
+    --neo-light: rgb(94 189 145 / 0.18);
+  }
+
+  /* La sombra va en un envoltorio con filtro porque la máscara de la hendidura recortaría box-shadow. */
+  .tabbar__shell {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    filter: drop-shadow(7px 7px 12px var(--neo-dark)) drop-shadow(-5px -5px 10px var(--neo-light));
+  }
+
+  .tabbar__surface {
+    position: absolute;
+    inset: 0;
+    border-radius: 1.4rem;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--bar-bg) 92%, #fff), var(--bar-bg) 55%, color-mix(in srgb, var(--bar-bg) 90%, #000));
     box-shadow:
-      0 18px 36px -18px rgb(0 0 0 / 0.7),
-      inset 0 1px 0 rgb(255 255 255 / 0.1);
+      inset 2px 2px 3px rgb(255 255 255 / 0.5),
+      inset -2px -2px 4px rgb(0 0 0 / 0.08);
+  }
+
+  :global(.js) .tabbar.has-bubble .tabbar__surface {
+    -webkit-mask: radial-gradient(circle var(--notch) at var(--cx) -0.15rem, transparent calc(100% - 1px), #000 100%);
+    mask: radial-gradient(circle var(--notch) at var(--cx) -0.15rem, transparent calc(100% - 1px), #000 100%);
+  }
+
+  .tabbar.has-bubble {
+    transition: --cx 0.55s var(--ease-out);
+  }
+
+  /* Burbuja con relieve; el ícono activo sube hasta quedar dentro de ella. */
+  .tabbar__bubble {
+    position: absolute;
+    top: calc(var(--bubble) / -2 - 0.15rem);
+    left: 0;
+    width: var(--bubble);
+    height: var(--bubble);
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #c9f0a8, var(--brand-lima) 55%, #6fae4f);
+    box-shadow:
+      5px 6px 12px var(--neo-dark),
+      -3px -3px 8px var(--neo-light),
+      inset -3px -4px 6px rgb(0 0 0 / 0.15),
+      inset 3px 3px 5px rgb(255 255 255 / 0.45);
+    transform: translateX(calc(var(--cx) - var(--bubble) / 2));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .tabbar.has-bubble .tabbar__bubble {
+    opacity: 1;
   }
 
   .tabbar__brand {
-    position: relative;
     flex: none;
-    display: grid;
-    place-items: center;
-    width: 3.2rem;
-    height: 3.2rem;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.5);
-    transition: transform 0.4s var(--ease-out);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.2rem 0.8rem 0.2rem 0.2rem;
+    border-radius: var(--radius-pill);
+    color: var(--bar-ink);
+    text-decoration: none;
+    box-shadow:
+      4px 4px 8px var(--neo-dark),
+      -3px -3px 7px var(--neo-light);
+    transition: box-shadow 0.3s var(--ease);
   }
 
   .tabbar__brand:hover {
-    transform: scale(1.06) rotate(-6deg);
-  }
-
-  .tabbar__brand:focus-visible,
-  .tabbar__link:focus-visible,
-  .theme-toggle:focus-visible {
-    outline: 3px solid var(--sena-verde-claro);
-    outline-offset: 2px;
-  }
-
-  .tabbar__ring {
-    position: absolute;
-    inset: -3px;
-    border: 2px solid var(--sena-verde);
-    border-radius: 50%;
-    opacity: 0;
+    box-shadow:
+      inset 3px 3px 6px var(--neo-dark),
+      inset -3px -3px 6px var(--neo-light);
   }
 
   .tabbar__logo {
     display: block;
-    width: 2.5rem;
-    height: auto;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0.35rem 0.2rem;
+    border-radius: 50%;
+    background: #fff;
+    object-fit: contain;
+  }
+
+  .tabbar__name {
+    font-family: var(--font-script);
+    font-size: 1.35rem;
+    line-height: 1;
+    color: var(--bar-ink);
   }
 
   .tabbar__list {
     position: relative;
-    isolation: isolate;
     flex: 1;
     display: flex;
+    justify-content: center;
+    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .tabbar__list > li:not(.tabbar__indicator) {
-    flex: 1;
+  .tabbar__list > li {
+    flex: 0 1 auto;
     min-width: 0;
   }
 
+  /* Cada enlace: ícono y nombre en una misma línea. */
   .tabbar__link {
     position: relative;
-    display: grid;
-    justify-items: center;
-    align-content: center;
-    gap: 0.2rem;
-    min-height: 3.4rem;
-    padding: 0.45rem 0.25rem;
-    border-radius: 1.2rem;
-    color: rgb(255 255 255 / 0.75);
-    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.95rem;
+    border-radius: var(--radius-pill);
+    color: var(--bar-muted);
+    font-size: 0.95rem;
     font-weight: 500;
     text-decoration: none;
-    transition: color 0.35s var(--ease);
+    white-space: nowrap;
+    transition:
+      color 0.3s var(--ease),
+      box-shadow 0.3s var(--ease);
   }
 
   .tabbar__link:hover {
-    color: #fff;
+    color: var(--bar-ink);
+    box-shadow:
+      inset 3px 3px 6px var(--neo-dark),
+      inset -3px -3px 6px var(--neo-light);
   }
 
   .tabbar__link[aria-current='page'] {
-    color: var(--sena-verde-claro);
+    color: var(--bar-ink);
+    font-weight: 700;
   }
 
   .tabbar__icon {
     position: relative;
+    flex: none;
     display: block;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.35rem;
+    height: 1.35rem;
     transition:
-      transform 0.4s var(--ease-out),
-      filter 0.4s var(--ease);
+      transform 0.55s var(--ease-out),
+      color 0.3s var(--ease);
   }
 
   .tabbar__icon svg {
@@ -216,18 +292,15 @@ const icons: Record<string, string> = {
     height: 100%;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.8;
+    stroke-width: 1.9;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
 
-  /* El ícono de la página actual brilla como bajo la luz de la lámpara. */
-  .tabbar__link[aria-current='page'] .tabbar__icon {
-    filter: drop-shadow(0 0 6px rgb(142 224 90 / 0.85));
-  }
-
-  .tabbar__link:hover .tabbar__icon {
-    transform: translateY(-2px);
+  /* El ícono del enlace señalado sube a la burbuja (la altura la calcula navigation.ts). */
+  .tabbar__link.is-lifted .tabbar__icon {
+    color: var(--verde-900);
+    transform: translateY(var(--lift, -1.6rem)) scale(1.1);
   }
 
   .tabbar__badge {
@@ -236,100 +309,56 @@ const icons: Record<string, string> = {
     right: -3px;
     width: 9px;
     height: 9px;
-    border: 2px solid var(--sena-azul);
+    border: 2px solid var(--bar-bg);
     border-radius: 50%;
     background: var(--sena-verde);
   }
 
-  .tabbar__label {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /*
-   * Lámpara: una franja verde en el borde superior y un haz de luz que baja hasta el ícono.
-   * navigation.ts la mueve al enlace señalado y la devuelve a la página actual.
-   */
-  .tabbar__indicator {
-    position: absolute;
-    top: -0.3rem;
-    left: 0;
-    z-index: -1;
-    width: var(--w, 0);
-    height: calc(var(--h, 0) + 0.3rem);
-    opacity: 0;
-    transform: translateX(var(--x, 0));
-    transition:
-      transform 0.55s var(--ease-out),
-      width 0.55s var(--ease-out),
-      opacity 0.3s var(--ease);
-    pointer-events: none;
-  }
-
-  .tabbar__indicator.is-active {
-    opacity: 1;
-  }
-
-  .tabbar__indicator::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: min(2.6rem, 60%);
-    height: 4px;
-    border-radius: 0 0 4px 4px;
-    background: var(--sena-verde);
-    box-shadow:
-      0 0 10px 1px rgb(57 169 0 / 0.9),
-      0 0 22px 4px rgb(142 224 90 / 0.45);
-    translate: -50% 0;
-  }
-
-  .tabbar__beam {
-    position: absolute;
-    top: 4px;
-    left: 50%;
-    width: min(4.6rem, 100%);
-    height: 85%;
-    background: linear-gradient(180deg, rgb(57 169 0 / 0.5), rgb(57 169 0 / 0.12) 60%, transparent);
-    clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
-    translate: -50% 0;
-  }
-
-  /* Sin JavaScript, la página actual se marca con un fondo fijo. */
+  /* Sin JavaScript, la página actual se marca con un relieve hundido. */
   :global(html:not(.js)) .tabbar__link[aria-current='page'] {
-    background: rgb(57 169 0 / 0.22);
+    box-shadow:
+      inset 3px 3px 6px var(--neo-dark),
+      inset -3px -3px 6px var(--neo-light);
   }
 
-  /* ---------- Botón de modo claro / oscuro ---------- */
+  .tabbar__brand:focus-visible,
+  .tabbar__link:focus-visible,
+  .theme-toggle:focus-visible {
+    outline: 3px solid var(--brand-turquesa);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Botón de modo claro / oscuro (también con relieve) ---------- */
   .theme-toggle {
     position: relative;
     flex: none;
     display: grid;
     place-items: center;
-    width: 3rem;
-    height: 3rem;
+    width: 2.75rem;
+    height: 2.75rem;
     padding: 0;
-    border: 1px solid rgb(255 255 255 / 0.22);
+    border: 0;
     border-radius: 50%;
-    background: rgb(255 255 255 / 0.08);
-    color: #ffd76a;
+    background: var(--bar-bg);
+    color: #d9a400;
     cursor: pointer;
+    box-shadow:
+      4px 4px 8px var(--neo-dark),
+      -3px -3px 7px var(--neo-light);
     transition:
-      background-color 0.3s var(--ease),
       color 0.5s var(--ease),
-      transform 0.4s var(--ease-out);
+      box-shadow 0.3s var(--ease);
   }
 
   .theme-toggle[hidden] {
     display: none;
   }
 
-  .theme-toggle:hover {
-    background: rgb(255 255 255 / 0.16);
-    transform: rotate(-12deg) scale(1.05);
+  .theme-toggle:hover,
+  .theme-toggle:active {
+    box-shadow:
+      inset 3px 3px 6px var(--neo-dark),
+      inset -3px -3px 6px var(--neo-light);
   }
 
   .theme-toggle[aria-pressed='true'] {
@@ -337,8 +366,8 @@ const icons: Record<string, string> = {
   }
 
   .theme-toggle__svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.4rem;
+    height: 1.4rem;
     overflow: visible;
   }
 
@@ -380,23 +409,31 @@ const icons: Record<string, string> = {
     transform: rotate(-90deg) scale(0.4);
   }
 
-  /* En móvil solo íconos, como la barra de referencia; el nombre sigue disponible para lectores. */
-  @media (max-width: 40rem) {
-    .tabbar {
-      gap: 0.15rem;
+  /* Pantallas medianas: sin el nombre junto al logo. */
+  @media (max-width: 62rem) {
+    .tabbar__name {
+      display: none;
     }
 
     .tabbar__brand {
-      width: 2.9rem;
-      height: 2.9rem;
+      padding: 0.2rem;
+    }
+  }
+
+  /* Móvil: solo íconos, repartidos en la misma línea; el nombre sigue disponible para lectores. */
+  @media (max-width: 44rem) {
+    .tabbar {
+      gap: var(--space-1);
+      padding-inline: 0.35rem;
     }
 
-    .tabbar__logo {
-      width: 2.1rem;
+    .tabbar__list {
+      justify-content: space-around;
+      gap: 0;
     }
 
     .tabbar__link {
-      min-height: 3rem;
+      padding: 0.35rem 0.7rem;
     }
 
     .tabbar__label {
@@ -408,9 +445,15 @@ const icons: Record<string, string> = {
       white-space: nowrap;
     }
 
-    .theme-toggle {
-      width: 2.75rem;
-      height: 2.75rem;
+    .tabbar__logo {
+      width: 2.4rem;
+      height: 2.4rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tabbar.has-bubble {
+      transition: none;
     }
   }
 
@@ -419,13 +462,15 @@ const icons: Record<string, string> = {
       animation: bar-in 0.8s var(--ease-out) backwards;
     }
 
-    .tabbar__list > li:not(.tabbar__indicator) {
+    .tabbar__list > li {
       animation: item-in 0.6s var(--ease-out) backwards;
       animation-delay: calc(250ms + var(--i, 0) * 80ms);
     }
 
-    .tabbar__beam {
-      animation: beam 3.2s ease-in-out infinite;
+    .tabbar__bubble {
+      transition:
+        transform 0.55s var(--ease-out),
+        opacity 0.3s var(--ease);
     }
 
     .tabbar__logo {
@@ -433,16 +478,8 @@ const icons: Record<string, string> = {
       transform-origin: 50% 90%;
     }
 
-    .tabbar__ring {
-      animation: ring 3s var(--ease-out) 1.2s infinite;
-    }
-
     .tabbar__badge {
       animation: badge 2s ease-in-out infinite;
-    }
-
-    .tabbar__link:hover .tabbar__icon {
-      animation: icon-hop 0.6s var(--ease-out);
     }
 
     /* Destello en anillo al cambiar de tema. */
@@ -462,23 +499,10 @@ const icons: Record<string, string> = {
     }
   }
 
-  @keyframes burst {
-    to {
-      opacity: 0;
-      transform: scale(2.6);
-    }
-  }
-
-  @keyframes toggle-spin {
-    from {
-      transform: rotate(-180deg) scale(0.6);
-    }
-  }
-
   @keyframes bar-in {
     from {
       opacity: 0;
-      transform: translateY(-16px) scale(0.96);
+      transform: translateY(-16px);
     }
   }
 
@@ -486,12 +510,6 @@ const icons: Record<string, string> = {
     from {
       opacity: 0;
       transform: translateY(10px);
-    }
-  }
-
-  @keyframes beam {
-    50% {
-      opacity: 0.65;
     }
   }
 
@@ -508,29 +526,22 @@ const icons: Record<string, string> = {
     }
   }
 
-  @keyframes ring {
-    from {
-      opacity: 0.9;
-      transform: scale(1);
-    }
-    to {
-      opacity: 0;
-      transform: scale(1.35);
-    }
-  }
-
   @keyframes badge {
     50% {
       transform: scale(1.35);
     }
   }
 
-  @keyframes icon-hop {
-    40% {
-      transform: translateY(-6px) scale(1.1);
+  @keyframes burst {
+    to {
+      opacity: 0;
+      transform: scale(2.6);
     }
-    70% {
-      transform: translateY(1px) scale(0.97);
+  }
+
+  @keyframes toggle-spin {
+    from {
+      transform: rotate(-180deg) scale(0.6);
     }
   }
 </style>
