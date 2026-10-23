@@ -20,8 +20,8 @@ import logo from '../assets/brand/logo-color.png';
   if (preloader && document.documentElement.classList.contains('preload')) {
     const started = performance.now();
     const hide = () => {
-      // Se ve al menos un momento para que no parpadee.
-      const wait = Math.max(0, 900 - (performance.now() - started));
+      // Se ve al menos unos segundos para que se aprecie el logo.
+      const wait = Math.max(0, 2800 - (performance.now() - started));
       window.setTimeout(() => {
         document.documentElement.classList.add('preload-done');
         window.setTimeout(() => preloader.remove(), 700);
@@ -30,7 +30,7 @@ import logo from '../assets/brand/logo-color.png';
     if (document.readyState === 'complete') hide();
     else window.addEventListener('load', hide, { once: true });
     // Por si alguna imagen tarda demasiado.
-    window.setTimeout(hide, 3500);
+    window.setTimeout(hide, 6000);
   }
 </script>
 

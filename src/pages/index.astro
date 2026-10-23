@@ -16,6 +16,16 @@ import { getPhoto } from '../data/photos.ts';
 import { site } from '../data/site.ts';
 
 const thanks = getPhoto('slider-9');
+const quoteWords =
+  '«Muchísimas gracias Fundación Payandé por los útiles escolares y los zapatos, y traer mucha alegría y amor a esta escuela de Payandé».'.split(' ');
+// Fondo animado de Testimonios, como el de la portada: [x %, y %, tamaño px, duración s, retraso s]
+const quoteFlies: [number, number, number, number, number][] = [
+  [6, 20, 5, 9, 0], [18, 70, 4, 11, 2], [30, 35, 6, 8, 4], [44, 85, 4, 12, 1], [57, 15, 5, 10, 6],
+  [66, 60, 6, 9, 3], [76, 28, 4, 13, 5], [86, 78, 5, 8, 2], [94, 40, 6, 11, 7],
+];
+const quoteLeaves: [number, number, number, number][] = [
+  [8, 14, 13, 0], [22, 10, 11, 5], [39, 17, 15, 2], [61, 12, 12, 7], [78, 18, 14, 3], [92, 11, 10, 6],
+];
 const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', 'slider-20', 'slider-5'].map(getPhoto);
 ---
 
@@ -87,18 +97,30 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     </div>
   </section>
 
-  <section class="section" aria-label="Testimonios">
+  <section class="section testimonials" aria-label="Testimonios" data-testimonials>
+    <div class="testimonials__bg" aria-hidden="true">
+      <span class="testimonials__blob testimonials__blob--a"></span>
+      <span class="testimonials__blob testimonials__blob--b"></span>
+      <span class="testimonials__aurora"></span>
+      {quoteFlies.map(([x, y, size, dur, delay]) => <span class="testimonials__fly" style={`--x:${x}%;--y:${y}%;--s:${size}px;--dur:${dur}s;--delay:${delay}s`} />)}
+      {
+        quoteLeaves.map(([x, size, dur, delay], i) => (
+          <svg class="testimonials__leaf" viewBox="0 0 24 24" style={`--x:${x}%;--s:${size}px;--dur:${dur}s;--delay:${delay}s;--turn:${i % 2 ? -1 : 1}`}>
+            <path d="M12 2C6 6 4 11 6 17c1 3 3.5 5 6 5s5-2 6-5c2-6 0-11-6-15z" />
+            <path d="M12 6v15" />
+          </svg>
+        ))
+      }
+    </div>
     <div class="container split split--reverse">
       <figure class="quote" data-reveal>
+        <svg class="quote__mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6 6 4 11 6 17c1 3 3.5 5 6 5s5-2 6-5c2-6 0-11-6-15z" /><path d="M12 6v15" /></svg>
         <blockquote>
-          <p>
-            «Muchísimas gracias Fundación Payandé por los útiles escolares y los zapatos, y traer mucha alegría y amor a
-            esta escuela de Payandé».
-          </p>
+          <p set:html={quoteWords.map((word, i) => `<span class="quote__w" style="--i:${i}">${word}</span>`).join(' ')} />
         </blockquote>
       </figure>
       <div data-reveal style="--stagger:1">
-        <span class="eyebrow">Testimonios</span>
+        <span class="eyebrow testimonials__eyebrow">Testimonios</span>
         <Picture
           src={thanks.src}
           alt={thanks.alt}
@@ -111,6 +133,11 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
         />
       </div>
     </div>
+    <button class="testimonials__pause" type="button" data-testimonials-pause aria-pressed="false" hidden>
+      <svg class="icon-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+      <svg class="icon-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>
+      <span class="visually-hidden">Pausar animación de Testimonios</span>
+    </button>
   </section>
 
   <section class="section section--alt" aria-labelledby="historias">
@@ -123,6 +150,19 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Botón para pausar el fondo animado de Testimonios (WCAG 2.2.2).
+  document.querySelectorAll<HTMLElement>('[data-testimonials]').forEach((root) => {
+    const pause = root.querySelector<HTMLButtonElement>('[data-testimonials-pause]');
+    if (!pause || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    pause.hidden = false;
+    pause.addEventListener('click', () => {
+      const paused = root.classList.toggle('is-paused');
+      pause.setAttribute('aria-pressed', String(paused));
+    });
+  });
+</script>
 
 <style>
   /* ---------- Sobre nosotros ---------- */
@@ -325,12 +365,112 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     padding-top: 0;
   }
 
+  /* ---------- Testimonios: mismo fondo animado que la portada ---------- */
+  .testimonials {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    color: #fff;
+    background:
+      radial-gradient(120% 90% at 25% 50%, #17553f 0%, transparent 60%),
+      linear-gradient(160deg, #0f3b2e 0%, #0b2f25 55%, #0a3a3f 100%);
+  }
+
+  .testimonials__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .testimonials__blob {
+    position: absolute;
+    width: 36vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.4;
+  }
+
+  .testimonials__blob--a {
+    top: -12vmax;
+    right: -8vmax;
+    background: var(--brand-verde);
+  }
+
+  .testimonials__blob--b {
+    bottom: -16vmax;
+    left: -10vmax;
+    background: var(--brand-azul);
+    opacity: 0.32;
+  }
+
+  .testimonials__aurora {
+    position: absolute;
+    top: 10%;
+    left: -25%;
+    width: 150%;
+    height: 50%;
+    background: linear-gradient(100deg, transparent 10%, rgb(142 202 109 / 0.5) 30%, rgb(51 184 184 / 0.45) 50%, transparent 70%);
+    filter: blur(60px);
+    opacity: 0.45;
+    mix-blend-mode: screen;
+    transform: rotate(-6deg);
+  }
+
+  .testimonials__fly {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    border-radius: 50%;
+    background: #e8ffd0;
+    box-shadow: 0 0 10px 3px rgb(201 234 176 / 0.8);
+    opacity: 0.6;
+  }
+
+  .testimonials__leaf {
+    position: absolute;
+    bottom: -30px;
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    fill: rgb(142 202 109 / 0.55);
+    stroke: rgb(15 59 46 / 0.6);
+    stroke-width: 1;
+    opacity: 0;
+  }
+
+  .testimonials__eyebrow {
+    color: #c9eab0;
+  }
+
+  .testimonials .split {
+    position: relative;
+  }
+
   .quote {
+    position: relative;
     margin: 0;
     padding: var(--space-6);
-    border-radius: var(--radius-lg);
-    background: var(--tint-lima);
+    border: 1px solid rgb(255 255 255 / 0.16);
     border-left: 6px solid var(--brand-lima);
+    border-radius: var(--radius-lg);
+    background: rgb(255 255 255 / 0.07);
+    backdrop-filter: blur(6px);
+  }
+
+  .quote__mark {
+    position: absolute;
+    top: -1.2rem;
+    right: var(--space-5);
+    width: 2.6rem;
+    height: 2.6rem;
+    fill: var(--brand-lima);
+    stroke: var(--verde-900);
+    stroke-width: 1;
+    transform-origin: 50% 100%;
   }
 
   .quote blockquote {
@@ -338,10 +478,172 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
   }
 
   .quote p {
+    margin: 0;
     font-family: var(--font-script);
     font-size: var(--fs-lg);
     line-height: 1.45;
-    color: var(--ink-strong);
+    color: #fff;
+  }
+
+  .quote :global(.quote__w) {
+    display: inline-block;
+  }
+
+  .testimonials__pause {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgb(255 255 255 / 0.6);
+    border-radius: 50%;
+    background: rgb(15 59 46 / 0.6);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .testimonials__pause:hover {
+    background: rgb(15 59 46 / 0.9);
+  }
+
+  .testimonials__pause:focus-visible {
+    outline-color: #fff;
+  }
+
+  .testimonials__pause[hidden] {
+    display: none;
+  }
+
+  .testimonials__pause .icon-play,
+  .testimonials__pause[aria-pressed='true'] .icon-pause {
+    display: none;
+  }
+
+  .testimonials__pause[aria-pressed='true'] .icon-play {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .testimonials__blob--a {
+      animation: t-blob-a 18s ease-in-out infinite alternate;
+    }
+
+    .testimonials__blob--b {
+      animation: t-blob-b 22s ease-in-out infinite alternate;
+    }
+
+    .testimonials__aurora {
+      animation: t-aurora 16s ease-in-out infinite alternate;
+    }
+
+    .testimonials__fly {
+      animation: t-fly var(--dur) ease-in-out var(--delay) infinite alternate;
+    }
+
+    .testimonials__leaf {
+      animation: t-leaf-rise var(--dur) linear var(--delay) infinite;
+    }
+
+    /* Las palabras de la cita entran una a una cuando la tarjeta aparece, como el título de la portada. */
+    :global(.js) .quote :global(.quote__w) {
+      opacity: 0;
+    }
+
+    :global(.js) .quote.is-visible :global(.quote__w) {
+      animation: t-word-in 0.9s var(--ease-out) both;
+      animation-delay: calc(300ms + var(--i) * 70ms);
+    }
+
+    :global(.js) .quote.is-visible .quote__mark {
+      animation:
+        t-leaf-pop 1s var(--ease-out) 200ms backwards,
+        t-leaf-sway 4s ease-in-out 1.4s infinite;
+    }
+
+    .testimonials.is-paused *,
+    .testimonials.is-paused :global(*) {
+      animation-play-state: paused !important;
+    }
+  }
+
+  @keyframes t-blob-a {
+    to {
+      transform: translate(-16vw, 10vh) scale(1.2);
+    }
+  }
+
+  @keyframes t-blob-b {
+    to {
+      transform: translate(14vw, -8vh) scale(0.85);
+    }
+  }
+
+  @keyframes t-aurora {
+    to {
+      transform: rotate(2deg) translateX(8%) scaleY(1.25);
+      opacity: 0.65;
+    }
+  }
+
+  @keyframes t-fly {
+    0% {
+      opacity: 0.15;
+      transform: translate(0, 0);
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.3;
+      transform: translate(60px, -50px);
+    }
+  }
+
+  @keyframes t-leaf-rise {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    10% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(calc(var(--turn) * 70px), -110vh, 0) rotate(calc(var(--turn) * 540deg));
+    }
+  }
+
+  @keyframes t-word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.6em) rotate(4deg);
+      filter: blur(8px);
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes t-leaf-pop {
+    from {
+      opacity: 0;
+      transform: scale(0) rotate(-60deg);
+    }
+  }
+
+  @keyframes t-leaf-sway {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(-12deg);
+    }
   }
 
   .more-link {

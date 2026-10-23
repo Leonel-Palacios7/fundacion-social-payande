@@ -1,4 +1,4 @@
-const AUTO_SPEED = 9; // grados por segundo
+const AUTO_SPEED = 4.5; // grados por segundo (lento para ver cada foto con calma)
 const DRAG_FACTOR = 0.35; // grados por píxel arrastrado
 const FRICTION = 0.94;
 
