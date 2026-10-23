@@ -36,6 +36,12 @@ const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.
     <meta charset="utf-8" />
     <script is:inline>
       document.documentElement.classList.add('js');
+      // Tema guardado o el del sistema, antes de pintar para que no parpadee.
+      try {
+        var tema = localStorage.getItem('payande-tema');
+        if (!tema) tema = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = tema;
+      } catch {}
       // Pantalla de carga solo en la primera página de la sesión.
       try {
         if (!sessionStorage.getItem('payande-preload')) {

@@ -24,16 +24,29 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 
   <Marquee items={services.map((service) => service.title)} />
 
-  <section class="section" aria-labelledby="quienes-somos">
+  <section class="section about" aria-labelledby="quienes-somos">
+    <span class="about__word" aria-hidden="true">Payandé</span>
+    <svg class="about__leaf about__leaf--a" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6 6 4 11 6 17c1 3 3.5 5 6 5s5-2 6-5c2-6 0-11-6-15z" /><path d="M12 6v15" /></svg>
+    <svg class="about__leaf about__leaf--b" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6 6 4 11 6 17c1 3 3.5 5 6 5s5-2 6-5c2-6 0-11-6-15z" /><path d="M12 6v15" /></svg>
     <div class="container split">
-      <div data-reveal>
-        <h2 class="eyebrow" id="quienes-somos">Sobre nosotros</h2>
+      <div class="about__text" data-reveal>
+        <h2 class="eyebrow about__eyebrow" id="quienes-somos">Sobre nosotros</h2>
         <p class="lead">
           La Fundación Social Payandé es una organización sin ánimo de lucro que tiene por objeto, desarrollar a su entera
-          discreción actividades asistenciales y de beneficencia, tendientes a mejorar la calidad de vida, la educación, la
-          salud, la vivienda y la recreación a las personas de escasos recursos económicos, localizadas principalmente en los
+          discreción actividades asistenciales y de beneficencia, tendientes a mejorar <mark class="about__mark">la calidad de vida, la educación, la
+          salud, la vivienda y la recreación</mark> a las personas de escasos recursos económicos, localizadas principalmente en los
           municipios de Quebradanegra, Tobia y Villeta.
         </p>
+        <ul class="about__places" aria-label="Municipios donde trabajamos">
+          {
+            ['Quebradanegra', 'Tobia', 'Villeta'].map((place, i) => (
+              <li style={`--i:${i}`}>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></svg>
+                {place}
+              </li>
+            ))
+          }
+        </ul>
         <!-- Leonel pidió dejar el botón sin ninguna acción (2026-10-23). -->
         <span class="btn btn--outline btn--arrow btn--static">Conoce nuestra historia</span>
       </div>
@@ -112,6 +125,189 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
 </BaseLayout>
 
 <style>
+  /* ---------- Sobre nosotros ---------- */
+  .about {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Palabra grande de fondo que se desliza despacio. */
+  .about__word {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    font-family: var(--font-script);
+    font-size: clamp(7rem, 22vw, 18rem);
+    line-height: 1;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--tint-100);
+    translate: 0 -50%;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .about__leaf {
+    position: absolute;
+    width: 2.2rem;
+    height: 2.2rem;
+    fill: var(--brand-lima);
+    stroke: var(--verde-900);
+    stroke-width: 1;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .about__leaf--a {
+    top: 12%;
+    left: 46%;
+  }
+
+  .about__leaf--b {
+    bottom: 10%;
+    left: 4%;
+    width: 1.6rem;
+    fill: var(--brand-turquesa);
+  }
+
+  .about .split {
+    position: relative;
+  }
+
+  /* Línea que crece junto al título pequeño. */
+  .about__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .about__eyebrow::after {
+    content: '';
+    width: 3rem;
+    height: 2px;
+    background: currentColor;
+    transform-origin: left;
+  }
+
+  /* Resaltado tipo marcador que se pinta al aparecer. */
+  .about__mark {
+    padding: 0 0.15em;
+    color: inherit;
+    background: linear-gradient(transparent 58%, rgb(142 202 109 / 0.5) 58%) no-repeat 0 0 / 100% 100%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .about__places {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  .about__places li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.9rem 0.35rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--tint-50);
+    color: var(--ink-strong);
+    font-weight: 500;
+    transition:
+      transform 0.35s var(--ease-out),
+      background-color 0.35s var(--ease);
+  }
+
+  .about__places li:hover {
+    transform: translateY(-3px);
+    background: var(--tint-100);
+  }
+
+  .about__places svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: var(--sena-verde);
+    stroke-width: 2;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .about__word {
+      animation: about-word 40s linear infinite alternate;
+    }
+
+    .about__leaf--a {
+      animation: about-float 7s ease-in-out infinite;
+    }
+
+    .about__leaf--b {
+      animation: about-float 9s ease-in-out 1s infinite reverse;
+    }
+
+    :global(.js) .about__text .about__mark {
+      background-size: 0% 100%;
+      transition: background-size 1.4s var(--ease-out) 0.6s;
+    }
+
+    :global(.js) .about__text.is-visible .about__mark {
+      background-size: 100% 100%;
+    }
+
+    :global(.js) .about__text .about__eyebrow::after {
+      transform: scaleX(0);
+      transition: transform 1s var(--ease-out) 0.3s;
+    }
+
+    :global(.js) .about__text.is-visible .about__eyebrow::after {
+      transform: scaleX(1);
+    }
+
+    :global(.js) .about__text .about__places li {
+      opacity: 0;
+      transform: translateY(14px) scale(0.9);
+      transition:
+        opacity 0.6s var(--ease-out),
+        transform 0.6s var(--ease-out);
+      transition-delay: calc(0.9s + var(--i) * 0.15s);
+    }
+
+    :global(.js) .about__text.is-visible .about__places li {
+      opacity: 1;
+      transform: none;
+    }
+
+    :global(.js) .about__text.is-visible .about__places li:hover {
+      transform: translateY(-3px);
+      transition-delay: 0s;
+    }
+
+    .about__places li:hover svg {
+      animation: pin-bounce 0.6s var(--ease-out);
+    }
+  }
+
+  @keyframes about-word {
+    to {
+      transform: translateX(-30%);
+    }
+  }
+
+  @keyframes about-float {
+    50% {
+      transform: translateY(-14px) rotate(18deg);
+    }
+  }
+
+  @keyframes pin-bounce {
+    40% {
+      transform: translateY(-5px);
+    }
+  }
+
   /* Dos secciones seguidas con el mismo fondo: se juntan sin doble espacio. */
   .btn--static {
     pointer-events: none;
@@ -122,7 +318,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     margin-top: var(--space-2);
     font-size: var(--fs-md);
     font-weight: 500;
-    color: var(--verde-700);
+    color: var(--ink-accent);
   }
 
   .events-section {
@@ -133,7 +329,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     margin: 0;
     padding: var(--space-6);
     border-radius: var(--radius-lg);
-    background: var(--lima-100);
+    background: var(--tint-lima);
     border-left: 6px solid var(--brand-lima);
   }
 
@@ -145,7 +341,7 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     font-family: var(--font-script);
     font-size: var(--fs-lg);
     line-height: 1.45;
-    color: var(--verde-900);
+    color: var(--ink-strong);
   }
 
   .more-link {

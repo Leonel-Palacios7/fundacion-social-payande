@@ -130,7 +130,7 @@ const filterIcons: Record<PhotoCategory | 'todas', string> = {
     margin-bottom: var(--space-3);
     padding: var(--space-2);
     border-radius: 1.75rem;
-    background: var(--verde-50);
+    background: var(--tint-50);
   }
 
   @media (max-width: 40rem) {
@@ -182,7 +182,7 @@ const filterIcons: Record<PhotoCategory | 'todas', string> = {
     padding: 0.4rem 0.6rem 0.4rem 0.9rem;
     border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    background: #fff;
+    background: var(--color-card);
     color: var(--color-text);
     font-weight: 500;
     white-space: nowrap;
@@ -195,7 +195,7 @@ const filterIcons: Record<PhotoCategory | 'todas', string> = {
   }
 
   .chip:hover {
-    border-color: var(--verde-700);
+    border-color: var(--ink-accent);
     transform: translateY(-2px);
   }
 
@@ -237,8 +237,8 @@ const filterIcons: Record<PhotoCategory | 'todas', string> = {
     height: 1.6rem;
     padding: 0 0.4rem;
     border-radius: var(--radius-pill);
-    background: var(--verde-100);
-    color: var(--verde-900);
+    background: var(--tint-100);
+    color: var(--ink-strong);
     font-size: 0.8rem;
     font-weight: 700;
     transition:
@@ -247,8 +247,8 @@ const filterIcons: Record<PhotoCategory | 'todas', string> = {
   }
 
   .chip[aria-pressed='true'] .chip__count {
-    background: #fff;
-    color: var(--verde-900);
+    background: var(--color-card);
+    color: var(--ink-strong);
   }
 
   /* Las fotos que quedan al filtrar entran una tras otra. */
@@ -366,8 +366,8 @@ const filterIcons: Record<PhotoCategory | 'todas', string> = {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #fff;
-    color: var(--verde-900);
+    background: var(--color-card);
+    color: var(--ink-strong);
     box-shadow: 0 4px 12px rgb(0 0 0 / 0.2);
     opacity: 0;
     transform: scale(0.6) rotate(-45deg);
@@ -416,7 +416,7 @@ const filterIcons: Record<PhotoCategory | 'todas', string> = {
     border-radius: var(--radius-md);
     overflow: hidden;
     aspect-ratio: 4 / 3;
-    background: var(--verde-100);
+    background: var(--tint-100);
   }
 
   .gallery__link :global(picture) {

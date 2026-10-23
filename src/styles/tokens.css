@@ -48,6 +48,15 @@
   --color-success-bg: #e6f4ec;
   --color-info-bg: #fff8e1;
   --color-info-border: #c79a00;
+  --color-info-text: #5c4700;
+  --color-card: #ffffff;
+  /* Textos y fondos suaves que cambian con el tema */
+  --ink-strong: var(--verde-900);
+  --ink-accent: var(--verde-700);
+  --tint-50: var(--verde-50);
+  --tint-100: var(--verde-100);
+  --tint-lima: var(--lima-100);
+  color-scheme: light;
 
   /* Tipografía */
   --font-sans: 'Ubuntu', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -95,4 +104,35 @@
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --dur-fast: 150ms;
   --dur-base: 250ms;
+}
+
+/* Modo oscuro: lo activa el botón de la cabecera (data-theme en <html>). */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #081813;
+  --color-surface: #0f241d;
+  --color-surface-alt: #0c1f19;
+  --color-card: #112a22;
+  --color-text: #d7e8df;
+  --color-text-muted: #a3bcb0;
+  --color-heading: #eef8f2;
+  --color-link: #6fd6d6;
+  --color-link-hover: #a8e8c6;
+  --color-border: #24453a;
+  --color-primary: #24785a;
+  --color-primary-hover: #1e6b4f;
+  --color-focus: #6fd6d6;
+  --color-error: #ffb4ab;
+  --color-error-bg: #3b1513;
+  --color-success: #8fd9b3;
+  --color-success-bg: #12331f;
+  --color-info-bg: #2f2810;
+  --color-info-text: #f3d77a;
+  --ink-strong: #eef8f2;
+  --ink-accent: #8fd9b3;
+  --tint-50: #10291f;
+  --tint-100: #1a3d30;
+  --tint-lima: #17301d;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 10px 28px -10px rgb(0 0 0 / 0.7);
 }

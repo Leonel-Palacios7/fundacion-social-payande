@@ -320,7 +320,7 @@ const heroPhoto = getPhoto('slider-19');
   .contact-card__map {
     position: relative;
     min-height: 18rem;
-    background: var(--verde-100);
+    background: var(--tint-100);
   }
 
   /* El mapa llena toda la altura de la tarjeta, a la par del formulario. */
@@ -350,7 +350,7 @@ const heroPhoto = getPhoto('slider-19');
     max-width: 22rem;
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-md);
-    background: rgb(255 255 255 / 0.95);
+    background: color-mix(in srgb, var(--color-card) 95%, transparent);
     box-shadow: var(--shadow-md);
     font-size: var(--fs-sm);
     line-height: 1.4;
@@ -361,7 +361,7 @@ const heroPhoto = getPhoto('slider-19');
     flex: none;
     width: 2rem;
     height: 2rem;
-    fill: var(--verde-700);
+    fill: var(--ink-accent);
   }
 
   .contact-card__maplink {
@@ -455,7 +455,7 @@ const heroPhoto = getPhoto('slider-19');
     width: 4.5rem;
     height: 4.5rem;
     border-radius: 50%;
-    background: #fff;
+    background: var(--color-card);
     box-shadow: 0 8px 20px -10px rgb(15 59 46 / 0.4);
     transition: transform 0.45s var(--ease-out);
   }
@@ -474,7 +474,7 @@ const heroPhoto = getPhoto('slider-19');
     width: 2.25rem;
     height: 2.25rem;
     fill: none;
-    stroke: var(--verde-700);
+    stroke: var(--ink-accent);
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;

@@ -6,7 +6,7 @@ import { navItems, isCurrentPath, site } from '../data/site.ts';
 
 const current = Astro.url.pathname;
 
-/** Íconos de la barra (trazos de 24×24), al estilo de la barra de Pinterest. */
+/** Íconos de la barra (trazos de 24×24). */
 const icons: Record<string, string> = {
   '/': '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
   '/programas/': '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><path d="M17 13.5v7M13.5 17h7"/>',
@@ -16,8 +16,6 @@ const icons: Record<string, string> = {
 ---
 
 <header class="site-header" data-header>
-  <span class="site-header__glow site-header__glow--a" aria-hidden="true"></span>
-  <span class="site-header__glow site-header__glow--b" aria-hidden="true"></span>
   <div class="container site-header__inner">
     <nav class="tabbar" aria-label="Principal">
       <a class="tabbar__brand" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
@@ -25,7 +23,7 @@ const icons: Record<string, string> = {
         <Image src={logo} alt="" width={46} height={32} densities={[1, 2, 3]} class="tabbar__logo" loading="eager" />
       </a>
       <ul class="tabbar__list" data-nav-list>
-        <li class="tabbar__indicator" aria-hidden="true" data-nav-indicator></li>
+        <li class="tabbar__indicator" aria-hidden="true" data-nav-indicator><span class="tabbar__beam"></span></li>
         {
           navItems.map((item, i) => (
             <li style={`--i:${i}`}>
@@ -39,69 +37,66 @@ const icons: Record<string, string> = {
                   {item.href === '/contacto/' && <span class="tabbar__badge" />}
                 </span>
                 <span class="tabbar__label">{item.label}</span>
-                <span class="tabbar__dot" aria-hidden="true"></span>
               </a>
             </li>
           ))
         }
       </ul>
+      <button class="theme-toggle" type="button" aria-label="Modo oscuro" aria-pressed="false" data-theme-toggle hidden>
+        <svg class="theme-toggle__svg" viewBox="0 0 24 24" aria-hidden="true">
+          <mask id="theme-moon">
+            <rect width="24" height="24" fill="#fff"></rect>
+            <circle class="theme-toggle__bite" cx="24" cy="4" r="7" fill="#000"></circle>
+          </mask>
+          <circle class="theme-toggle__core" cx="12" cy="12" r="5" mask="url(#theme-moon)"></circle>
+          <g class="theme-toggle__rays">
+            <path d="M12 1.5v2.2M12 20.3v2.2M1.5 12h2.2M20.3 12h2.2M4.6 4.6l1.5 1.5M17.9 17.9l1.5 1.5M4.6 19.4l1.5-1.5M17.9 6.1l1.5-1.5"></path>
+          </g>
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
 
 <script>
   import { initNavIndicator } from '../scripts/navigation.ts';
+  import { initThemeToggle } from '../scripts/theme.ts';
   initNavIndicator();
+  initThemeToggle();
 </script>
 
 <style>
-  /* Cabecera fija con el mismo fondo verde animado de la portada. */
+  /* Cabecera fija; en las páginas con portada oscura flota transparente encima de ella. */
   .site-header {
     position: sticky;
     top: 0;
     z-index: var(--z-header);
-    overflow: hidden;
     padding-top: env(safe-area-inset-top);
     background: linear-gradient(110deg, #0f3b2e 0%, #134a39 45%, #0b3d42 100%);
     view-transition-name: site-header;
-    transition: box-shadow var(--dur-base) var(--ease);
   }
 
-  .site-header.is-scrolled {
-    box-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.55);
+  :global(body:has(main > .hero:first-child, main > .page-hero:first-child, main > .contact-hero:first-child)) .site-header {
+    margin-bottom: calc(-1 * var(--header-h) - env(safe-area-inset-top));
+    background: transparent;
   }
 
-  /* Luces de colores de la marca que se desplazan por el fondo. */
-  .site-header__glow {
+  /* Al bajar, un velo de vidrio para que la barra se lea sobre cualquier fondo. */
+  .site-header::before {
+    content: '';
     position: absolute;
-    top: -120%;
-    width: 22rem;
-    height: 22rem;
-    border-radius: 50%;
-    filter: blur(50px);
-    opacity: 0.4;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(6 28 22 / 0.6), rgb(6 28 22 / 0.15));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    mask-image: linear-gradient(180deg, #000 60%, transparent);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
     pointer-events: none;
   }
 
-  .site-header__glow--a {
-    left: -6rem;
-    background: var(--brand-verde);
-  }
-
-  .site-header__glow--b {
-    right: -4rem;
-    background: var(--brand-azul);
-    opacity: 0.32;
-  }
-
-  /* Línea con los colores del logo en el borde inferior. */
-  .site-header::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--brand-lima), var(--brand-verde), var(--brand-turquesa), var(--brand-azul), var(--brand-lima));
-    background-size: 200% 100%;
+  .site-header.is-scrolled::before {
+    opacity: 1;
   }
 
   .site-header__inner {
@@ -112,18 +107,21 @@ const icons: Record<string, string> = {
     min-height: var(--header-h);
   }
 
-  /* ---------- Barra tipo píldora (estilo Pinterest, colores SENA) ---------- */
+  /* ---------- Barra translúcida con indicador tipo lámpara (colores SENA) ---------- */
   .tabbar {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    width: min(100%, 38rem);
+    width: min(100%, 40rem);
     padding: 0.3rem;
-    border-radius: var(--radius-pill);
-    background: var(--sena-azul);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 1.6rem;
+    background: rgb(0 50 77 / 0.62);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
     box-shadow:
-      0 14px 30px -14px rgb(0 0 0 / 0.6),
-      inset 0 0 0 1px rgb(255 255 255 / 0.08);
+      0 18px 36px -18px rgb(0 0 0 / 0.7),
+      inset 0 1px 0 rgb(255 255 255 / 0.1);
   }
 
   .tabbar__brand {
@@ -131,8 +129,8 @@ const icons: Record<string, string> = {
     flex: none;
     display: grid;
     place-items: center;
-    width: 3.4rem;
-    height: 3.4rem;
+    width: 3.2rem;
+    height: 3.2rem;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.5);
@@ -144,7 +142,8 @@ const icons: Record<string, string> = {
   }
 
   .tabbar__brand:focus-visible,
-  .tabbar__link:focus-visible {
+  .tabbar__link:focus-visible,
+  .theme-toggle:focus-visible {
     outline: 3px solid var(--sena-verde-claro);
     outline-offset: 2px;
   }
@@ -159,7 +158,7 @@ const icons: Record<string, string> = {
 
   .tabbar__logo {
     display: block;
-    width: 2.6rem;
+    width: 2.5rem;
     height: auto;
   }
 
@@ -182,28 +181,34 @@ const icons: Record<string, string> = {
     position: relative;
     display: grid;
     justify-items: center;
-    gap: 0.15rem;
+    align-content: center;
+    gap: 0.2rem;
     min-height: 3.4rem;
-    padding: 0.4rem 0.25rem 0.55rem;
-    border-radius: 1.4rem;
-    color: rgb(255 255 255 / 0.82);
-    font-size: 0.8rem;
+    padding: 0.45rem 0.25rem;
+    border-radius: 1.2rem;
+    color: rgb(255 255 255 / 0.75);
+    font-size: 0.78rem;
     font-weight: 500;
     text-decoration: none;
-    transition: color 0.3s var(--ease);
+    transition: color 0.35s var(--ease);
   }
 
-  .tabbar__link:hover,
-  .tabbar__link[aria-current='page'] {
+  .tabbar__link:hover {
     color: #fff;
+  }
+
+  .tabbar__link[aria-current='page'] {
+    color: var(--sena-verde-claro);
   }
 
   .tabbar__icon {
     position: relative;
     display: block;
-    width: 1.45rem;
-    height: 1.45rem;
-    transition: transform 0.4s var(--ease-out);
+    width: 1.5rem;
+    height: 1.5rem;
+    transition:
+      transform 0.4s var(--ease-out),
+      filter 0.4s var(--ease);
   }
 
   .tabbar__icon svg {
@@ -216,15 +221,15 @@ const icons: Record<string, string> = {
     stroke-linejoin: round;
   }
 
-  .tabbar__link[aria-current='page'] .tabbar__icon svg {
-    fill: rgb(255 255 255 / 0.15);
+  /* El ícono de la página actual brilla como bajo la luz de la lámpara. */
+  .tabbar__link[aria-current='page'] .tabbar__icon {
+    filter: drop-shadow(0 0 6px rgb(142 224 90 / 0.85));
   }
 
   .tabbar__link:hover .tabbar__icon {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
   }
 
-  /* Punto verde de aviso en Contacto, como el de la referencia. */
   .tabbar__badge {
     position: absolute;
     top: -2px;
@@ -243,41 +248,23 @@ const icons: Record<string, string> = {
     white-space: nowrap;
   }
 
-  /* Punto bajo la etiqueta de la página actual. */
-  .tabbar__dot {
-    position: absolute;
-    bottom: 0.2rem;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    margin-left: -2.5px;
-    border-radius: 50%;
-    background: var(--sena-verde-claro);
-    transform: scale(0);
-    transition: transform 0.35s var(--ease-out);
-  }
-
-  .tabbar__link[aria-current='page'] .tabbar__dot {
-    transform: scale(1);
-  }
-
-  /* Pestaña que marca la página actual y sigue al puntero; la mueve navigation.ts. */
+  /*
+   * Lámpara: una franja verde en el borde superior y un haz de luz que baja hasta el ícono.
+   * navigation.ts la mueve al enlace señalado y la devuelve a la página actual.
+   */
   .tabbar__indicator {
     position: absolute;
-    top: 0;
+    top: -0.3rem;
     left: 0;
     z-index: -1;
     width: var(--w, 0);
-    height: var(--h, 0);
-    border-radius: 1.4rem;
-    background: linear-gradient(180deg, rgb(57 169 0 / 0.32), rgb(57 169 0 / 0.12));
-    box-shadow: inset 0 0 0 2px var(--sena-verde);
+    height: calc(var(--h, 0) + 0.3rem);
     opacity: 0;
-    transform: translate(var(--x, 0), var(--y, 0));
+    transform: translateX(var(--x, 0));
     transition:
-      transform 0.5s var(--ease-out),
-      width 0.5s var(--ease-out),
-      opacity 0.25s var(--ease);
+      transform 0.55s var(--ease-out),
+      width 0.55s var(--ease-out),
+      opacity 0.3s var(--ease);
     pointer-events: none;
   }
 
@@ -285,44 +272,149 @@ const icons: Record<string, string> = {
     opacity: 1;
   }
 
-  /* Sin JavaScript, la página actual se marca con un fondo fijo. */
-  :global(html:not(.js)) .tabbar__link[aria-current='page'] {
-    background: rgb(57 169 0 / 0.25);
-    box-shadow: inset 0 0 0 2px var(--sena-verde);
+  .tabbar__indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(2.6rem, 60%);
+    height: 4px;
+    border-radius: 0 0 4px 4px;
+    background: var(--sena-verde);
+    box-shadow:
+      0 0 10px 1px rgb(57 169 0 / 0.9),
+      0 0 22px 4px rgb(142 224 90 / 0.45);
+    translate: -50% 0;
   }
 
-  @media (max-width: 30rem) {
+  .tabbar__beam {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: min(4.6rem, 100%);
+    height: 85%;
+    background: linear-gradient(180deg, rgb(57 169 0 / 0.5), rgb(57 169 0 / 0.12) 60%, transparent);
+    clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
+    translate: -50% 0;
+  }
+
+  /* Sin JavaScript, la página actual se marca con un fondo fijo. */
+  :global(html:not(.js)) .tabbar__link[aria-current='page'] {
+    background: rgb(57 169 0 / 0.22);
+  }
+
+  /* ---------- Botón de modo claro / oscuro ---------- */
+  .theme-toggle {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.08);
+    color: #ffd76a;
+    cursor: pointer;
+    transition:
+      background-color 0.3s var(--ease),
+      color 0.5s var(--ease),
+      transform 0.4s var(--ease-out);
+  }
+
+  .theme-toggle[hidden] {
+    display: none;
+  }
+
+  .theme-toggle:hover {
+    background: rgb(255 255 255 / 0.16);
+    transform: rotate(-12deg) scale(1.05);
+  }
+
+  .theme-toggle[aria-pressed='true'] {
+    color: #cfe9ff;
+  }
+
+  .theme-toggle__svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    overflow: visible;
+  }
+
+  .theme-toggle__core {
+    fill: currentColor;
+    transform-origin: center;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .theme-toggle__bite {
+    transition:
+      cx 0.6s var(--ease-out),
+      cy 0.6s var(--ease-out);
+  }
+
+  .theme-toggle__rays {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transform-origin: center;
+    transition:
+      transform 0.6s var(--ease-out),
+      opacity 0.4s var(--ease);
+  }
+
+  /* Modo oscuro: el sol se vuelve luna (una mordida tapa el círculo y los rayos se esconden). */
+  .theme-toggle[aria-pressed='true'] .theme-toggle__core {
+    transform: scale(1.55);
+  }
+
+  .theme-toggle[aria-pressed='true'] .theme-toggle__bite {
+    cx: 16;
+    cy: 8;
+  }
+
+  .theme-toggle[aria-pressed='true'] .theme-toggle__rays {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.4);
+  }
+
+  /* En móvil solo íconos, como la barra de referencia; el nombre sigue disponible para lectores. */
+  @media (max-width: 40rem) {
     .tabbar {
-      gap: 0.2rem;
+      gap: 0.15rem;
     }
 
     .tabbar__brand {
-      width: 3rem;
-      height: 3rem;
+      width: 2.9rem;
+      height: 2.9rem;
     }
 
     .tabbar__logo {
-      width: 2.2rem;
+      width: 2.1rem;
     }
 
     .tabbar__link {
-      font-size: 0.72rem;
+      min-height: 3rem;
+    }
+
+    .tabbar__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .theme-toggle {
+      width: 2.75rem;
+      height: 2.75rem;
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .site-header__glow--a {
-      animation: glow-a 14s ease-in-out infinite alternate;
-    }
-
-    .site-header__glow--b {
-      animation: glow-b 18s ease-in-out infinite alternate;
-    }
-
-    .site-header::after {
-      animation: header-line 6s linear infinite;
-    }
-
     .tabbar {
       animation: bar-in 0.8s var(--ease-out) backwards;
     }
@@ -330,6 +422,10 @@ const icons: Record<string, string> = {
     .tabbar__list > li:not(.tabbar__indicator) {
       animation: item-in 0.6s var(--ease-out) backwards;
       animation-delay: calc(250ms + var(--i, 0) * 80ms);
+    }
+
+    .tabbar__beam {
+      animation: beam 3.2s ease-in-out infinite;
     }
 
     .tabbar__logo {
@@ -348,23 +444,34 @@ const icons: Record<string, string> = {
     .tabbar__link:hover .tabbar__icon {
       animation: icon-hop 0.6s var(--ease-out);
     }
-  }
 
-  @keyframes glow-a {
-    to {
-      transform: translateX(40vw);
+    /* Destello en anillo al cambiar de tema. */
+    .theme-toggle.is-bursting::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      box-shadow: 0 0 18px 4px currentColor;
+      animation: burst 0.8s var(--ease-out) forwards;
+      pointer-events: none;
+    }
+
+    .theme-toggle.is-bursting .theme-toggle__svg {
+      animation: toggle-spin 0.8s var(--ease-out);
     }
   }
 
-  @keyframes glow-b {
+  @keyframes burst {
     to {
-      transform: translateX(-35vw);
+      opacity: 0;
+      transform: scale(2.6);
     }
   }
 
-  @keyframes header-line {
-    to {
-      background-position: -200% 0;
+  @keyframes toggle-spin {
+    from {
+      transform: rotate(-180deg) scale(0.6);
     }
   }
 
@@ -379,6 +486,12 @@ const icons: Record<string, string> = {
     from {
       opacity: 0;
       transform: translateY(10px);
+    }
+  }
+
+  @keyframes beam {
+    50% {
+      opacity: 0.65;
     }
   }
 

@@ -80,13 +80,14 @@ test('la barra de navegación queda fija arriba al bajar y se ve completa en mó
 test('la portada se anima sin el logo y su animación se puede pausar', async ({ page }) => {
   await page.goto('/');
   const hero = page.locator('[data-hero]');
-  await expect(hero.locator('.hero__petals')).toBeVisible();
+  await expect(hero.locator('.hero__aurora').first()).toBeAttached();
+  await expect(hero.locator('.hero__petals')).toHaveCount(0);
   await expect(hero.locator('img')).toHaveCount(0);
   const pause = hero.getByRole('button', { name: 'Pausar animación de la portada' });
   await pause.click();
   await expect(hero).toHaveClass(/is-paused/);
   await expect(pause).toHaveAttribute('aria-pressed', 'true');
-  const state = await hero.locator('.hero__orbit--1').evaluate((el) => getComputedStyle(el).animationPlayState);
+  const state = await hero.locator('.hero__fly').first().evaluate((el) => getComputedStyle(el).animationPlayState);
   expect(state).toContain('paused');
 });
 
@@ -372,3 +373,31 @@ test('la pantalla de carga sale una sola vez por sesión y no bloquea clics', as
   await page.goto('/galeria/');
   await expect(page.locator('html')).not.toHaveClass(/preload/);
 });
+
+test('el botón de tema cambia a modo oscuro, se recuerda y vuelve a claro', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: 'Modo oscuro' });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await page.goto('/galeria/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.getByRole('button', { name: 'Modo oscuro' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(bg).not.toBe('rgb(255, 255, 255)');
+});
+
+for (const path of ['/', '/programas/', '/galeria/', '/contacto/']) {
+  test(`${path} en modo oscuro no tiene violaciones axe`, async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('payande-tema', 'dark'));
+    await page.goto(path);
+    await revealAll(page);
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+    expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
+  });
+}

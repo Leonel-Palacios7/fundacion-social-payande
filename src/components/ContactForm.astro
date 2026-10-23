@@ -133,7 +133,7 @@ import { site } from '../data/site.ts';
   }
 
   .field:focus-within > label {
-    color: var(--verde-700);
+    color: var(--ink-accent);
   }
 
   .contact-form__actions {
@@ -203,7 +203,7 @@ import { site } from '../data/site.ts';
 
   .form-sent__title {
     font-size: var(--fs-md);
-    color: var(--verde-800);
+    color: var(--ink-accent);
   }
 
   .form-sent__check {
@@ -211,7 +211,7 @@ import { site } from '../data/site.ts';
     width: 3.25rem;
     height: 3.25rem;
     fill: none;
-    stroke: var(--verde-700);
+    stroke: var(--ink-accent);
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -279,7 +279,7 @@ import { site } from '../data/site.ts';
     padding: 0.65rem 0.9rem;
     border: 1.5px solid #8aa79a;
     border-radius: var(--radius-sm);
-    background: #fff;
+    background: var(--color-card);
     font: inherit;
     font-size: 1rem;
     transition:
@@ -291,13 +291,13 @@ import { site } from '../data/site.ts';
   .field input:not([type='checkbox']):hover,
   .field select:hover,
   .field textarea:hover {
-    border-color: var(--verde-700);
+    border-color: var(--ink-accent);
   }
 
   .field input:not([type='checkbox']):focus,
   .field select:focus,
   .field textarea:focus {
-    border-color: var(--verde-700);
+    border-color: var(--ink-accent);
     box-shadow: 0 0 0 4px rgb(94 189 145 / 0.25);
   }
 
@@ -314,7 +314,7 @@ import { site } from '../data/site.ts';
 
   .field [aria-invalid='true'] {
     border-color: var(--color-error) !important;
-    background: #fffafa;
+    background: var(--color-error-bg);
   }
 
   .field__hint {

@@ -80,7 +80,7 @@ import { serviceIcons } from '../lib/service-icons.ts';
     align-items: stretch;
     gap: 0;
     border: 1px solid var(--color-border);
-    background: #fff;
+    background: var(--color-card);
     box-shadow: var(--shadow-md);
   }
 
@@ -118,7 +118,7 @@ import { serviceIcons } from '../lib/service-icons.ts';
     width: 2.5rem;
     height: 2.5rem;
     fill: none;
-    stroke: var(--turquesa-700);
+    stroke: var(--color-link);
     stroke-width: 1.4;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -149,14 +149,14 @@ import { serviceIcons } from '../lib/service-icons.ts';
     font-size: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
     letter-spacing: -0.01em;
     text-transform: uppercase;
-    color: var(--verde-900);
+    color: var(--ink-strong);
   }
 
   .editorial__rule {
     width: 100%;
     margin: 0;
     border: 0;
-    border-top: 2px solid var(--verde-900);
+    border-top: 2px solid var(--ink-strong);
   }
 
   .editorial__meta {
@@ -184,7 +184,7 @@ import { serviceIcons } from '../lib/service-icons.ts';
     font-weight: 700;
     font-size: clamp(6rem, 4rem + 10vw, 12rem);
     line-height: 1;
-    color: var(--verde-50);
+    color: var(--tint-50);
     z-index: -1;
     pointer-events: none;
   }
@@ -231,12 +231,12 @@ import { serviceIcons } from '../lib/service-icons.ts';
     padding: 0.4rem 1rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-pill);
-    color: var(--verde-800);
+    color: var(--ink-accent);
     font-weight: 500;
     text-decoration: none;
   }
 
   .program-index a:hover {
-    background: var(--verde-50);
+    background: var(--tint-50);
   }
 </style>

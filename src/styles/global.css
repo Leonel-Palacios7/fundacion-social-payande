@@ -20,6 +20,7 @@ html {
 
 body {
   margin: 0;
+  transition: background-color 0.4s var(--ease), color 0.4s var(--ease);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -132,7 +133,7 @@ textarea {
 .eyebrow {
   display: inline-block;
   margin-bottom: var(--space-3);
-  color: var(--turquesa-700);
+  color: var(--color-link);
   font-size: var(--fs-sm);
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -148,7 +149,7 @@ textarea {
 .script {
   font-family: var(--font-script);
   font-weight: 400;
-  color: var(--verde-700);
+  color: var(--ink-accent);
   letter-spacing: 0.01em;
 }
 
@@ -212,14 +213,14 @@ textarea {
 }
 
 .btn--outline {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--ink-accent);
+  color: var(--ink-accent);
   background: transparent;
 }
 
 .btn--outline:hover {
-  background: var(--verde-100);
-  color: var(--verde-900);
+  background: var(--tint-100);
+  color: var(--ink-strong);
 }
 
 .btn--light {
@@ -424,6 +425,17 @@ textarea {
 
   ::view-transition-new(root) {
     animation: vt-in 520ms var(--ease-out) both;
+  }
+
+  /* Cambio de tema: theme.ts revela el nuevo tema con un círculo; sin desvanecer. */
+  .theme-switching::view-transition-old(*),
+  .theme-switching::view-transition-new(*) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  .theme-switching::view-transition-group(*) {
+    animation: none;
   }
 
   @keyframes vt-out {
