@@ -24,15 +24,20 @@ ErrorDocument 404 /404.html
 
 # Compresión de texto
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript application/json application/manifest+json image/svg+xml
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/javascript application/javascript application/json application/manifest+json image/svg+xml image/x-icon image/vnd.microsoft.icon
 </IfModule>
 
-# Caché: íconos y recursos de la raíz por 7 días (_astro/.htaccess los guarda un año)
+# Caché. Los archivos de /_astro/ llevan un hash en el nombre (si cambian, cambia el nombre): un año.
+# Íconos y recursos de la raíz: 7 días. Páginas HTML, listas de fotos, manifiesto y robots: siempre se revalidan.
+<IfModule mod_setenvif.c>
+  SetEnvIf Request_URI "^/_astro/" PAYANDE_HASHED
+</IfModule>
 <IfModule mod_headers.c>
-  <FilesMatch "\.(avif|webp|jpe?g|png|svg|woff2|css|js)$">
-    Header set Cache-Control "public, max-age=604800"
+  <FilesMatch "\.(avif|webp|jpe?g|png|ico|svg|woff2|css|js)$">
+    Header set Cache-Control "public, max-age=604800" env=!PAYANDE_HASHED
+    Header set Cache-Control "public, max-age=31536000, immutable" env=PAYANDE_HASHED
   </FilesMatch>
-  <FilesMatch "\.(html|webmanifest|txt)$">
+  <FilesMatch "\.(html|json|webmanifest|txt)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
   Header always set X-Content-Type-Options "nosniff"

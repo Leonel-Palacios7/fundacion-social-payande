@@ -306,9 +306,14 @@ test('las tarjetas de programas muestran su foto al pasar el cursor', async ({ p
   await page.goto('/');
   test.skip(isMobile(page), 'El efecto es de puntero');
   const card = page.locator('.service').first();
-  await card.scrollIntoViewIfNeeded();
-  await card.hover();
-  await expect(card.locator('.service__photo')).toHaveCSS('opacity', '1');
+  // Sin desplazamiento suave: si la página sigue moviéndose, la tarjeta se sale de debajo del puntero.
+  await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await expect(card).toHaveClass(/is-visible/);
+  // Con el equipo muy cargado el navegador de pruebas a veces pierde el hover: se reintenta.
+  await expect(async () => {
+    await card.hover();
+    await expect(card.locator('.service__photo')).toHaveCSS('opacity', '1', { timeout: 2000 });
+  }).toPass({ timeout: 15000 });
 });
 
 test('el botón de volver arriba aparece al bajar y regresa al inicio', async ({ page }) => {
