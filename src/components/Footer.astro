@@ -1,16 +1,7 @@
 ---
 import { withBase } from '../lib/paths.ts';
 import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
 import logoBlanco from '../assets/brand/logo-blanco.png';
-import tronco from '../assets/brand/footer-logo/tronco.png';
-import rama1 from '../assets/brand/footer-logo/rama-1.png';
-import rama2 from '../assets/brand/footer-logo/rama-2.png';
-import rama3 from '../assets/brand/footer-logo/rama-3.png';
-import rama4 from '../assets/brand/footer-logo/rama-4.png';
-import rama5 from '../assets/brand/footer-logo/rama-5.png';
-import rama6 from '../assets/brand/footer-logo/rama-6.png';
-import rama7 from '../assets/brand/footer-logo/rama-7.png';
 import { navItems, site, socialLinks, type SocialLink } from '../data/site.ts';
 import { services } from '../data/services.ts';
 import { serviceIcons } from '../lib/service-icons.ts';
@@ -41,17 +32,6 @@ const socialIcons: Record<SocialLink['id'], string> = {
     '<path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 7.8c-.3 0-.7.1-.9.5-.3.4-.8 1.2-.3 2.6.6 1.6 2.4 3.6 4.6 4.4 1.3.5 2.1.3 2.6-.1.4-.3.6-.9.6-1.2 0-.2-.1-.3-.3-.4l-1.6-.8c-.2-.1-.4 0-.5.1l-.6.8c-.1.1-.3.2-.5.1a6 6 0 0 1-2.8-2.5c-.1-.2 0-.3.1-.4l.5-.6c.1-.1.1-.3 0-.5l-.7-1.7c-.1-.3-.3-.3-.5-.3z" fill="currentColor"/>',
 };
 
-// Logo blanco por piezas: el tronco y el nombre quedan fijos y la copa se arma y desarma.
-// Cada rama: imagen, dirección hacia donde se separa [x, y] y su centro en % del logo.
-const ramas: [ImageMetadata, number, number, number, number][] = [
-  [rama1, 0.9, 0.43, 79.6, 35.1],
-  [rama2, 0.22, 0.97, 54.4, 39.5],
-  [rama3, -0.62, 0.78, 32.8, 39.4],
-  [rama4, -1, 0, 15.7, 27.9],
-  [rama5, -0.62, -0.78, 32.4, 10.2],
-  [rama6, 0.22, -0.97, 54.3, 9.1],
-  [rama7, 0.9, -0.43, 70.9, 17.9],
-];
 ---
 
 <footer class="site-footer" data-footer>
@@ -78,23 +58,12 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     <div class="container site-footer__grid">
       <div class="site-footer__brand" data-reveal>
         <a class="site-footer__logo" href={withBase('/')} aria-label={`${site.name}, ir al inicio`}>
-          <span class="footer-tree" style={`--logo:url(${logoBlanco.src})`}>
-            <span class="footer-tree__halo" aria-hidden="true"></span>
-            <Image src={logoBlanco} alt="" width={140} height={162} densities={[1, 2]} class="footer-tree__full" />
-            <Image src={tronco} alt="" width={140} height={162} densities={[1, 2]} class="footer-tree__base" />
-            {
-              ramas.map(([src, dx, dy, ox, oy], i) => (
-                <Image
-                  src={src}
-                  alt=""
-                  width={140}
-                  height={162}
-                  densities={[1, 2]}
-                  class="footer-tree__rama"
-                  style={`--dx:${dx};--dy:${dy};--ox:${ox}%;--oy:${oy}%;--i:${i}`}
-                />
-              ))
-            }
+          <span class="footer-tree" style={`--logo:url(${logoBlanco.src})`} data-footer-tree>
+            <span class="footer-tree__card">
+              <span class="footer-tree__halo" aria-hidden="true"></span>
+              <span class="footer-tree__shadow" aria-hidden="true"></span>
+              <Image src={logoBlanco} alt="" width={140} height={162} densities={[1, 2]} class="footer-tree__full" />
+            </span>
           </span>
         </a>
         <p class="site-footer__tagline">{site.tagline}.</p>
@@ -180,6 +149,34 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
       threshold: 0.15,
     }).observe(footer);
   }
+
+  // Logo del pie en 3D: se inclina suavemente hacia el puntero y un brillo lo recorre.
+  const tree = document.querySelector<HTMLElement>('[data-footer-tree]');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (tree && fine && !calm) {
+    let frame = 0;
+    tree.addEventListener('pointermove', (event) => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const box = tree.getBoundingClientRect();
+        const x = (event.clientX - box.left) / box.width - 0.5;
+        const y = (event.clientY - box.top) / box.height - 0.5;
+        tree.style.setProperty('--ry', `${(x * 22).toFixed(2)}deg`);
+        tree.style.setProperty('--rx', `${(y * -18).toFixed(2)}deg`);
+        tree.style.setProperty('--gx', `${((x + 0.5) * 100).toFixed(1)}%`);
+        tree.classList.add('is-tilting');
+      });
+    });
+    tree.addEventListener('pointerleave', () => {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      tree.classList.remove('is-tilting');
+      tree.style.removeProperty('--rx');
+      tree.style.removeProperty('--ry');
+    });
+  }
 </script>
 
 <style>
@@ -256,62 +253,76 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     margin-bottom: var(--space-4);
   }
 
-  /* Piezas del logo apiladas en el mismo lugar, con un halo suave detrás. */
+  /*
+   * Logo del pie en 3D: una tarjeta con profundidad (halo al fondo, sombra en medio y el logo
+   * al frente) que flota despacio y, con el mouse, se inclina hacia el puntero.
+   */
   .footer-tree {
     position: relative;
     display: block;
     width: clamp(96px, 70px + 5vw, 140px);
     aspect-ratio: 450 / 522;
-    isolation: isolate;
+    perspective: 700px;
   }
 
-  .footer-tree :global(img) {
+  .footer-tree__card {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .footer-tree.is-tilting .footer-tree__card {
+    transition-duration: 0.35s;
+  }
+
+  .footer-tree__full {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
+    transform: translateZ(24px);
+  }
+
+  /* Sombra del propio logo, detrás y desplazada: da la sensación de volumen. */
+  .footer-tree__shadow {
+    position: absolute;
+    inset: 0;
+    background: rgb(3 20 15 / 0.38);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+    transform: translate3d(3px, 6px, 0) scale(0.98);
+    filter: blur(6px);
   }
 
   .footer-tree__halo {
     position: absolute;
     inset: -22%;
-    z-index: -1;
     border-radius: 50%;
     background:
-      radial-gradient(circle at 50% 42%, rgb(142 202 109 / 0.35), transparent 58%),
-      radial-gradient(circle at 50% 60%, rgb(51 184 184 / 0.22), transparent 66%);
-    filter: blur(6px);
+      radial-gradient(circle at 50% 42%, rgb(142 202 109 / 0.32), transparent 58%),
+      radial-gradient(circle at 50% 60%, rgb(51 184 184 / 0.2), transparent 66%);
+    transform: translateZ(-30px);
     pointer-events: none;
   }
 
-  /* Destello que recorre la silueta del árbol cuando la copa vuelve a armarse. */
-  .footer-tree::after {
+  /* Brillo suave que recorre la silueta del árbol. */
+  .footer-tree__card::after {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 2;
-    background: linear-gradient(105deg, transparent 38%, rgb(214 255 190 / 0.95) 50%, transparent 62%) 130% 0 / 260% 100% no-repeat;
+    background: linear-gradient(105deg, transparent 38%, rgb(230 255 214 / 0.75) 50%, transparent 62%) var(--gx, 130%) 0 / 260% 100% no-repeat;
     -webkit-mask: var(--logo) center / contain no-repeat;
     mask: var(--logo) center / contain no-repeat;
+    transform: translateZ(25px);
     opacity: 0;
+    transition: opacity 0.5s ease;
     pointer-events: none;
   }
 
-  /*
-   * Quieto se ve el logo completo (encima de todo); mientras se anima se esconde y
-   * quedan el tronco fijo y las ramas sueltas.
-   */
-  .footer-tree__full {
-    z-index: 1;
-    filter: drop-shadow(0 4px 14px rgb(0 0 0 / 0.25));
-  }
-
-  .footer-tree__base {
-    opacity: 0;
-  }
-
-  .footer-tree__rama {
-    transform-origin: var(--ox) var(--oy);
+  .footer-tree.is-tilting .footer-tree__card::after {
+    opacity: 0.8;
   }
 
   .site-footer__tagline {
@@ -598,51 +609,9 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
       animation: title-line 1.2s var(--ease-out) 300ms both;
     }
 
-    /* La copa se abre como una flor, pieza por pieza, y vuelve a armarse con un destello;
-       el tronco no se mueve. Al entrar el pie se repite 3 veces; con el cursor, sin parar. */
-    .is-active .footer-tree__rama {
-      animation: rama-desarme 4.8s var(--ease-out) calc(600ms + var(--i) * 70ms) 3 both;
-    }
-
-    .is-active .footer-tree__base {
-      animation: tree-show 4.8s linear 600ms 3;
-    }
-
-    .is-active .footer-tree__full {
-      animation: tree-hide 4.8s linear 600ms 3;
-    }
-
-    .is-active .footer-tree__halo {
-      animation: halo-pulse 4.8s ease-in-out 600ms 3;
-    }
-
-    .is-active .footer-tree::after {
-      animation: tree-shine 4.8s ease-in-out 600ms 3;
-    }
-
-    .site-footer__logo:hover .footer-tree__rama,
-    .site-footer__logo:focus-visible .footer-tree__rama {
-      animation: rama-desarme 4.8s var(--ease-out) calc(var(--i) * 70ms) infinite both;
-    }
-
-    .site-footer__logo:hover .footer-tree__base,
-    .site-footer__logo:focus-visible .footer-tree__base {
-      animation: tree-show 4.8s linear infinite;
-    }
-
-    .site-footer__logo:hover .footer-tree__full,
-    .site-footer__logo:focus-visible .footer-tree__full {
-      animation: tree-hide 4.8s linear infinite;
-    }
-
-    .site-footer__logo:hover .footer-tree__halo,
-    .site-footer__logo:focus-visible .footer-tree__halo {
-      animation: halo-pulse 4.8s ease-in-out infinite;
-    }
-
-    .site-footer__logo:hover .footer-tree::after,
-    .site-footer__logo:focus-visible .footer-tree::after {
-      animation: tree-shine 4.8s ease-in-out infinite;
+    /* Al entrar el pie, el logo flota y gira con calma (3 veces, luego se queda quieto). */
+    .is-active .footer-tree:not(.is-tilting) .footer-tree__card {
+      animation: tree-float 7s ease-in-out 600ms 3;
     }
 
     :global(.js) .site-footer__list li {
@@ -714,77 +683,16 @@ const ramas: [ImageMetadata, number, number, number, number][] = [
     }
   }
 
-  @keyframes rama-desarme {
-    0%,
-    6% {
-      transform: none;
-      filter: none;
-    }
-    34% {
-      transform: translate(calc(var(--dx) * 20px), calc(var(--dy) * 20px)) scale(1.2) rotate(calc(var(--dx) * 14deg));
-      filter: drop-shadow(0 0 6px rgb(142 202 109 / 0.9)) blur(0.4px);
-    }
-    48% {
-      transform: translate(calc(var(--dx) * 22px), calc(var(--dy) * 22px)) scale(1.24) rotate(calc(var(--dx) * 16deg));
-      filter: drop-shadow(0 0 8px rgb(51 184 184 / 0.8));
-    }
-    68% {
-      transform: translate(calc(var(--dx) * -2px), calc(var(--dy) * -2px)) scale(0.97);
-      filter: drop-shadow(0 0 3px rgb(142 202 109 / 0.6));
-    }
-    78%,
-    100% {
-      transform: none;
-      filter: none;
-    }
-  }
-
-  @keyframes tree-show {
+  @keyframes tree-float {
     0%,
     100% {
-      opacity: 0;
+      transform: rotateX(0deg) rotateY(0deg) translateY(0);
     }
-    3%,
-    88% {
-      opacity: 1;
+    30% {
+      transform: rotateX(4deg) rotateY(-14deg) translateY(-4px);
     }
-  }
-
-  @keyframes tree-hide {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    3%,
-    88% {
-      opacity: 0;
-    }
-  }
-
-  @keyframes halo-pulse {
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    45% {
-      transform: scale(1.35);
-      opacity: 0.6;
-    }
-  }
-
-  @keyframes tree-shine {
-    0%,
-    86% {
-      opacity: 0;
-      background-position: 130% 0;
-    }
-    89% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-      background-position: -30% 0;
+    70% {
+      transform: rotateX(-3deg) rotateY(12deg) translateY(-2px);
     }
   }
 
