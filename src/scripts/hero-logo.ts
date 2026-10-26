@@ -19,11 +19,16 @@ export function initHero(root: HTMLElement): void {
   }
 
   let scrollFrame = 0;
+  let last = '';
   const onScroll = () => {
-    cancelAnimationFrame(scrollFrame);
+    if (scrollFrame) return;
     scrollFrame = requestAnimationFrame(() => {
-      const progress = Math.min(1, Math.max(0, window.scrollY / root.offsetHeight));
-      root.style.setProperty('--scroll', progress.toFixed(3));
+      scrollFrame = 0;
+      const progress = Math.min(1, Math.max(0, window.scrollY / root.offsetHeight)).toFixed(3);
+      // Solo se escribe cuando cambia: más abajo de la portada no se toca el estilo.
+      if (progress === last) return;
+      last = progress;
+      root.style.setProperty('--scroll', progress);
     });
   };
   window.addEventListener('scroll', onScroll, { passive: true });

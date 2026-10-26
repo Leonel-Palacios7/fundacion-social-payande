@@ -36,3 +36,21 @@ export function initHeaderOnScroll(): void {
     header.classList.toggle('is-scrolled', !entry?.isIntersecting);
   }).observe(sentinel);
 }
+
+/**
+ * Las secciones con animaciones continuas (portada, testimonios, cinta, carrusel 3D, pie)
+ * se pausan mientras no se ven: así el navegador no gasta trabajo en lo que está fuera de pantalla.
+ */
+export function initMotionVisibility(): void {
+  if (!('IntersectionObserver' in window)) return;
+  const sections = document.querySelectorAll<HTMLElement>(
+    '[data-hero], [data-testimonials], [data-marquee], [data-ring], [data-footer], .contact-hero, .page-hero',
+  );
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) entry.target.classList.toggle('is-offscreen', !entry.isIntersecting);
+    },
+    { rootMargin: '120px 0px' },
+  );
+  sections.forEach((el) => observer.observe(el));
+}

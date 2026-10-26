@@ -69,6 +69,11 @@ const entries: ReadonlyArray<[id: string, category: PhotoCategory, alt: string]>
   ['baloncesto', 'jovenes', 'Jóvenes con balones de baloncesto posan junto a integrantes de la Fundación.'],
   ['cocina-nueva', 'vivienda', 'Cocina adecuada con mesón enchapado en baldosa blanca y lavaplatos nuevo.'],
   ['bano-nuevo', 'vivienda', 'Baño nuevo con sanitario, lavamanos y paredes enchapadas en blanco.'],
+  ['agua-cocina-equipo', 'vivienda', 'Integrantes de la Fundación y de la Alcaldía de Quebradanegra junto a dos señoras en su cocina mejorada, con filtro de agua.'],
+  ['agua-cocina-senora', 'vivienda', 'Una señora sonríe en su cocina renovada, junto al mesón enchapado y su nuevo filtro de agua potable.'],
+  ['agua-cocina-visita', 'vivienda', 'Un señor de la vereda junto a visitantes en su cocina mejorada, con el filtro de agua sobre el mesón.'],
+  ['morrales-familias', 'educacion', 'Familias, niñas y niños con morrales nuevos de la Fundación posan frente a una casa de pared azul.'],
+  ['libros-saberes', 'educacion', 'Estudiantes con uniforme muestran los libros «Saberes integrados» que recibieron, junto a su docente.'],
 ];
 
 /** Fotos de portada: grupos grandes con niñas, niños y jóvenes (elegidas con Leonel). */

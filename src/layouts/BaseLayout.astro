@@ -83,10 +83,11 @@ const ogImageUrl = Astro.site ? new URL(ogImage.src, Astro.site).href : ogImage.
     <BackToTop />
     <Cursor />
     <script>
-      import { initHeaderOnScroll, initReveal } from '../scripts/reveal.ts';
+      import { initHeaderOnScroll, initMotionVisibility, initReveal } from '../scripts/reveal.ts';
       import { initRandomPhotos } from '../scripts/random-photos.ts';
       initReveal();
       initHeaderOnScroll();
+      initMotionVisibility();
       void initRandomPhotos();
     </script>
   </body>

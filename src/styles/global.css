@@ -12,6 +12,14 @@ html {
   scroll-padding-top: calc(var(--header-h) + var(--space-4));
 }
 
+/* Secciones fuera de pantalla: sus animaciones esperan quietas (ver initMotionVisibility). */
+.is-offscreen,
+.is-offscreen *,
+.is-offscreen *::before,
+.is-offscreen *::after {
+  animation-play-state: paused !important;
+}
+
 /* Pantallas grandes: el contenido gana ancho y, en las muy grandes, todo escala un poco. */
 @media (min-width: 100em) {
   :root {

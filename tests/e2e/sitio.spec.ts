@@ -113,7 +113,7 @@ test('la galería filtra, abre el visor y navega con el teclado', async ({ page 
   await page.goto('/galeria/');
   const items = page.locator('.gallery__item:visible');
   const total = await items.count();
-  expect(total).toBe(39);
+  expect(total).toBe(44);
 
   await page.getByRole('button', { name: 'Jóvenes y deporte' }).click();
   await expect(page.getByRole('button', { name: 'Jóvenes y deporte' })).toHaveAttribute('aria-pressed', 'true');
@@ -135,7 +135,7 @@ test('la galería filtra, abre el visor y navega con el teclado', async ({ page 
 test('la galería acepta un filtro por URL', async ({ page }) => {
   await page.goto('/galeria/?programa=vivienda');
   await expect(page.getByRole('button', { name: 'Vivienda y personas mayores' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.gallery__item:visible')).toHaveCount(8);
+  await expect(page.locator('.gallery__item:visible')).toHaveCount(11);
 });
 
 test('las fotos cambian al azar sin repetirse en la página', async ({ page }) => {
@@ -415,8 +415,9 @@ test('la barra muestra los enlaces solo con texto y caben en una línea desde 32
     await page.setViewportSize({ width, height: 800 });
     const fits = await page.locator('.tabbar__list').evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
     expect(fits, `ancho ${width}px`).toBe(true);
-    const tops = await nav.locator('.tabbar__link, .tabbar__brand, .theme-toggle').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top / 20)));
-    expect(new Set(tops).size, `una sola línea a ${width}px`).toBe(1);
+    // En una sola línea: los centros verticales de logo, enlaces y botón de tema casi coinciden.
+    const centers = await nav.locator('.tabbar__link, .tabbar__brand, .theme-toggle').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; }));
+    expect(Math.max(...centers) - Math.min(...centers), `una sola línea a ${width}px`).toBeLessThan(8);
   }
 });
 
@@ -455,4 +456,18 @@ test('con movimiento reducido se usa el cursor del sistema', async ({ browser })
   await expect(page.locator('[data-cursor]')).toBeHidden();
   await expect(page.locator('html')).not.toHaveClass(/has-cursor/);
   await context.close();
+});
+
+test('las fotos nuevas de agua potable, morrales y libros están en la galería', async ({ page }) => {
+  await page.goto('/galeria/');
+  for (const alt of ['filtro de agua potable', 'morrales nuevos de la Fundación posan frente a una casa', 'Saberes integrados']) {
+    await expect(page.locator(`.gallery__item img[alt*="${alt}"]`)).toHaveCount(1);
+  }
+});
+
+test('las secciones animadas se pausan fuera de pantalla', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('[data-hero]')).not.toHaveClass(/is-offscreen/);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(page.locator('[data-hero]')).toHaveClass(/is-offscreen/);
 });

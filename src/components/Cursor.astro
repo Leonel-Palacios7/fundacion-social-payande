@@ -28,6 +28,7 @@
     inset: 0;
     z-index: 2147483000;
     pointer-events: none;
+    contain: layout style;
     transition: opacity 0.3s ease;
   }
 
@@ -117,7 +118,6 @@
   .cursor[data-mode='drag'] .cursor__ring {
     border-color: transparent;
     background: linear-gradient(135deg, rgb(57 169 0 / 0.62), rgb(31 162 198 / 0.62));
-    backdrop-filter: blur(2px);
     box-shadow: 0 10px 30px -8px rgb(15 59 46 / 0.5);
   }
 

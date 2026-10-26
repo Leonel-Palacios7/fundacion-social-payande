@@ -388,21 +388,22 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     width: 36vmax;
     aspect-ratio: 1;
     border-radius: 50%;
-    filter: blur(70px);
-    opacity: 0.4;
+    opacity: 0.45;
+    will-change: transform;
   }
 
+  /* Borde suave con degradado radial en vez de filter: blur() (mucho más liviano). */
   .testimonials__blob--a {
     top: -12vmax;
     right: -8vmax;
-    background: var(--brand-verde);
+    background: radial-gradient(closest-side, var(--brand-verde), transparent);
   }
 
   .testimonials__blob--b {
     bottom: -16vmax;
     left: -10vmax;
-    background: var(--brand-azul);
-    opacity: 0.32;
+    background: radial-gradient(closest-side, var(--brand-azul), transparent);
+    opacity: 0.36;
   }
 
   .testimonials__aurora {
@@ -412,9 +413,9 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     width: 150%;
     height: 50%;
     background: linear-gradient(100deg, transparent 10%, rgb(142 202 109 / 0.5) 30%, rgb(51 184 184 / 0.45) 50%, transparent 70%);
-    filter: blur(60px);
-    opacity: 0.45;
-    mix-blend-mode: screen;
+    mask-image: linear-gradient(180deg, transparent, #000 40%, #000 60%, transparent);
+    opacity: 0.5;
+    will-change: transform;
     transform: rotate(-6deg);
   }
 
@@ -457,8 +458,8 @@ const highlights = ['slider-21', 'slider-13', 'slider-3', 'portada-payande-3', '
     border: 1px solid rgb(255 255 255 / 0.16);
     border-left: 6px solid var(--brand-lima);
     border-radius: var(--radius-lg);
-    background: rgb(255 255 255 / 0.07);
-    backdrop-filter: blur(6px);
+    /* Sin backdrop-filter: encima del fondo animado obligaba a repintar en cada cuadro. */
+    background: rgb(255 255 255 / 0.1);
   }
 
   .quote__mark {

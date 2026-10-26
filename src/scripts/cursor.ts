@@ -37,8 +37,12 @@ export function initCursor(): void {
   let mode: Mode = 'default';
   let raf = 0;
   let last = 0;
+  // Qué hay bajo el puntero se revisa una sola vez por cuadro, no en cada evento del mouse.
+  let pending: Element | 'point' | null = null;
 
   const setMode = (next: Mode, text = ''): void => {
+    // Solo se escribe en el DOM cuando el modo cambia, para no recalcular estilos en vano.
+    if (next === mode && label.textContent === text) return;
     mode = next;
     root.dataset.mode = next;
     label.textContent = text;
@@ -73,6 +77,10 @@ export function initCursor(): void {
     last = now;
     const follow = 1 - Math.pow(0.8, frames);
     const grow = 1 - Math.pow(0.78, frames);
+    if (pending) {
+      inspect(pending === 'point' ? document.elementFromPoint(x, y) : pending);
+      pending = null;
+    }
     let cx = x;
     let cy = y;
     if (mode === 'wrap' && target) {
@@ -165,7 +173,7 @@ export function initCursor(): void {
       x = e.clientX;
       y = e.clientY;
       root.classList.remove('is-out');
-      inspect(e.target as Element);
+      pending = e.target as Element;
       wake();
     },
     { passive: true },
@@ -176,7 +184,7 @@ export function initCursor(): void {
     'scroll',
     () => {
       if (root.hidden) return;
-      inspect(document.elementFromPoint(x, y));
+      pending = 'point';
       wake();
     },
     { passive: true },
