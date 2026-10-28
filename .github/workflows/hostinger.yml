@@ -1,0 +1,63 @@
+# Compila el sitio para la raíz del dominio y lo sube por FTP a Hostinger en cada subida a main.
+# Necesita tres secretos del repositorio (Settings → Secrets and variables → Actions):
+#   FTP_SERVER, FTP_USERNAME y FTP_PASSWORD (de hPanel → Archivos → Cuentas FTP).
+# Variables opcionales (misma pantalla, pestaña Variables):
+#   FTP_DIR      carpeta de destino en el servidor; por defecto ./public_html/
+#   FTP_PROTOCOL ftps (por defecto, cifrado) o ftp si Hostinger rechaza el cifrado
+#   SITE_URL     dominio del sitio; por defecto https://fundacionpayande.com
+# Mientras falten los secretos, el flujo no sube nada y lo avisa en el resumen.
+name: Publicar en Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HAS_FTP: ${{ secrets.FTP_SERVER != '' && secrets.FTP_USERNAME != '' && secrets.FTP_PASSWORD != '' }}
+    steps:
+      - name: Comprobar los datos de FTP
+        if: env.HAS_FTP != 'true'
+        run: echo "::notice::Faltan los secretos FTP_SERVER, FTP_USERNAME o FTP_PASSWORD. No se subió nada a Hostinger."
+
+      - uses: actions/checkout@v4
+        if: env.HAS_FTP == 'true'
+
+      - uses: actions/setup-node@v4
+        if: env.HAS_FTP == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+        if: env.HAS_FTP == 'true'
+
+      - run: npm run build
+        if: env.HAS_FTP == 'true'
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://fundacionpayande.com' }}
+          BASE_PATH: /
+
+      - name: Subir a Hostinger
+        if: env.HAS_FTP == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          local-dir: ./dist/
+          server-dir: ${{ vars.FTP_DIR || './public_html/' }}
+          # Solo sube lo que cambió y borra lo que ya no existe en el sitio; nunca toca .well-known (SSL).
+          exclude: |
+            **/.well-known/**
